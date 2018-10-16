@@ -243,6 +243,11 @@
 /* whether -export-dynamic was passed to libtool */
 #cmakedefine DBUS_BUILT_R_DYNAMIC 1
 
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+#cmakedefine _GNU_SOURCE 1
+#endif
+
 // structs
 /* Define to 1 if you have struct cmsgred */
 #cmakedefine    HAVE_CMSGCRED 1

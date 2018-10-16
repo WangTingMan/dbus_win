@@ -197,7 +197,7 @@ if(GLIB2_FOUND)
 endif()
 
 # analogous to AC_USE_SYSTEM_EXTENSIONS in configure.ac
-add_definitions(-D_GNU_SOURCE)
+set(_GNU_SOURCE 1)
 
 # do config checks
 include(ConfigureChecks)
