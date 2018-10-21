@@ -293,7 +293,7 @@ if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
     set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wl,--export-dynamic")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,--export-dynamic")
-    add_definitions(-DDBUS_BUILT_R_DYNAMIC)
+    set(DBUS_BUILT_R_DYNAMIC 1)
 endif()
 
 if(DBUS_WITH_GLIB)

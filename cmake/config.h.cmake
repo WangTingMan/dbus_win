@@ -240,6 +240,9 @@
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_VSNPRINTF 1
 
+/* whether -export-dynamic was passed to libtool */
+#cmakedefine DBUS_BUILT_R_DYNAMIC 1
+
 // structs
 /* Define to 1 if you have struct cmsgred */
 #cmakedefine    HAVE_CMSGCRED 1
