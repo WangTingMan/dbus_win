@@ -71,6 +71,9 @@ check_symbol_exists(prlimit      "sys/resource.h;sys/time.h" HAVE_PRLIMIT)
 check_symbol_exists(setrlimit    "sys/resource.h;sys/time.h" HAVE_SETRLIMIT)
 check_symbol_exists(vasprintf    "stdio.h"                   HAVE_VASPRINTF)
 check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
+check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
+check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
+check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
