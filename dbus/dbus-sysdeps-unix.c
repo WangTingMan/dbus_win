@@ -4796,7 +4796,11 @@ act_on_fds_3_and_up (void (*func) (int fd))
 void
 _dbus_close_all (void)
 {
+#ifdef HAVE_CLOSEFROM
+  closefrom (3);
+#else
   act_on_fds_3_and_up (close_ignore_error);
+#endif
 }
 
 /**
