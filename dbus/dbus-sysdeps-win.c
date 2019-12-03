@@ -1287,7 +1287,7 @@ _dbus_poll_events (DBusPollFD *fds,
 {
   int ret = 0;
   int i;
-  int ready;
+  DWORD ready;
 
 #define DBUS_STACK_WSAEVENTS 256
   WSAEVENT eventsOnStack[DBUS_STACK_WSAEVENTS];
@@ -1338,7 +1338,7 @@ _dbus_poll_events (DBusPollFD *fds,
 
   ready = WSAWaitForMultipleEvents (n_fds, pEvents, FALSE, timeout_milliseconds, FALSE);
 
-  if (DBUS_SOCKET_API_RETURNS_ERROR (ready))
+  if (ready == WSA_WAIT_FAILED)
     {
       DBUS_SOCKET_SET_ERRNO ();
       if (errno != WSAEWOULDBLOCK)
@@ -1350,7 +1350,7 @@ _dbus_poll_events (DBusPollFD *fds,
       _dbus_verbose ("WSAWaitForMultipleEvents: WSA_WAIT_TIMEOUT\n");
       ret = 0;
     }
-  else if (ready >= WSA_WAIT_EVENT_0 && ready < (int)(WSA_WAIT_EVENT_0 + n_fds))
+  else if (ready < (WSA_WAIT_EVENT_0 + n_fds))
     {
       for (i = 0; i < n_fds; i++)
         {
