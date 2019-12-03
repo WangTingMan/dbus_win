@@ -1175,10 +1175,6 @@ _dbus_poll (DBusPollFD *fds,
 
 #if USE_CHRIS_IMPL
 
-#define DBUS_POLL_CHAR_BUFFER_SIZE 2000
-  char msg[DBUS_POLL_CHAR_BUFFER_SIZE];
-  char *msgp;
-
   int ret = 0;
   int i;
   struct timeval tv;
@@ -1192,34 +1188,6 @@ _dbus_poll (DBusPollFD *fds,
   else
     pEvents = eventsOnStack;
 
-
-#ifdef DBUS_ENABLE_VERBOSE_MODE
-  msgp = msg;
-  msgp += sprintf (msgp, "WSAEventSelect: to=%d\n\t", timeout_milliseconds);
-  for (i = 0; i < n_fds; i++)
-    {
-      DBusPollFD *fdp = &fds[i];
-
-
-      if (fdp->events & _DBUS_POLLIN)
-        msgp += sprintf (msgp, "R:%Iu ", fdp->fd.sock);
-
-      if (fdp->events & _DBUS_POLLOUT)
-        msgp += sprintf (msgp, "W:%Iu ", fdp->fd.sock);
-
-      msgp += sprintf (msgp, "E:%Iu\n\t", fdp->fd.sock);
-
-      // FIXME: more robust code for long  msg
-      //        create on heap when msg[] becomes too small
-      if (msgp >= msg + DBUS_POLL_CHAR_BUFFER_SIZE)
-        {
-          _dbus_assert_not_reached ("buffer overflow in _dbus_poll");
-        }
-    }
-
-  msgp += sprintf (msgp, "\n");
-  _dbus_verbose ("%s",msg);
-#endif
   for (i = 0; i < n_fds; i++)
     {
       DBusPollFD *fdp = &fds[i];
@@ -1239,7 +1207,6 @@ _dbus_poll (DBusPollFD *fds,
       pEvents[i] = ev;
     }
 
-
   ready = WSAWaitForMultipleEvents (n_fds, pEvents, FALSE, timeout_milliseconds, FALSE);
 
   if (DBUS_SOCKET_API_RETURNS_ERROR (ready))
@@ -1256,9 +1223,6 @@ _dbus_poll (DBusPollFD *fds,
     }
   else if (ready >= WSA_WAIT_EVENT_0 && ready < (int)(WSA_WAIT_EVENT_0 + n_fds))
     {
-      msgp = msg;
-      msgp += sprintf (msgp, "WSAWaitForMultipleEvents: =%d\n\t", ready);
-
       for (i = 0; i < n_fds; i++)
         {
           DBusPollFD *fdp = &fds[i];
@@ -1277,25 +1241,11 @@ _dbus_poll (DBusPollFD *fds,
           if (ne.lNetworkEvents & (FD_OOB))
             fdp->revents |= _DBUS_POLLERR;
 
-          if (ne.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
-              msgp += sprintf (msgp, "R:%Iu ", fdp->fd.sock);
-
-          if (ne.lNetworkEvents & (FD_WRITE | FD_CONNECT))
-              msgp += sprintf (msgp, "W:%Iu ", fdp->fd.sock);
-
-          if (ne.lNetworkEvents & (FD_OOB))
-              msgp += sprintf (msgp, "E:%Iu ", fdp->fd.sock);
-
-          msgp += sprintf (msgp, "lNetworkEvents:%d ", ne.lNetworkEvents);
-
           if(ne.lNetworkEvents)
             ret++;
 
           WSAEventSelect(fdp->fd.sock, pEvents[i], 0);
         }
-
-      msgp += sprintf (msgp, "\n");
-      _dbus_verbose ("%s",msg);
     }
   else
     {
@@ -1314,13 +1264,6 @@ _dbus_poll (DBusPollFD *fds,
   return ret;
 
 #else   /* USE_CHRIS_IMPL */
-
-#ifdef DBUS_ENABLE_VERBOSE_MODE
-#define DBUS_POLL_CHAR_BUFFER_SIZE 2000
-  char msg[DBUS_POLL_CHAR_BUFFER_SIZE];
-  char *msgp;
-#endif
-
   fd_set read_set, write_set, err_set;
   SOCKET max_fd = 0;
   int i;
@@ -1331,34 +1274,6 @@ _dbus_poll (DBusPollFD *fds,
   FD_ZERO (&write_set);
   FD_ZERO (&err_set);
 
-
-#ifdef DBUS_ENABLE_VERBOSE_MODE
-  msgp = msg;
-  msgp += sprintf (msgp, "select: to=%d\n\t", timeout_milliseconds);
-  for (i = 0; i < n_fds; i++)
-    {
-      DBusPollFD *fdp = &fds[i];
-
-
-      if (fdp->events & _DBUS_POLLIN)
-        msgp += sprintf (msgp, "R:%Iu ", fdp->fd.sock);
-
-      if (fdp->events & _DBUS_POLLOUT)
-        msgp += sprintf (msgp, "W:%Iu ", fdp->fd.sock);
-
-      msgp += sprintf (msgp, "E:%Iu\n\t", fdp->fd.sock);
-
-      // FIXME: more robust code for long  msg
-      //        create on heap when msg[] becomes too small
-      if (msgp >= msg + DBUS_POLL_CHAR_BUFFER_SIZE)
-        {
-          _dbus_assert_not_reached ("buffer overflow in _dbus_poll");
-        }
-    }
-
-  msgp += sprintf (msgp, "\n");
-  _dbus_verbose ("%s",msg);
-#endif
   for (i = 0; i < n_fds; i++)
     {
       DBusPollFD *fdp = &fds[i]; 
@@ -1391,27 +1306,6 @@ _dbus_poll (DBusPollFD *fds,
   else
     if (ready > 0)
       {
-#ifdef DBUS_ENABLE_VERBOSE_MODE
-        msgp = msg;
-        msgp += sprintf (msgp, "select: = %d:\n\t", ready);
-
-        for (i = 0; i < n_fds; i++)
-          {
-            DBusPollFD *fdp = &fds[i];
-
-            if (FD_ISSET (fdp->fd.sock, &read_set))
-              msgp += sprintf (msgp, "R:%Iu ", fdp->fd.sock);
-
-            if (FD_ISSET (fdp->fd.sock, &write_set))
-              msgp += sprintf (msgp, "W:%Iu ", fdp->fd.sock);
-
-            if (FD_ISSET (fdp->fd.sock, &err_set))
-              msgp += sprintf (msgp, "E:%Iu\n\t", fdp->fd.sock);
-          }
-        msgp += sprintf (msgp, "\n");
-        _dbus_verbose ("%s",msg);
-#endif
-
         for (i = 0; i < n_fds; i++)
           {
             DBusPollFD *fdp = &fds[i];
