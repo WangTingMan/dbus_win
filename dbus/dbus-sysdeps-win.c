@@ -3243,23 +3243,23 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
-  if (!_dbus_get_shm_name(&shm_name,scope))
+  if (!_dbus_get_shm_name (&shm_name,scope))
     {
-        dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not determine shm name");
-        return FALSE;
+      dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not determine shm name");
+      return FALSE;
     }
 
-  mutex = _dbus_global_lock ( cDBusAutolaunchMutex );
+  mutex = _dbus_global_lock (cDBusAutolaunchMutex);
 
-  if (_dbus_daemon_already_runs(address,&shm_name,scope))
+  if (_dbus_daemon_already_runs (address, &shm_name, scope))
     {
-        _dbus_verbose( "found running dbus daemon for scope '%s' at %s\n",
-                       scope ? scope : "", _dbus_string_get_const_data (&shm_name) );
-        retval = TRUE;
-        goto out;
+      _dbus_verbose ( "found running dbus daemon for scope '%s' at %s\n",
+                     scope ? scope : "", _dbus_string_get_const_data (&shm_name) );
+      retval = TRUE;
+      goto out;
     }
 
-  if (!SearchPathA(NULL, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+  if (!SearchPathA (NULL, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
     {
       // Look in directory containing dbus shared library
       HMODULE hmod;
@@ -3281,7 +3281,7 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
         {
           char *ext_idx = strrchr (dbus_module_path, '\\');
           if (ext_idx)
-          *ext_idx = '\0';
+            *ext_idx = '\0';
           if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
             {
               dbus_set_error (error, DBUS_ERROR_FAILED,
@@ -3298,18 +3298,18 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
 
 
   // Create process
-  ZeroMemory( &si, sizeof(si) );
-  si.cb = sizeof(si);
-  ZeroMemory( &pi, sizeof(pi) );
+  ZeroMemory (&si, sizeof(si));
+  si.cb = sizeof (si);
+  ZeroMemory (&pi, sizeof(pi));
 
-  _snprintf(dbus_args, sizeof(dbus_args) - 1, "\"%s\" %s", dbus_exe_path,  " --session");
+  _snprintf (dbus_args, sizeof(dbus_args) - 1, "\"%s\" %s", dbus_exe_path,  " --session");
 
 //  argv[i] = "--config-file=bus\\session.conf";
-  if(CreateProcessA(dbus_exe_path, dbus_args, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+  if(CreateProcessA (dbus_exe_path, dbus_args, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
     {
       CloseHandle (pi.hThread);
       CloseHandle (pi.hProcess);
-      retval = _dbus_get_autolaunch_shm( address, &shm_name );
+      retval = _dbus_get_autolaunch_shm (address, &shm_name);
       if (retval == FALSE)
         dbus_set_error_const (error, DBUS_ERROR_FAILED, "Failed to get autolaunch address from launched dbus-daemon");
     }
