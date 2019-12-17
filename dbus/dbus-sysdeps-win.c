@@ -3237,7 +3237,7 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
   dbus_bool_t retval = FALSE;
   LPSTR lpFile;
   char dbus_exe_path[MAX_PATH];
-  char dbus_args[MAX_PATH * 2];
+  DBusString dbus_args = _DBUS_STRING_INIT_INVALID;
   const char * daemon_name = DBUS_DAEMON_NAME ".exe";
   DBusString shm_name;
 
@@ -3302,10 +3302,22 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
   si.cb = sizeof (si);
   ZeroMemory (&pi, sizeof(pi));
 
-  _snprintf (dbus_args, sizeof(dbus_args) - 1, "\"%s\" %s", dbus_exe_path,  " --session");
+  if (!_dbus_string_init (&dbus_args))
+    {
+      dbus_set_error_const (error, DBUS_ERROR_NO_MEMORY, "Failed to initialize argument buffer");
+      retval = FALSE;
+      goto out;
+    }
+
+  if (!_dbus_string_append_printf (&dbus_args, "\"%s\" --session", dbus_exe_path))
+    {
+      dbus_set_error_const (error, DBUS_ERROR_NO_MEMORY, "Failed to append string to argument buffer");
+      retval = FALSE;
+      goto out;
+    }
 
 //  argv[i] = "--config-file=bus\\session.conf";
-  if(CreateProcessA (dbus_exe_path, dbus_args, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+  if(CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
     {
       CloseHandle (pi.hThread);
       CloseHandle (pi.hProcess);
@@ -3323,6 +3335,7 @@ out:
   _DBUS_ASSERT_ERROR_XOR_BOOL (error, retval);
   _dbus_global_unlock (mutex);
   _dbus_string_free (&shm_name);
+  _dbus_string_free (&dbus_args);
 
   return retval;
  }
