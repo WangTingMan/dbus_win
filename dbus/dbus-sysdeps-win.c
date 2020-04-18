@@ -3171,11 +3171,11 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
       char dbus_module_path[MAX_PATH];
       DWORD rc;
 
-      _dbus_verbose( "did not found dbus daemon executable on default search path, "
-            "trying path where dbus shared library is located");
+      _dbus_verbose ("did not found dbus daemon executable on default search path, "
+                     "trying path where dbus shared library is located");
 
-      hmod = _dbus_win_get_dll_hmodule();
-      rc = GetModuleFileNameA(hmod, dbus_module_path, sizeof(dbus_module_path));
+      hmod = _dbus_win_get_dll_hmodule ();
+      rc = GetModuleFileNameA (hmod, dbus_module_path, sizeof(dbus_module_path));
       if (rc <= 0)
         {
           dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not retrieve dbus shared library file name");
@@ -3184,10 +3184,10 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
         }
       else
         {
-          char *ext_idx = strrchr(dbus_module_path, '\\');
+          char *ext_idx = strrchr (dbus_module_path, '\\');
           if (ext_idx)
           *ext_idx = '\0';
-          if (!SearchPathA(dbus_module_path, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+          if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
             {
               dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not find dbus-daemon executable");
               retval = FALSE;
@@ -3195,7 +3195,7 @@ _dbus_get_autolaunch_address (const char *scope, DBusString *address,
               fprintf (stderr, "or start the daemon manually\n\n");
               goto out;
             }
-          _dbus_verbose( "found dbus daemon executable at %s",dbus_module_path);
+          _dbus_verbose ("found dbus daemon executable at %s", dbus_module_path);
         }
     }
 
