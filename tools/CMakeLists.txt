@@ -63,6 +63,12 @@ set(dbus_uuidgen_SOURCES
     dbus-uuidgen.c
 )
 
+if(NOT WIN32)
+    add_executable(dbus-cleanup-sockets ${dbus_cleanup_sockets_SOURCES})
+    target_link_libraries(dbus-cleanup-sockets ${DBUS_LIBRARIES})
+    install(TARGETS dbus-cleanup-sockets ${INSTALL_TARGETS_DEFAULT_ARGS})
+endif()
+
 if(WIN32)
     add_executable_version_info(dbus_send_SOURCES "dbus-send")
 endif()
