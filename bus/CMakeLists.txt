@@ -154,18 +154,20 @@ if(MSVC)
     project_source_group(${GROUP_CODE} bus_test_SOURCES dummy)
 endif()
 
-configure_file(example-session-disable-stats.conf.in ${CMAKE_CURRENT_BINARY_DIR}/example-session-disable-stats.conf)
-set(EXAMPLES_DATA
-    ${CMAKE_CURRENT_BINARY_DIR}/example-session-disable-stats.conf
-)
-if(NOT WIN32)
-    configure_file(example-system-enable-stats.conf.in ${CMAKE_CURRENT_BINARY_DIR}/example-system-enable-stats.conf)
-    list(APPEND EXAMPLES_DATA
-        ${CMAKE_CURRENT_BINARY_DIR}/example-system-enable-stats.conf
-    )
-endif()
+macro(install_example_in_file a)
+    configure_file(${a}.in ${CMAKE_CURRENT_BINARY_DIR}/${a})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${a} DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/dbus/examples)
+endmacro()
 
-install(FILES ${EXAMPLES_DATA} DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/dbus/examples)
+macro(install_example_file a)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${a} DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/dbus/examples)
+endmacro()
+
+install_example_in_file(example-session-disable-stats.conf)
+if(NOT WIN32)
+    install_example_in_file(example-system-enable-stats.conf)
+    install_example_file(example-system-hardening-without-traditional-activation.conf)
+endif()
 
 ## mop up the gcov files
 #clean-local:
