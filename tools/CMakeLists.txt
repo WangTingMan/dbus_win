@@ -129,7 +129,7 @@ if(NOT WIN32)
 endif()
 
 # create the /var/lib/dbus directory for dbus-uuidgen
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/dbus)
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/dbus)
 
 set(EXAMPLES_SCRIPTS
     GetAllMatchRules.py
