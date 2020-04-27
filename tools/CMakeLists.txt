@@ -59,6 +59,10 @@ set(dbus_run_session_SOURCES
     dbus-run-session.c
 )
 
+set(dbus_uuidgen_SOURCES
+    dbus-uuidgen.c
+)
+
 if(WIN32)
     add_executable_version_info(dbus_send_SOURCES "dbus-send")
 endif()
@@ -111,6 +115,12 @@ endif()
 add_executable(dbus-run-session ${dbus_run_session_SOURCES})
 target_link_libraries(dbus-run-session ${DBUS_INTERNAL_LIBRARIES})
 install(TARGETS dbus-run-session ${INSTALL_TARGETS_DEFAULT_ARGS})
+
+if(NOT WIN32)
+    add_executable(dbus-uuidgen ${dbus_uuidgen_SOURCES})
+    target_link_libraries(dbus-uuidgen ${DBUS_LIBRARIES})
+    install(TARGETS dbus-uuidgen ${INSTALL_TARGETS_DEFAULT_ARGS})
+endif()
 
 # create the /var/lib/dbus directory for dbus-uuidgen
 install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/dbus)
