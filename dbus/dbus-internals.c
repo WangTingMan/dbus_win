@@ -475,9 +475,9 @@ _dbus_verbose_real (
 out:
     if (message == NULL)
       {
-        OutputDebugStringA ("Out of memory while formatting verbose message: '");
+        OutputDebugStringA ("Out of memory while formatting verbose message: '''");
         OutputDebugStringA (format);
-        OutputDebugStringA ("'");
+        OutputDebugStringA ("'''");
       }
     else
       {

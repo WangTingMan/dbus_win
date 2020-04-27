@@ -3848,14 +3848,31 @@ _dbus_logv (DBusSystemLogSeverity  severity,
 
   if (log_flags & DBUS_LOG_FLAGS_SYSTEM_LOG)
     {
-      char buf[1024];
-      char format[1024];
-
+      DBusString out = _DBUS_STRING_INIT_INVALID;
+      const char *message = NULL;
       DBUS_VA_COPY (tmp, args);
-      snprintf (format, sizeof (format), "%s: %s", s, msg);
-      vsnprintf(buf, sizeof(buf), format, tmp);
-      OutputDebugStringA(buf);
+
+      if (!_dbus_string_init (&out))
+        goto out;
+      if (!_dbus_string_append_printf (&out, "%s: ", s))
+        goto out;
+      if (!_dbus_string_append_printf_valist (&out, msg, tmp))
+        goto out;
+      message = _dbus_string_get_const_data (&out);
+out:
+      if (message != NULL)
+        {
+          OutputDebugStringA (message);
+        }
+      else
+        {
+          OutputDebugStringA ("Out of memory while formatting message: '''");
+          OutputDebugStringA (msg);
+          OutputDebugStringA ("'''");
+        }
+
       va_end (tmp);
+      _dbus_string_free (&out);
     }
 
   if (log_flags & DBUS_LOG_FLAGS_STDERR)
