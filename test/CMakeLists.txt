@@ -13,7 +13,9 @@ add_library(dbus-testutils STATIC
 )
 target_link_libraries(dbus-testutils ${DBUS_INTERNAL_LIBRARIES})
 
-add_subdirectory( name-test )
+if(DBUS_ENABLE_EMBEDDED_TESTS)
+    add_subdirectory( name-test )
+endif()
 
 set(manual-dir-iter_SOURCES
     manual-dir-iter.c
