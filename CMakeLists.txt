@@ -535,11 +535,11 @@ configure_file(cmake/DBus1ConfigVersion.cmake.in "${CMAKE_BINARY_DIR}/DBus1Confi
 install(FILES
     "${CMAKE_BINARY_DIR}/DBus1Config.cmake"
     "${CMAKE_BINARY_DIR}/DBus1ConfigVersion.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+    DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 
 if(WIN32)
-    install(EXPORT DBus1Targets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+    install(EXPORT DBus1Targets DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 
 ########### subdirs ###############
