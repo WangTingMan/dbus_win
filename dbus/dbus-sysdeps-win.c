@@ -1160,6 +1160,117 @@ out0:
   return FALSE;
 }
 
+#ifdef DBUS_ENABLE_VERBOSE_MODE
+static dbus_bool_t
+_dbus_dump_fd_events (DBusPollFD *fds, int n_fds)
+{
+  DBusString msg = _DBUS_STRING_INIT_INVALID;
+  dbus_bool_t result = FALSE;
+  int i;
+
+  if (!_dbus_string_init (&msg))
+    goto oom;
+
+  for (i = 0; i < n_fds; i++)
+    {
+      DBusPollFD *fdp = &fds[i];
+      if (!_dbus_string_append (&msg, i > 0 ? "\n\t" : "\t"))
+        goto oom;
+
+      if ((fdp->events & _DBUS_POLLIN) &&
+          !_dbus_string_append_printf (&msg, "R:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if ((fdp->events & _DBUS_POLLOUT) &&
+          !_dbus_string_append_printf (&msg, "W:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if (!_dbus_string_append_printf (&msg, "E:%Iu", fdp->fd.sock))
+        goto oom;
+    }
+
+  _dbus_verbose ("%s\n", _dbus_string_get_const_data (&msg));
+  result = TRUE;
+oom:
+  _dbus_string_free (&msg);
+  return result;
+}
+
+#ifdef USE_CHRIS_IMPL
+static dbus_bool_t
+_dbus_dump_fd_revents (DBusPollFD *fds, int n_fds)
+{
+  DBusString msg = _DBUS_STRING_INIT_INVALID;
+  dbus_bool_t result = FALSE;
+  int i;
+
+  if (!_dbus_string_init (&msg))
+    goto oom;
+
+  for (i = 0; i < n_fds; i++)
+    {
+      DBusPollFD *fdp = &fds[i];
+      if (!_dbus_string_append (&msg, i > 0 ? "\n\t" : "\t"))
+        goto oom;
+
+      if ((fdp->revents & _DBUS_POLLIN) &&
+          !_dbus_string_append_printf (&msg, "R:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if ((fdp->revents & _DBUS_POLLOUT) &&
+          !_dbus_string_append_printf (&msg, "W:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if ((fdp->revents & _DBUS_POLLERR) &&
+          !_dbus_string_append_printf (&msg, "E:%Iu", fdp->fd.sock))
+        goto oom;
+    }
+
+  _dbus_verbose ("%s\n", _dbus_string_get_const_data (&msg));
+  result = TRUE;
+oom:
+  _dbus_string_free (&msg);
+  return result;
+}
+#else
+static dbus_bool_t
+_dbus_dump_fdset (DBusPollFD *fds, int n_fds, fd_set *read_set, fd_set *write_set, fd_set *err_set)
+{
+  DBusString msg = _DBUS_STRING_INIT_INVALID;
+  dbus_bool_t result = FALSE;
+  int i;
+
+  if (!_dbus_string_init (&msg))
+    goto oom;
+
+  for (i = 0; i < n_fds; i++)
+    {
+      DBusPollFD *fdp = &fds[i];
+
+      if (!_dbus_string_append (&msg, i > 0 ? "\n\t" : "\t"))
+        goto oom;
+
+      if (FD_ISSET (fdp->fd.sock, read_set) &&
+          !_dbus_string_append_printf (&msg, "R:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if (FD_ISSET (fdp->fd.sock, write_set) &&
+          !_dbus_string_append_printf (&msg, "W:%Iu ", fdp->fd.sock))
+        goto oom;
+
+      if (FD_ISSET (fdp->fd.sock, err_set) &&
+          !_dbus_string_append_printf (&msg, "E:%Iu", fdp->fd.sock))
+        goto oom;
+    }
+  _dbus_verbose ("%s\n", _dbus_string_get_const_data (&msg));
+  result = TRUE;
+oom:
+  _dbus_string_free (&msg);
+  return result;
+}
+#endif
+#endif
+
 #ifdef USE_CHRIS_IMPL
 /**
  * Windows event based implementation for _dbus_poll().
@@ -1192,6 +1303,16 @@ _dbus_poll_events (DBusPollFD *fds,
      ret = -1;
      goto oom;
    }
+
+#ifdef DBUS_ENABLE_VERBOSE_MODE
+  _dbus_verbose ("_dbus_poll: to=%d", timeout_milliseconds);
+  if (!_dbus_dump_fd_events (fds, n_fds))
+    {
+      _dbus_win_set_errno (ENOMEM);
+      ret = -1;
+      goto oom;
+    }
+#endif
 
   for (i = 0; i < n_fds; i++)
     pEvents[i] = WSA_INVALID_EVENT;
@@ -1254,6 +1375,15 @@ _dbus_poll_events (DBusPollFD *fds,
 
           WSAEventSelect (fdp->fd.sock, pEvents[i], 0);
         }
+#ifdef DBUS_ENABLE_VERBOSE_MODE
+      _dbus_verbose ("_dbus_poll: to=%d", timeout_milliseconds);
+      if (!_dbus_dump_fd_revents (fds, n_fds))
+        {
+          _dbus_win_set_errno (ENOMEM);
+          ret = -1;
+          goto oom;
+        }
+#endif
     }
   else
     {
@@ -1298,6 +1428,14 @@ _dbus_poll_select (DBusPollFD *fds,
   FD_ZERO (&read_set);
   FD_ZERO (&write_set);
   FD_ZERO (&err_set);
+#ifdef DBUS_ENABLE_VERBOSE_MODE
+  _dbus_verbose("_dbus_poll: to=%d", timeout_milliseconds);
+  if (!_dbus_dump_fd_events (fds, n_fds))
+    {
+      ready = -1;
+      goto oom;
+    }
+#endif
 
   for (i = 0; i < n_fds; i++)
     {
@@ -1331,6 +1469,15 @@ _dbus_poll_select (DBusPollFD *fds,
   else
     if (ready > 0)
       {
+#ifdef DBUS_ENABLE_VERBOSE_MODE
+        _dbus_verbose ("select: to=%d\n", ready);
+        if (!_dbus_dump_fdset (fds, n_fds, &read_set, &write_set, &err_set))
+          {
+            _dbus_win_set_errno (ENOMEM);
+            ready = -1;
+            goto oom;
+          }
+#endif
         for (i = 0; i < n_fds; i++)
           {
             DBusPollFD *fdp = &fds[i];
@@ -1347,6 +1494,7 @@ _dbus_poll_select (DBusPollFD *fds,
               fdp->revents |= _DBUS_POLLERR;
           }
       }
+oom:
   return ready;
 }
 #endif
