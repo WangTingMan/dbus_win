@@ -21,6 +21,8 @@ if(CMAKE_MAJOR_VERSION GREATER 2)
     endif()
 endif()
 
+option(DBUS_BUILD_TESTS "enable unit test code" ON)
+
 # detect version
 include(MacrosAutotools)
 autoinit(configure.ac)
@@ -300,8 +302,6 @@ set(DBUS_INCLUDES)
 enable_testing()
 
 ########### command line options ###############
-option(DBUS_BUILD_TESTS "enable unit test code" ON)
-
 if(DBUS_BUILD_TESTS)
     set(DBUS_ENABLE_EMBEDDED_TESTS ON)
     set(DBUS_ENABLE_MODULAR_TESTS ON)
