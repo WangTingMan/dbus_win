@@ -200,3 +200,15 @@ macro(add_library_version_info _sources _name)
     # version info and uac manifest can be combined in a binary because they use different resource types
     list(APPEND ${_sources} ${CMAKE_CURRENT_BINARY_DIR}/versioninfo-${DBUS_VER_INTERNAL_NAME}.rc)
 endmacro()
+
+#
+# provide option with three states AUTO, ON, OFF
+#
+macro(tristateoption _name _default _text)
+    if(NOT DEFINED ${_name})
+        set(${_name} ${_default} CACHE STRING "${_text}" FORCE)
+    else()
+        set(${_name} ${_default} CACHE STRING "${_text}")
+    endif()
+    set_property(CACHE ${_name} PROPERTY STRINGS AUTO ON OFF)
+endmacro(tristateoption)
