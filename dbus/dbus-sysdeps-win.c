@@ -82,6 +82,8 @@ extern BOOL WINAPI ConvertSidToStringSidA (PSID Sid, LPSTR *StringSid);
 
 typedef int socklen_t;
 
+/* uncomment to enable windows event based poll implementation */
+//#define USE_CHRIS_IMPL
 
 void
 _dbus_win_set_errno (int err)
@@ -1158,26 +1160,22 @@ out0:
   return FALSE;
 }
 
+#ifdef USE_CHRIS_IMPL
 /**
- * Wrapper for poll().
+ * Windows event based implementation for _dbus_poll().
  *
  * @param fds the file descriptors to poll
  * @param n_fds number of descriptors in the array
  * @param timeout_milliseconds timeout or -1 for infinite
  * @returns numbers of fds with revents, or <0 on error
  */
-int
-_dbus_poll (DBusPollFD *fds,
-            int         n_fds,
-            int         timeout_milliseconds)
+static int
+_dbus_poll_events (DBusPollFD *fds,
+                   int         n_fds,
+                   int         timeout_milliseconds)
 {
-#define USE_CHRIS_IMPL 0
-
-#if USE_CHRIS_IMPL
-
   int ret = 0;
   int i;
-  struct timeval tv;
   int ready;
 
 #define DBUS_STACK_WSAEVENTS 256
@@ -1202,7 +1200,7 @@ _dbus_poll (DBusPollFD *fds,
       if (fdp->events & _DBUS_POLLOUT)
         lNetworkEvents |= FD_WRITE | FD_CONNECT;
 
-      WSAEventSelect(fdp->fd.sock, ev, lNetworkEvents);
+      WSAEventSelect (fdp->fd.sock, ev, lNetworkEvents);
 
       pEvents[i] = ev;
     }
@@ -1230,7 +1228,7 @@ _dbus_poll (DBusPollFD *fds,
 
           fdp->revents = 0;
 
-          WSAEnumNetworkEvents(fdp->fd.sock, pEvents[i], &ne);
+          WSAEnumNetworkEvents (fdp->fd.sock, pEvents[i], &ne);
 
           if (ne.lNetworkEvents & (FD_READ | FD_ACCEPT | FD_CLOSE))
             fdp->revents |= _DBUS_POLLIN;
@@ -1244,7 +1242,7 @@ _dbus_poll (DBusPollFD *fds,
           if(ne.lNetworkEvents)
             ret++;
 
-          WSAEventSelect(fdp->fd.sock, pEvents[i], 0);
+          WSAEventSelect (fdp->fd.sock, pEvents[i], 0);
         }
     }
   else
@@ -1255,15 +1253,28 @@ _dbus_poll (DBusPollFD *fds,
 
   for(i = 0; i < n_fds; i++)
     {
-      WSACloseEvent(pEvents[i]);
+      WSACloseEvent (pEvents[i]);
     }
 
   if (n_fds > DBUS_STACK_WSAEVENTS)
-    free(pEvents);
+    free (pEvents);
 
   return ret;
-
-#else   /* USE_CHRIS_IMPL */
+}
+#else
+/**
+ * Select based implementation for _dbus_poll().
+ *
+ * @param fds the file descriptors to poll
+ * @param n_fds number of descriptors in the array
+ * @param timeout_milliseconds timeout or -1 for infinite
+ * @returns numbers of fds with revents, or <0 on error
+ */
+static int
+_dbus_poll_select (DBusPollFD *fds,
+                   int         n_fds,
+                   int         timeout_milliseconds)
+{
   fd_set read_set, write_set, err_set;
   SOCKET max_fd = 0;
   int i;
@@ -1323,11 +1334,28 @@ _dbus_poll (DBusPollFD *fds,
           }
       }
   return ready;
-#endif  /* USE_CHRIS_IMPL */
 }
+#endif
 
-
-
+/**
+ * Wrapper for poll().
+ *
+ * @param fds the file descriptors to poll
+ * @param n_fds number of descriptors in the array
+ * @param timeout_milliseconds timeout or -1 for infinite
+ * @returns numbers of fds with revents, or <0 on error
+ */
+int
+_dbus_poll (DBusPollFD *fds,
+            int         n_fds,
+            int         timeout_milliseconds)
+{
+#ifdef USE_CHRIS_IMPL
+  return _dbus_poll_events (fds, n_fds, timeout_milliseconds);
+#else
+  return _dbus_poll_select (fds, n_fds, timeout_milliseconds);
+#endif
+}
 
 /******************************************************************************
  
