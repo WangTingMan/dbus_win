@@ -1186,6 +1186,16 @@ _dbus_poll_events (DBusPollFD *fds,
   else
     pEvents = eventsOnStack;
 
+  if (pEvents == NULL)
+   {
+     _dbus_win_set_errno (ENOMEM);
+     ret = -1;
+     goto oom;
+   }
+
+  for (i = 0; i < n_fds; i++)
+    pEvents[i] = WSA_INVALID_EVENT;
+
   for (i = 0; i < n_fds; i++)
     {
       DBusPollFD *fdp = &fds[i];
@@ -1251,13 +1261,17 @@ _dbus_poll_events (DBusPollFD *fds,
       ret = -1;
     }
 
-  for(i = 0; i < n_fds; i++)
+oom:
+  if (pEvents != NULL)
     {
-      WSACloseEvent (pEvents[i]);
+      for (i = 0; i < n_fds; i++)
+        {
+          if (pEvents[i] != WSA_INVALID_EVENT)
+            WSACloseEvent (pEvents[i]);
+        }
+      if (n_fds > DBUS_STACK_WSAEVENTS)
+        free (pEvents);
     }
-
-  if (n_fds > DBUS_STACK_WSAEVENTS)
-    free (pEvents);
 
   return ret;
 }
