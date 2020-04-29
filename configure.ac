@@ -1244,6 +1244,39 @@ AC_SUBST([DBUS_GENERATE_MAN])
 AM_CONDITIONAL(DBUS_DOXYGEN_DOCS_ENABLED, test x$enable_doxygen_docs = xyes)
 AC_MSG_RESULT($enable_doxygen_docs)
 
+AC_ARG_WITH([qchdir],
+            AS_HELP_STRING([--with-qchdir=DIR], [Directory for installing Qt help file]),
+            [qchdir=$withval],
+            [qchdir="$docdir"])
+AC_SUBST([qchdir])
+
+AC_ARG_ENABLE([qt-help],
+              [AS_HELP_STRING([--enable-qt-help=auto|yes|no], [Build Qt help documentation])],
+              [],
+              [enable_qt_help=auto])
+AS_IF([test "x$enable_qt_help" != xno],
+      [AC_CHECK_PROGS([QHELPGENERATOR], [qhelpgenerator qhelpgenerator-qt5])],
+      [QHELPGENERATOR=])
+AS_IF([test "x$QHELPGENERATOR" = x && test "x$enable_qt_help" != xno && test "x$enable_qt_help" != xauto],
+      [AC_MSG_ERROR([Building of Qt help requested, but qhelpgenerator not found])])
+
+AC_MSG_CHECKING([whether to build Qt help documentation])
+AS_IF([test "x$enable_doxygen_docs" = xyes && test "x$QHELPGENERATOR" != x], [
+    enable_qthelp_docs=yes
+    DOXYGEN_GENERATE_QHP=YES
+    DOXYGEN_QHG_LOCATION="$QHELPGENERATOR"
+    DOXYGEN_QCH_FILE="$(pwd)/doc/api/qch/dbus-$VERSION.qch"
+  ], [
+    DOXYGEN_GENERATE_QHP=NO
+    enable_qthelp_docs=no
+  ])
+AC_SUBST([DOXYGEN_GENERATE_QHP])
+AC_SUBST([DOXYGEN_QHG_LOCATION])
+AC_SUBST([DOXYGEN_QCH_FILE])
+
+AM_CONDITIONAL([DBUS_QTHELP_DOCS_ENABLED], [test "x$enable_qthelp_docs" = xyes])
+AC_MSG_RESULT($enable_qthelp_docs)
+
 AC_CHECK_PROGS([XSLTPROC], [xsltproc])
 AM_CONDITIONAL([DBUS_HAVE_XSLTPROC], [test "x$XSLTPROC" != "x"])
 
@@ -1766,6 +1799,7 @@ echo "
         Traditional activation:   ${enable_traditional_activation}
         Building X11 code:        ${have_x11}
         Building Doxygen docs:    ${enable_doxygen_docs}
+        Building Qt help file:    ${enable_qthelp_docs}
         Building Ducktype docs:   ${enable_ducktype_docs}
         Building XML docs:        ${enable_xml_docs}
         Building launchd support: ${have_launchd}

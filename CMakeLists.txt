@@ -535,11 +535,11 @@ configure_file(cmake/DBus1ConfigVersion.cmake.in "${CMAKE_BINARY_DIR}/DBus1Confi
 install(FILES
     "${CMAKE_BINARY_DIR}/DBus1Config.cmake"
     "${CMAKE_BINARY_DIR}/DBus1ConfigVersion.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+    DESTINATION "${INSTALL_CMAKE_DIR}"
 )
 
 if(WIN32)
-    install(EXPORT DBus1Targets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+    install(EXPORT DBus1Targets DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 
 ########### subdirs ###############
@@ -605,6 +605,7 @@ message("        installing system libs:   ${DBUS_INSTALL_SYSTEM_LIBS}         "
 message("        Building inotify support: ${DBUS_BUS_ENABLE_INOTIFY}          ")
 message("        Building kqueue support:  ${DBUS_BUS_ENABLE_KQUEUE}           ")
 message("        Building Doxygen docs:    ${DBUS_ENABLE_DOXYGEN_DOCS}         ")
+message("        Building Qt help docs:    ${DBUS_ENABLE_QTHELP_DOCS}          ")
 message("        Building XML docs:        ${DBUS_ENABLE_XML_DOCS}             ")
 message("        Daemon executable name:   ${DBUS_DAEMON_NAME}")
 if(WIN32)

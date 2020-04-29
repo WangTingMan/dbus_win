@@ -125,7 +125,7 @@ case "$ci_distro" in
 
         if [ "$ci_host/$ci_variant/$ci_suite" = "native/production/buster" ]; then
             $sudo apt-get -qq -y --no-install-recommends install \
-                qttools5-dev-tools \
+                qttools5-dev-tools qt5-default \
                 ${NULL}
         fi
 
