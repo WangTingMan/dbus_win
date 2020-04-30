@@ -61,6 +61,7 @@ set(DBUS_LIB_SOURCES
 
 if(UNIX)
     set(DBUS_LIB_SOURCES ${DBUS_LIB_SOURCES}
+        dbus-uuidgen.c
         dbus-transport-unix.c
         dbus-server-unix.c
     )
@@ -95,6 +96,7 @@ set(DBUS_LIB_HEADERS
     dbus-threads-internal.h
     dbus-transport.h
     dbus-transport-protected.h
+    dbus-uuidgen.h
     dbus-watch.h
     ${CMAKE_BINARY_DIR}/config.h
 )
