@@ -1429,7 +1429,7 @@ _dbus_poll_select (DBusPollFD *fds,
   FD_ZERO (&write_set);
   FD_ZERO (&err_set);
 #ifdef DBUS_ENABLE_VERBOSE_MODE
-  _dbus_verbose("_dbus_poll: to=%d", timeout_milliseconds);
+  _dbus_verbose("_dbus_poll: to=%d\n", timeout_milliseconds);
   if (!_dbus_dump_fd_events (fds, n_fds))
     {
       ready = -1;
