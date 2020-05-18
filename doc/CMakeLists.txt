@@ -8,7 +8,7 @@ add_custom_target(doc ALL)
 
 if(DOXYGEN_EXECUTABLE)
     option(DBUS_ENABLE_DOXYGEN_DOCS "build DOXYGEN documentation (requires Doxygen)" ON)
-    tristateoption(ENABLE_QT_HELP AUTO "build qt help documentation (requires qhelpgenerator(-qt5)); set INSTALL_QCH_DIR for custom qch installation path")
+    add_auto_option(ENABLE_QT_HELP "build qt help documentation (requires qhelpgenerator(-qt5)); set INSTALL_QCH_DIR for custom qch installation path" AUTO)
 endif()
 
 if(DBUS_ENABLE_DOXYGEN_DOCS)

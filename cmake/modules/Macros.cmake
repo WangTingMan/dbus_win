@@ -204,11 +204,11 @@ endmacro()
 #
 # provide option with three states AUTO, ON, OFF
 #
-macro(tristateoption _name _default _text)
+macro(add_auto_option _name _text _default)
     if(NOT DEFINED ${_name})
         set(${_name} ${_default} CACHE STRING "${_text}" FORCE)
     else()
         set(${_name} ${_default} CACHE STRING "${_text}")
     endif()
     set_property(CACHE ${_name} PROPERTY STRINGS AUTO ON OFF)
-endmacro(tristateoption)
+endmacro()
