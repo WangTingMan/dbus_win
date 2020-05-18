@@ -169,6 +169,13 @@ if(NOT WIN32)
     install_example_file(example-system-hardening-without-traditional-activation.conf)
 endif()
 
+if(DBUS_BUS_ENABLE_SYSTEMD)
+    configure_file(dbus.socket.in ${CMAKE_CURRENT_BINARY_DIR}/dbus.socket)
+    configure_file(dbus.service.in ${CMAKE_CURRENT_BINARY_DIR}/dbus.service)
+    add_systemd_service(${CMAKE_CURRENT_BINARY_DIR}/dbus.socket PATH ${DBUS_SYSTEMD_SYSTEMUNITDIR} LINKS sockets.target.wants)
+    add_systemd_service(${CMAKE_CURRENT_BINARY_DIR}/dbus.service PATH ${DBUS_SYSTEMD_SYSTEMUNITDIR} LINKS multi-user.target.wants)
+endif()
+
 ## mop up the gcov files
 #clean-local:
 #	/bin/rm *.bb *.bbg *.da *.gcov || true

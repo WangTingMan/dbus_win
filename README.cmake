@@ -149,6 +149,12 @@ DBUS_ENABLE_STATS:BOOL=OFF
 // enable restricted servers for app containers
 DBUS_ENABLE_CONTAINERS:BOOL=OFF
 
+// build with systemd at_console support
+ENABLE_SYSTEMD:STRING=AUTO
+
+// Directory for systemd service files
+WITH_SYSTEMD_SYSTEMUNITDIR:STRING=
+
 // support verbose debug mode
 DBUS_ENABLE_VERBOSE_MODE:BOOL=ON
 

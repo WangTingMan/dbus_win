@@ -52,6 +52,10 @@ set(BUILD_TIMESTAMP ${DBUS_BUILD_TIMESTAMP})
 
 ########### basic vars ###############
 
+if(UNIX AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(DBUS_LINUX 1)
+endif()
+
 include(GNUInstallDirs)
 
 if(DBUSDIR)
@@ -134,6 +138,35 @@ option(DBUS_DISABLE_ASSERT "Disable assertion checking" OFF)
 
 option(DBUS_ENABLE_STATS "enable bus daemon usage statistics" OFF)
 option(DBUS_ENABLE_CONTAINERS "enable restricted servers for app-containers" OFF)
+
+if(DBUS_LINUX)
+    add_auto_option(ENABLE_SYSTEMD "build with systemd at_console support" AUTO)
+    include(FindPkgConfig)
+    pkg_check_modules(SYSTEMD libsystemd>=209)
+    if(NOT SYSTEMD_FOUND)
+        pkg_check_modules(SYSTEMD libsystemd-login>=32 libsystemd-daemon>=32 libsystemd-journal>=32)
+    endif()
+    check_auto_option(ENABLE_SYSTEMD "systemd support" SYSTEMD_FOUND "systemd")
+    if(ENABLE_SYSTEMD AND SYSTEMD_FOUND)
+        set(DBUS_BUS_ENABLE_SYSTEMD ON)
+        set(HAVE_SYSTEMD ${SYSTEMD_FOUND})
+    endif()
+    add_path_option(WITH_SYSTEMD_SYSTEMUNITDIR "Directory for systemd service files" "")
+    # get defaults
+    pkg_check_modules(_SYSTEMD systemd)
+    if(_SYSTEMD_FOUND)
+        pkg_get_variable(_SYSTEMD_PREFIX systemd prefix)
+        pkg_get_variable(_SYSTEMD_SYSTEMUNITDIR systemd systemdsystemunitdir)
+        pkg_get_variable(_SYSTEMD_USERUNITDIR systemd systemduserunitdir)
+        # remove install prefix, which may not match the current prefix
+        string(REPLACE "${_SYSTEMD_PREFIX}/" "" DBUS_SYSTEMD_SYSTEMUNITDIR ${_SYSTEMD_SYSTEMUNITDIR})
+    else()
+        set(DBUS_SYSTEMD_SYSTEMUNITDIR lib/systemd/system)
+    endif()
+    if(WITH_SYSTEMD_SYSTEMUNITDIR)
+        set(DBUS_SYSTEMD_SYSTEMUNITDIR ${WITH_SYSTEMD_SYSTEMUNITDIR})
+    endif()
+endif()
 
 if(WIN32)
     set(FD_SETSIZE "8192" CACHE STRING "The maximum number of connections that can be handled at once")
@@ -609,6 +642,8 @@ message("        Building bus stats API:   ${DBUS_ENABLE_STATS}                "
 message("        installing system libs:   ${DBUS_INSTALL_SYSTEM_LIBS}         ")
 message("        Building inotify support: ${DBUS_BUS_ENABLE_INOTIFY}          ")
 message("        Building kqueue support:  ${DBUS_BUS_ENABLE_KQUEUE}           ")
+message("        Building systemd support: ${DBUS_BUS_ENABLE_SYSTEMD}          ")
+message("        systemd system install dir:${DBUS_SYSTEMD_SYSTEMUNITDIR}      ")
 message("        Building Doxygen docs:    ${DBUS_ENABLE_DOXYGEN_DOCS}         ")
 message("        Building Qt help docs:    ${DBUS_ENABLE_QTHELP_DOCS}          ")
 message("        Building XML docs:        ${DBUS_ENABLE_XML_DOCS}             ")
@@ -679,7 +714,6 @@ add_custom_target(help-options
 #
 if(DBUS_ENABLE_PKGCONFIG)
     set(PLATFORM_LIBS pthread ${LIBRT})
-    include(FindPkgConfig QUIET)
     if(PKG_CONFIG_FOUND)
         # convert lists of link libraries into -lstdc++ -lm etc..
         foreach(LIB ${CMAKE_C_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})

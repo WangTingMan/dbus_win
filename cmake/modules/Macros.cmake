@@ -233,3 +233,63 @@ macro(check_auto_option _name _text _var _vartext)
         message(FATAL_ERROR "${_text} requested but ${_vartext} not found")
     endif()
 endmacro()
+
+#
+# Provide option that takes a path
+#
+macro(add_path_option _name _text _default)
+    if(NOT DEFINED ${_name})
+        set(${_name} ${_default} CACHE STRING "${_text}" FORCE)
+    else()
+        set(${_name} ${_default} CACHE STRING "${_text}")
+    endif()
+endmacro()
+
+#
+# create directory on install
+#
+macro(install_dir filepath)
+    install(CODE "
+    set(_path \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${filepath}\")
+    if(NOT EXISTS \"\${_path}\")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory \"\${_path}\")
+        message(\"-- Creating directory: \${_path}\")
+    else()
+        message(\"-- Up-to-date: \${_path}\")
+    endif()
+    ")
+endmacro()
+
+#
+# create symlink on install
+#
+macro(install_symlink filepath sympath)
+    install(CODE "
+    set(_sympath \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${sympath}\")
+    file(REMOVE \"\${_sympath}\")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${filepath}\" \"\${_sympath}\" RESULT_VARIABLE result)
+    if(NOT result)
+        message(\"-- Creating symlink: \${_sympath} -> ${filepath}\")
+    else()
+        message(FATAL ERROR \"-- Failed to create symlink: \${_sympath} -> ${filepath}\")
+    endif()
+    ")
+endmacro()
+
+#
+# add system service <file> PATH <install path> LINKS [multi-user.target.wants [...]]
+#
+macro(add_systemd_service file)
+    set(options)
+    set(oneValueArgs PATH)
+    set(multiValueArgs LINKS)
+    cmake_parse_arguments(_ "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    set(_targetdir ${__PATH})
+    install(FILES ${file} DESTINATION ${_targetdir})
+    get_filename_component(_name ${file} NAME)
+    foreach(l ${__LINKS})
+        set(_linkdir ${_targetdir}/${l})
+        install_dir(${_linkdir})
+        install_symlink(../${_name} ${_linkdir}/${_name})
+    endforeach()
+endmacro()
