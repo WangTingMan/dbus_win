@@ -176,6 +176,13 @@ if(DBUS_BUS_ENABLE_SYSTEMD)
     add_systemd_service(${CMAKE_CURRENT_BINARY_DIR}/dbus.service PATH ${DBUS_SYSTEMD_SYSTEMUNITDIR} LINKS multi-user.target.wants)
 endif()
 
+if(DBUS_ENABLE_USER_SESSION)
+    configure_file(systemd-user/dbus.socket.in ${CMAKE_CURRENT_BINARY_DIR}/systemd-user/dbus.socket)
+    configure_file(systemd-user/dbus.service.in ${CMAKE_CURRENT_BINARY_DIR}/systemd-user/dbus.service)
+    add_systemd_service(${CMAKE_CURRENT_BINARY_DIR}/systemd-user/dbus.socket PATH ${DBUS_SYSTEMD_USERUNITDIR} LINKS sockets.target.wants)
+    add_systemd_service(${CMAKE_CURRENT_BINARY_DIR}/systemd-user/dbus.service PATH ${DBUS_SYSTEMD_USERUNITDIR})
+endif()
+
 ## mop up the gcov files
 #clean-local:
 #	/bin/rm *.bb *.bbg *.da *.gcov || true

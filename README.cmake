@@ -155,6 +155,12 @@ ENABLE_SYSTEMD:STRING=AUTO
 // Directory for systemd service files
 WITH_SYSTEMD_SYSTEMUNITDIR:STRING=
 
+// enable user-session semantics for session bus under systemd
+ENABLE_USER_SESSION:BOOL=ON
+
+// Directory for systemd user service files
+WITH_SYSTEMD_USERUNITDIR:STRING=
+
 // support verbose debug mode
 DBUS_ENABLE_VERBOSE_MODE:BOOL=ON
 
