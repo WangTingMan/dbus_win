@@ -227,6 +227,11 @@ generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS}" "${WARNINGS_DISABLED}" "${
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGS_CFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS_CFLAGS}")
 
+# let wine be able to show file and lines in backtrace
+if(DBUS_USE_WINE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gstabs")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gstabs")
+endif()
 
 if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
