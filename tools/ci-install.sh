@@ -111,14 +111,14 @@ case "$ci_distro" in
                 $sudo apt-get -qq -y --no-install-recommends install \
                     binutils-mingw-w64-i686 \
                     g++-mingw-w64-i686 \
-                    $wine32 \
+                    $wine32 wine \
                     ${NULL}
                 ;;
             (x86_64-w64-mingw32)
                 $sudo apt-get -qq -y --no-install-recommends install \
                     binutils-mingw-w64-x86-64\
                     g++-mingw-w64-x86-64 \
-                    $wine64 \
+                    $wine64 wine \
                     ${NULL}
                 ;;
         esac
