@@ -387,7 +387,7 @@ case "$ci_buildsys" in
                 ;;
         esac
 
-        cmake "$@" ..
+        cmake "$@" -DCMAKE_VERBOSE_MAKEFILE=ON ..
 
         ${make}
         # The test coverage for OOM-safety is too verbose to be useful on
