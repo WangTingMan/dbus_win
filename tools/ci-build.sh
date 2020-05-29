@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Copyright © 2015-2016 Collabora Ltd.
+# Copyright © 2020 Ralf Habacker <ralf.habacker@freenet.de>
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -26,6 +27,51 @@ set -euo pipefail
 set -x
 
 NULL=
+
+##
+## initialize support to run cross compiled executables
+##
+# syntax: init_wine <path1> [<path2> ... [<pathn>]]
+# @param  path1..n  pathes for adding to wine executable search path
+#
+# The function exits the shell script in case of errors
+#
+init_wine() {
+    if ! command -v wineboot >/dev/null; then
+        echo "wineboot not found"
+        exit 1
+    fi
+
+    # run without X11 display to avoid that wineboot shows dialogs
+    wineboot -fi
+
+    # add local paths to wine user path
+    local addpath="" d="" i
+    for i in "$@"; do
+        local wb=$(winepath -w "$i")
+        addpath="$addpath$d$wb"
+        d=";"
+    done
+
+    # create registry file from template
+    local wineaddpath=$(echo "$addpath" | sed 's,\\,\\\\\\\\,g')
+    sed "s,@PATH@,$wineaddpath,g" ../tools/user-path.reg.in > user-path.reg
+
+    # add path to registry
+    wine regedit /C user-path.reg
+
+    # check if path(s) has been set and break if not
+    local o=$(wine cmd /C "echo %PATH%")
+    case "$o" in
+        (*z:* | *Z:*)
+            # OK
+            ;;
+        (*)
+            echo "Failed to add Unix paths '$*' to path: Wine %PATH% = $o" >&2
+            exit 1
+            ;;
+    esac
+}
 
 # ci_buildsys:
 # Build system under test: autotools or cmake
@@ -75,6 +121,10 @@ NULL=
 # One of debug, reduced, legacy, production
 : "${ci_variant:=production}"
 
+# ci_runtime:
+# One of static, shared; used for windows cross builds
+: "${ci_runtime:=static}"
+
 if [ -n "$ci_docker" ]; then
     exec docker run \
         --env=ci_buildsys="${ci_buildsys}" \
@@ -85,6 +135,7 @@ if [ -n "$ci_docker" ]; then
         --env=ci_test="${ci_test}" \
         --env=ci_test_fatal="${ci_test_fatal}" \
         --env=ci_variant="${ci_variant}" \
+        --env=ci_runtime="${ci_runtime}" \
         --privileged \
         ci-image \
         tools/ci-build.sh
@@ -135,11 +186,16 @@ case "$ci_host" in
         unset CC
         unset CXX
         for pkg in \
+            bzip2-1.0.8-1 \
             expat-2.1.0-6 \
             gcc-libs-5.2.0-4 \
             gettext-0.19.6-1 \
             glib2-2.46.1-1 \
+            iconv-1.16-1 \
             libffi-3.2.1-3 \
+            libiconv-1.16-1 \
+            libwinpthread-git-5.0.0.4850.d1662dc7-1 \
+            pcre-8.44-1 \
             zlib-1.2.8-9 \
             ; do
             wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
@@ -240,8 +296,8 @@ case "$ci_buildsys" in
                 set _ "$@"
                 set "$@" --build="$(build-aux/config.guess)"
                 set "$@" --host="${ci_host}"
-                set "$@" CFLAGS=-static-libgcc
-                set "$@" CXXFLAGS=-static-libgcc
+                set "$@" CFLAGS=-${ci_runtime}-libgcc
+                set "$@" CXXFLAGS=-${ci_runtime}-libgcc
                 # don't run tests yet, Wine needs Xvfb and
                 # more msys2 libraries
                 ci_test=no
@@ -303,8 +359,20 @@ case "$ci_buildsys" in
         ;;
 
     (cmake|cmake-dist)
+        cmdwrapper=
         case "$ci_host" in
             (*-w64-mingw32)
+                # CFLAGS and CXXFLAGS does do work, checked with cmake 3.15
+                export LDFLAGS="-${ci_runtime}-libgcc"
+                # enable tests if supported
+                if [ "$ci_test" = yes ]; then
+                    libgcc_path=
+                    if [ "$ci_runtime" = "shared" ]; then
+                        libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
+                    fi
+                    init_wine "${mingw}/bin" "$(pwd)/bin" ${libgcc_path:+"$libgcc_path"}
+                    cmdwrapper="xvfb-run -a"
+                fi
                 set _ "$@"
                 set "$@" -D CMAKE_TOOLCHAIN_FILE="${srcdir}/cmake/${ci_host}.cmake"
                 set "$@" -D CMAKE_PREFIX_PATH="${mingw}"
@@ -312,10 +380,10 @@ case "$ci_buildsys" in
                 set "$@" -D CMAKE_LIBRARY_PATH="${mingw}/lib"
                 set "$@" -D EXPAT_LIBRARY="${mingw}/lib/libexpat.dll.a"
                 set "$@" -D GLIB2_LIBRARIES="${mingw}/lib/libglib-2.0.dll.a ${mingw}/lib/libgobject-2.0.dll.a ${mingw}/lib/libgio-2.0.dll.a"
+                if [ "$ci_test" = yes ]; then
+                    set "$@" -D DBUS_USE_WINE=1
+                fi
                 shift
-                # don't run tests yet, Wine needs Xvfb and more
-                # msys2 libraries
-                ci_test=no
                 ;;
         esac
 
@@ -325,7 +393,7 @@ case "$ci_buildsys" in
         # The test coverage for OOM-safety is too verbose to be useful on
         # travis-ci.
         export DBUS_TEST_MALLOC_FAILURES=0
-        [ "$ci_test" = no ] || ctest -VV || maybe_fail_tests
+        [ "$ci_test" = no ] || $cmdwrapper ctest -VV --timeout 180 || maybe_fail_tests
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls)
         ;;
