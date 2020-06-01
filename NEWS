@@ -1,7 +1,46 @@
 dbus 1.13.16 (UNRELEASED)
 =========================
 
-...
+Enhancements:
+
+• The API reference manual can be built as a Qt compiled help file if
+  qhelpgenerator(-qt5) is available. This is controlled by
+  --enable-qt-help and --with-qchdir in the Autotools build, or
+  -DENABLE_QT_HELP and -DINSTALL_QCH_DIR in CMake.
+  (dbus!150, Ralf Habacker)
+
+Fixes:
+
+• When built for Windows, return all autolaunch error information in
+  the DBusError rather than printing some of it to stderr
+  (dbus#191, dbus!131; Ralf Habacker)
+
+• When built for Windows, don't truncate long log messages
+  (dbus!134, Ralf Habacker)
+
+• When built using CMake for a Unix platform, dbus-cleanup-sockets and
+  dbus-uuidgen are now included (dbus!154, Ralf Habacker)
+
+• When built for Windows with verbose mode enabled, don't print debugging
+  messages related to poll() emulation into a fixed-size buffer that
+  could overflow (dbus!125, Ralf Habacker)
+
+• Adjust .desktop file parser to avoid a Coverity false positive
+  (dbus!146, Coverity CID 354884; Ralf Habacker)
+
+• Print shell-test diagnostics to stderr, avoiding warnings or errors
+  from strict TAP parsers (dbus!157, Félix Piédallu)
+
+Tests and CI enhancements:
+
+• When the CI cross-builds Windows binaries on Linux, run unit tests
+  using Wine (dbus#296, dbus!158; Ralf Habacker)
+
+• Really build x86_64 Windows binaries in Gitlab-CI, instead of building
+  i686 binaries a second time (Ralf Habacker)
+
+• When tests will be run using Wine, use STABS debug symbol format so
+  that Wine can display backtraces (dbus#133, dbus!104; Ralf Habacker)
 
 dbus 1.13.14 (2020-04-21)
 =========================
