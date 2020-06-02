@@ -1,5 +1,18 @@
-dbus 1.13.16 (UNRELEASED)
+dbus 1.13.16 (2020-06-02)
 =========================
+
+The “ominous mushroom hat” release.
+
+Denial of service fixes:
+
+• CVE-2020-12049: If a message contains more file descriptors than can
+  be sent, close those that did get through before reporting error.
+  Previously, a local attacker could cause the system dbus-daemon (or
+  another system service with its own DBusServer) to run out of file
+  descriptors, by repeatedly connecting to the server and sending fds that
+  would get leaked.
+  Thanks to Kevin Backhouse of GitHub Security Lab.
+  (dbus#294, GHSL-2020-057; Simon McVittie)
 
 Enhancements:
 
