@@ -227,6 +227,7 @@
 #cmakedefine HAVE_RAISE 1
 #cmakedefine HAVE_SETRLIMIT 1
 #cmakedefine HAVE_UNIX_FD_PASSING 1
+#cmakedefine HAVE_SYSTEMD
 
 /* Define to use epoll(4) on Linux */
 #cmakedefine DBUS_HAVE_LINUX_EPOLL 1
