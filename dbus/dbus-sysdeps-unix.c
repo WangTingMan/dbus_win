@@ -441,12 +441,31 @@ _dbus_read_socket_with_unix_fds (DBusSocket        fd,
             size_t i;
             int *payload = (int *) CMSG_DATA (cm);
             size_t payload_len_bytes = (cm->cmsg_len - CMSG_LEN (0));
-            size_t payload_len_fds = payload_len_bytes / sizeof (int);
+            size_t payload_len_fds;
             size_t fds_to_use;
 
             /* Every unsigned int fits in a size_t without truncation, so
              * casting (size_t) *n_fds is OK */
             _DBUS_STATIC_ASSERT (sizeof (size_t) >= sizeof (unsigned int));
+
+            if ((m.msg_flags & MSG_CTRUNC) && CMSG_NXTHDR(&m, cm) == NULL &&
+              (char *) payload + payload_len_bytes >
+              (char *) m.msg_control + m.msg_controllen)
+              {
+                /* This is the last cmsg in a truncated message and using
+                 * cmsg_len would apparently overrun the allocated buffer.
+                 * Some operating systems (illumos and Solaris are known) do
+                 * not adjust cmsg_len in the last cmsg when truncation occurs.
+                 * Adjust the payload length here. The calculation for
+                 * payload_len_fds below will discard any trailing bytes that
+                 * belong to an incomplete file descriptor - the kernel will
+                 * have already closed that (at least for illumos and Solaris)
+                 */
+                 payload_len_bytes = m.msg_controllen -
+                   ((char *) payload - (char *) m.msg_control);
+              }
+
+            payload_len_fds = payload_len_bytes / sizeof (int);
 
             if (_DBUS_LIKELY (payload_len_fds <= (size_t) *n_fds))
               {
