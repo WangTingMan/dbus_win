@@ -67,15 +67,15 @@ dbus_bool_t       _dbus_user_database_get_username  (DBusUserDatabase     *db,
                                                      const DBusUserInfo  **info,
                                                      DBusError            *error);
 DBUS_PRIVATE_EXPORT
-DBusUserInfo*  _dbus_user_database_lookup       (DBusUserDatabase *db,
+const DBusUserInfo *_dbus_user_database_lookup  (DBusUserDatabase *db,
                                                  dbus_uid_t        uid,
                                                  const DBusString *username,
                                                  DBusError        *error);
 DBUS_PRIVATE_EXPORT
-DBusGroupInfo* _dbus_user_database_lookup_group (DBusUserDatabase *db,
-                                                 dbus_gid_t        gid,
-                                                 const DBusString *groupname,
-                                                 DBusError        *error);
+const DBusGroupInfo* _dbus_user_database_lookup_group (DBusUserDatabase *db,
+                                                       dbus_gid_t        gid,
+                                                       const DBusString *groupname,
+                                                       DBusError        *error);
 DBUS_PRIVATE_EXPORT
 void           _dbus_user_info_free_allocated   (DBusUserInfo     *info);
 DBUS_PRIVATE_EXPORT
