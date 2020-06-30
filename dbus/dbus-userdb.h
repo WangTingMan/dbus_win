@@ -76,10 +76,10 @@ const DBusGroupInfo* _dbus_user_database_lookup_group (DBusUserDatabase *db,
                                                        dbus_gid_t        gid,
                                                        const DBusString *groupname,
                                                        DBusError        *error);
+
+void           _dbus_user_info_unref            (DBusUserInfo     *info);
 DBUS_PRIVATE_EXPORT
-void           _dbus_user_info_free_allocated   (DBusUserInfo     *info);
-DBUS_PRIVATE_EXPORT
-void           _dbus_group_info_free_allocated  (DBusGroupInfo    *info);
+void           _dbus_group_info_unref           (DBusGroupInfo    *info);
 #endif /* DBUS_USERDB_INCLUDES_PRIVATE */
 
 DBUS_PRIVATE_EXPORT
