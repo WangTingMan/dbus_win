@@ -35,6 +35,7 @@
 # include <windows.h>
 #else
 # include <netdb.h>
+# include <netinet/in.h>
 # include <signal.h>
 # include <unistd.h>
 # include <sys/socket.h>
