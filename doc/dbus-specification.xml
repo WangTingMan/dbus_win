@@ -3403,8 +3403,27 @@
                 timeout can be fairly short), or more than a reasonable
                 time in the future (so that cookies never accidentally
                 become permanent, if the clock was set far into the future
-                at some point). If no recent keys remain, the
-                server may generate a new key.
+                at some point). The reference implementation deletes cookies
+                that are more than 5 minutes into the future, or more than
+                7 minutes in the past. For interoperability, using the
+                same arbitrary times in other implementations is suggested.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                If no sufficiently recent cookies remain, the server
+                generates a new cookie. To avoid spurious authentication
+                failures, cookies that are close to their deletion time
+                should not be used for new authentication operations.
+                For example, this avoids a client starting to use a cookie
+                whose age is 6m59s, and having authentication subsequently
+                fail because it takes 2 seconds, during which time the
+                cookie's age became 7m01s, greater than 7 minutes, causing
+                the server to delete it. The reference implementation
+                generates a new cookie whenever the most recent cookie is
+                older than 5 minutes, giving clients at least 2 minutes
+                to finish authentication. For interoperability, using the
+                same arbitrary time in other implementations is suggested.
               </para>
             </listitem>
             <listitem>
