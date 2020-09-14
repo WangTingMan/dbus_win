@@ -96,7 +96,7 @@ log_callback (int type, const char *fmt, ...)
 {
   va_list ap;
 #ifdef HAVE_LIBAUDIT
-  int audit_fd;
+  int audit_fd, audit_type;
 #endif
 
   va_start(ap, fmt);
@@ -114,9 +114,33 @@ log_callback (int type, const char *fmt, ...)
 
     /* FIXME: need to change this to show real user */
     vsnprintf(buf, sizeof(buf), fmt, ap);
-    audit_log_user_avc_message(audit_fd, AUDIT_USER_AVC, buf, NULL, NULL,
+
+    switch (type)
+      {
+      case SELINUX_AVC:
+        audit_type = AUDIT_USER_AVC;
+        break;
+#if defined(SELINUX_POLICYLOAD) && defined(AUDIT_USER_MAC_POLICY_LOAD)
+      case SELINUX_POLICYLOAD:
+        audit_type = AUDIT_USER_MAC_POLICY_LOAD;
+        break;
+#endif
+#if defined(SELINUX_SETENFORCE) && defined(AUDIT_USER_MAC_STATUS)
+      case SELINUX_SETENFORCE:
+        audit_type = AUDIT_USER_MAC_STATUS;
+        break;
+#endif
+      default:
+        /* Not auditable */
+        audit_type = 0;
+        break;
+      }
+
+    if (audit_type > 0) {
+      audit_log_user_avc_message(audit_fd, audit_type, buf, NULL, NULL,
                              NULL, getuid());
-    goto out;
+      goto out;
+    }
   }
 #endif /* HAVE_LIBAUDIT */
 
