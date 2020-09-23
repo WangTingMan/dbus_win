@@ -214,10 +214,14 @@ else(WIN32)
         dbus-userdb.h
     )
     set(DBUS_UTIL_SOURCES ${DBUS_UTIL_SOURCES}
-        dbus-spawn-unix.c
         dbus-userdb-util.c
         dbus-sysdeps-util-unix.c
     )
+    if(ENABLE_TRADITIONAL_ACTIVATION)
+        set(DBUS_UTIL_SOURCES ${DBUS_UTIL_SOURCES}
+            dbus-spawn-unix.c
+        )
+    endif()
 endif()
 
 if(DBUS_HAVE_LINUX_EPOLL)

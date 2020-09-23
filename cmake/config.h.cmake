@@ -39,6 +39,7 @@
 
 #cmakedefine DBUS_ENABLE_STATS
 #cmakedefine DBUS_ENABLE_CONTAINERS
+#cmakedefine ENABLE_TRADITIONAL_ACTIVATION
 
 #define TEST_LISTEN       "@TEST_LISTEN@"
 
