@@ -1,5 +1,3 @@
-if(DBUS_ENABLE_EMBEDDED_TESTS)
-
 add_definitions(${DBUS_INTERNAL_CLIENT_DEFINITIONS})
 
 add_helper_executable(test-autolaunch test-autolaunch.c dbus-testutils)
@@ -13,5 +11,4 @@ endif()
 add_session_test_executable(test-shutdown test-shutdown.c dbus-testutils)
 if (ENABLE_TRADITIONAL_ACTIVATION)
    add_session_test_executable(test-thread-init test-threads-init.c ${DBUS_INTERNAL_LIBRARIES})
-endif()
 endif()
