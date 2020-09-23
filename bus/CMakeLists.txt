@@ -148,6 +148,10 @@ if(NOT WIN32)
 
     add_executable(dbus-daemon-launch-helper activation-helper.c activation-helper-bin.c )
     target_link_libraries(dbus-daemon-launch-helper launch-helper-internal)
+    install(TARGETS dbus-daemon-launch-helper RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+    # It is intended not to check here that uid is 0 - see https://gitlab.freedesktop.org/dbus/dbus/-/merge_requests/154#note_478876
+    install(CODE "message(\"-- Note: Not installing \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}/dbus-daemon-launch-helper binary setuid!\")")
+    install(CODE "message(\"-- Note: You'll need to manually set permissions to 'root:${DBUS_USER}' and permissions '4750'\")")
 endif()
 
 if(MSVC)
