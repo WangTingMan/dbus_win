@@ -138,6 +138,7 @@ option(DBUS_DISABLE_ASSERT "Disable assertion checking" OFF)
 
 option(DBUS_ENABLE_STATS "enable bus daemon usage statistics" OFF)
 option(DBUS_ENABLE_CONTAINERS "enable restricted servers for app-containers" OFF)
+option(ENABLE_TRADITIONAL_ACTIVATION "Enable traditional activation (without using systemd)" ON)
 
 if(DBUS_LINUX)
     add_auto_option(ENABLE_SYSTEMD "build with systemd at_console support" AUTO)
@@ -175,6 +176,13 @@ if(DBUS_LINUX)
     if(WITH_SYSTEMD_USERUNITDIR)
         set(DBUS_SYSTEMD_USERUNITDIR ${WITH_SYSTEMD_USERUNITDIR})
     endif()
+endif()
+
+if(NOT ENABLE_TRADITIONAL_ACTIVATION AND NOT (DBUS_LINUX AND DBUS_BUS_ENABLE_SYSTEMD))
+    message(WARNING "\
+Traditional activation and systemd activation are both disabled, so service \
+activation (automatically starting services that receive messages) will not work. \
+    ")
 endif()
 
 if(WIN32)
@@ -618,6 +626,7 @@ message("                                                                      "
 message("        install prefix:           ${prefix}                           ")
 message("        install exec_prefix:      ${exec_prefix}                      ")
 message("        install libdir:           ${CMAKE_INSTALL_FULL_LIBDIR}        ")
+message("        install libexecdir:       ${CMAKE_INSTALL_FULL_LIBEXECDIR}    ")
 message("        install bindir:           ${CMAKE_INSTALL_FULL_BINDIR}        ")
 message("        install sysconfdir:       ${CMAKE_INSTALL_FULL_SYSCONFDIR}    ")
 message("        install datadir:          ${CMAKE_INSTALL_FULL_DATADIR}       ")
@@ -654,6 +663,7 @@ message("        Building kqueue support:  ${DBUS_BUS_ENABLE_KQUEUE}           "
 message("        Building systemd support: ${DBUS_BUS_ENABLE_SYSTEMD}          ")
 message("        systemd system install dir:${DBUS_SYSTEMD_SYSTEMUNITDIR}      ")
 message("        systemd user install dir: ${DBUS_SYSTEMD_USERUNITDIR}         ")
+message("        Traditional activation:   ${ENABLE_TRADITIONAL_ACTIVATION}    ")
 message("        Building Doxygen docs:    ${DBUS_ENABLE_DOXYGEN_DOCS}         ")
 message("        Building Qt help docs:    ${DBUS_ENABLE_QTHELP_DOCS}          ")
 message("        Building XML docs:        ${DBUS_ENABLE_XML_DOCS}             ")
