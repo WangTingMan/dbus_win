@@ -4742,7 +4742,7 @@ act_on_fds_3_and_up (void (*func) (int fd))
 {
   int maxfds, i;
 
-#ifdef __linux__
+#if defined(__linux__) && defined(__GLIBC__)
   DIR *d;
 
   /* On Linux we can optimize this a bit if /proc is available. If it
