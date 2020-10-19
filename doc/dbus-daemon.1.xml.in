@@ -699,7 +699,7 @@ configuration file would probably be nonsense.</para>
   precedence.</para>
 
 <para>
-  On Unix, the standard session service directories are:
+  On Unix, the standard system service directories are:
   <itemizedlist>
     <listitem>
       <para>
