@@ -165,45 +165,30 @@ case "$ci_buildsys" in
         ;;
 esac
 
-srcdir="$(pwd)"
-mkdir ci-build-${ci_variant}-${ci_host}
-cd ci-build-${ci_variant}-${ci_host}
-
-make="make -j${ci_parallel} V=1 VERBOSE=1"
-
+#
+# cross compile setup
+#
 case "$ci_host" in
     (*-w64-mingw32)
-        mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
         if [ "${ci_host%%-*}" = i686 ]; then
             mingw="$(pwd)/mingw32"
         else
             mingw="$(pwd)/mingw64"
         fi
-        install -d "${mingw}"
         export PKG_CONFIG_LIBDIR="${mingw}/lib/pkgconfig"
         export PKG_CONFIG_PATH=
         export PKG_CONFIG="pkg-config --define-variable=prefix=${mingw}"
         unset CC
         unset CXX
-        for pkg in \
-            bzip2-1.0.8-1 \
-            expat-2.2.9-1 \
-            gcc-libs-9.3.0-2 \
-            gettext-0.19.8.1-8 \
-            glib2-2.64.2-1 \
-            iconv-1.16-1 \
-            libffi-3.3-1 \
-            libiconv-1.16-1 \
-            libwinpthread-git-8.0.0.5814.9dbf4cc1-1 \
-            pcre-8.44-1 \
-            zlib-1.2.11-7 \
-            ; do
-            wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
-            tar -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
-        done
         export TMPDIR=/tmp
         ;;
 esac
+
+srcdir="$(pwd)"
+mkdir ci-build-${ci_variant}-${ci_host}
+cd ci-build-${ci_variant}-${ci_host}
+
+make="make -j${ci_parallel} V=1 VERBOSE=1"
 
 case "$ci_buildsys" in
     (autotools)
