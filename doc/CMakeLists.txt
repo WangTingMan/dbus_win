@@ -129,7 +129,7 @@ macro(DOCBOOK _sources _format)
     set(_outfile ${CMAKE_CURRENT_BINARY_DIR}/${_outname})
     add_custom_command(
         OUTPUT ${_outfile}
-        COMMAND ${XSLTPROC_EXECUTABLE} --output ${_outfile} --nonet --xinclude  --param passivetex.extensions '1' ${STYLESHEET} ${_infile}
+        COMMAND ${XSLTPROC_EXECUTABLE} --output ${_outfile} --nonet --xinclude  --param passivetex.extensions '1' --param generate.consistent.ids '1' ${STYLESHEET} ${_infile}
         DEPENDS ${XSLTPROC_EXECUTABLE} ${_infile}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )

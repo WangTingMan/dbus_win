@@ -84,7 +84,7 @@ if DBUS_XML_DOCS_ENABLED
 html_DATA += $(XMLTO_HTML)
 
 %.html: %.xml
-	$(XMLTO) html-nochunks $<
+	$(XMLTO) --stringparam generate.consistent.ids=1 html-nochunks $<
 
 %.1: %.1.xml
 	$(XMLTO) man $<
