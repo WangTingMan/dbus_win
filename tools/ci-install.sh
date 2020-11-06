@@ -105,23 +105,105 @@ case "$ci_distro" in
         esac
 
         $sudo apt-get -qq -y update
+        packages=()
 
         case "$ci_host" in
             (i686-w64-mingw32)
-                $sudo apt-get -qq -y --no-install-recommends install \
-                    binutils-mingw-w64-i686 \
-                    g++-mingw-w64-i686 \
-                    $wine32 wine \
-                    ${NULL}
+                packages=(
+                    "${packages[@]}"
+                    binutils-mingw-w64-i686
+                    g++-mingw-w64-i686
+                    $wine32 wine
+                )
                 ;;
             (x86_64-w64-mingw32)
-                $sudo apt-get -qq -y --no-install-recommends install \
-                    binutils-mingw-w64-x86-64\
-                    g++-mingw-w64-x86-64 \
-                    $wine64 wine \
-                    ${NULL}
+                packages=(
+                    "${packages[@]}"
+                    binutils-mingw-w64-x86-64
+                    g++-mingw-w64-x86-64
+                    $wine64 wine
+                )
                 ;;
         esac
+
+        if [ "$ci_host/$ci_variant/$ci_suite" = "native/production/buster" ]; then
+            packages=(
+                "${packages[@]}"
+                qttools5-dev-tools
+                qt5-default
+            )
+        fi
+
+        packages=(
+            "${packages[@]}"
+            adduser
+            autoconf-archive
+            automake
+            autotools-dev
+            ccache
+            cmake
+            debhelper
+            dh-autoreconf
+            dh-exec
+            docbook-xml
+            docbook-xsl
+            doxygen
+            dpkg-dev
+            g++
+            gcc
+            gnome-desktop-testing
+            libapparmor-dev
+            libaudit-dev
+            libcap-ng-dev
+            libexpat-dev
+            libglib2.0-dev
+            libselinux1-dev
+            libsystemd-dev
+            libx11-dev
+            sudo
+            valgrind
+            wget
+            xauth
+            xmlto
+            xsltproc
+            xvfb
+        )
+
+        case "$ci_suite" in
+            (stretch)
+                # Debian 9 'stretch' didn't have the ducktype package
+                ;;
+
+            (*)
+                # assume Ubuntu 18.04 'bionic', Debian 10 'buster' or newer
+                packages=(
+                    "${packages[@]}"
+                    ducktype yelp-tools
+                )
+                ;;
+        esac
+
+        $sudo apt-get -qq -y --no-install-recommends install "${packages[@]}"
+
+        if [ "$ci_in_docker" = yes ]; then
+            # Add the user that we will use to do the build inside the
+            # Docker container, and let them use sudo
+            adduser --disabled-password --gecos "" user
+            echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
+            chmod 0440 /etc/sudoers.d/nopasswd
+        fi
+
+        # manual package setup
+        case "$ci_suite" in
+            (jessie|xenial)
+                # autoconf-archive in Debian 8 and Ubuntu 16.04 is too old,
+                # use the one from Debian 9 instead
+                wget http://deb.debian.org/debian/pool/main/a/autoconf-archive/autoconf-archive_20160916-1_all.deb
+                $sudo dpkg -i autoconf-archive_*_all.deb
+                rm autoconf-archive_*_all.deb
+                ;;
+        esac
+
         case "$ci_host" in
             (*-w64-mingw32)
                 mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
@@ -143,84 +225,22 @@ case "$ci_distro" in
                     libwinpthread-git-8.0.0.5814.9dbf4cc1-1 \
                     pcre-8.44-1 \
                     zlib-1.2.11-7 \
-                    ; do
+                ; do
                     wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
                     tar -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
                 done
+
+                # limit access rights
+                if [ "$ci_in_docker" = yes ]; then
+                    chown -R user "${mingw}"
+                fi
                 ;;
         esac
-
-        if [ "$ci_host/$ci_variant/$ci_suite" = "native/production/buster" ]; then
-            $sudo apt-get -qq -y --no-install-recommends install \
-                qttools5-dev-tools qt5-default \
-                ${NULL}
-        fi
-
-        $sudo apt-get -qq -y --no-install-recommends install \
-            adduser \
-            autoconf-archive \
-            automake \
-            autotools-dev \
-            ccache \
-            cmake \
-            debhelper \
-            dh-autoreconf \
-            dh-exec \
-            docbook-xml \
-            docbook-xsl \
-            doxygen \
-            dpkg-dev \
-            g++ \
-            gcc \
-            gnome-desktop-testing \
-            libapparmor-dev \
-            libaudit-dev \
-            libcap-ng-dev \
-            libexpat-dev \
-            libglib2.0-dev \
-            libselinux1-dev \
-            libsystemd-dev \
-            libx11-dev \
-            sudo \
-            valgrind \
-            wget \
-            xauth \
-            xmlto \
-            xsltproc \
-            xvfb \
-            ${NULL}
 
         # Make sure we have a messagebus user, even if the dbus package
         # isn't installed
         $sudo adduser --system --quiet --home /nonexistent --no-create-home \
             --disabled-password --group messagebus
-
-        if [ "$ci_in_docker" = yes ]; then
-            # Add the user that we will use to do the build inside the
-            # Docker container, and let them use sudo
-            adduser --disabled-password --gecos "" user
-            echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
-            chmod 0440 /etc/sudoers.d/nopasswd
-        fi
-
-        case "$ci_suite" in
-            (jessie|xenial)
-                # autoconf-archive in Debian 8 and Ubuntu 16.04 is too old,
-                # use the one from Debian 9 instead
-                wget http://deb.debian.org/debian/pool/main/a/autoconf-archive/autoconf-archive_20160916-1_all.deb
-                $sudo dpkg -i autoconf-archive_*_all.deb
-                rm autoconf-archive_*_all.deb
-                ;;
-
-            (stretch)
-                # Debian 9 'stretch' didn't have the ducktype package
-                ;;
-
-            (*)
-                # assume Ubuntu 18.04 'bionic', Debian 10 'buster' or newer
-                $sudo apt-get -qq -y --no-install-recommends install ducktype yelp-tools
-                ;;
-        esac
         ;;
 
     (*)
