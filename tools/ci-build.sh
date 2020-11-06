@@ -187,16 +187,16 @@ case "$ci_host" in
         unset CXX
         for pkg in \
             bzip2-1.0.8-1 \
-            expat-2.1.0-6 \
-            gcc-libs-5.2.0-4 \
-            gettext-0.19.6-1 \
-            glib2-2.46.1-1 \
+            expat-2.2.9-1 \
+            gcc-libs-9.3.0-2 \
+            gettext-0.19.8.1-8 \
+            glib2-2.64.2-1 \
             iconv-1.16-1 \
-            libffi-3.2.1-3 \
+            libffi-3.3-1 \
             libiconv-1.16-1 \
-            libwinpthread-git-5.0.0.4850.d1662dc7-1 \
+            libwinpthread-git-8.0.0.5814.9dbf4cc1-1 \
             pcre-8.44-1 \
-            zlib-1.2.8-9 \
+            zlib-1.2.11-7 \
             ; do
             wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
             tar -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
