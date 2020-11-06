@@ -458,7 +458,14 @@ _dbus_rlimit_raise_fd_limit (DBusError *error)
    * and older and non-systemd Linux systems would typically set rlim_cur
    * to 1024 and rlim_max to 4096. */
   if (lim.rlim_max == RLIM_INFINITY || lim.rlim_cur < lim.rlim_max)
-    lim.rlim_cur = lim.rlim_max;
+    {
+#if defined(__APPLE__) && defined(__MACH__)
+      /* macOS 10.5 and above no longer allows RLIM_INFINITY for rlim_cur */
+      lim.rlim_cur = MIN (OPEN_MAX, lim.rlim_max);
+#else
+      lim.rlim_cur = lim.rlim_max;
+#endif
+    }
 
   /* Early-return if there is nothing to do. */
   if (lim.rlim_max == old.rlim_max &&
