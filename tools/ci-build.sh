@@ -154,10 +154,12 @@ NOCONFIGURE=1 ./autogen.sh
 
 case "$ci_buildsys" in
     (cmake-dist)
+        # clean up directories from possible previous builds
+        rm -rf ci-build-dist
         # Do an Autotools `make dist`, then build *that* with CMake,
         # to assert that our official release tarballs will be enough
         # to build with CMake.
-        mkdir ci-build-dist
+        mkdir -p ci-build-dist
         ( cd ci-build-dist; ../configure )
         make -C ci-build-dist dist
         tar --xz -xvf ci-build-dist/dbus-1.*.tar.xz
@@ -185,7 +187,9 @@ case "$ci_host" in
 esac
 
 srcdir="$(pwd)"
-mkdir ci-build-${ci_variant}-${ci_host}
+# clean up directories from possible previous builds
+rm -rf ci-build-${ci_variant}-${ci_host}
+mkdir -p ci-build-${ci_variant}-${ci_host}
 cd ci-build-${ci_variant}-${ci_host}
 
 make="make -j${ci_parallel} V=1 VERBOSE=1"
