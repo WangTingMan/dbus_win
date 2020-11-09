@@ -95,6 +95,11 @@ init_wine() {
 # See ci-install.sh
 : "${ci_host:=native}"
 
+# ci_local_packages:
+# prefer local packages instead of distribution
+# See ci-install.sh
+: "${ci_local_packages:=yes}"
+
 # ci_parallel:
 # A number of parallel jobs, passed to make -j
 : "${ci_parallel:=1}"
@@ -172,14 +177,24 @@ esac
 #
 case "$ci_host" in
     (*-w64-mingw32)
-        if [ "${ci_host%%-*}" = i686 ]; then
-            mingw="$(pwd)/mingw32"
+        if [ "$ci_local_packages" = yes ]; then
+            dep_prefix=$(pwd)/${ci_host}-prefix
         else
-            mingw="$(pwd)/mingw64"
+            # assume the compiler was configured with a sysroot (e.g. openSUSE)
+            sysroot=$("${ci_host}-gcc" --print-sysroot)
+            # check if the prefix is a subdir of sysroot (e.g. openSUSE)
+            if [ -d "${sysroot}/${ci_host}" ]; then
+                dep_prefix="${sysroot}/${ci_host}"
+            else
+                # fallback: assume the dependency libraries were built with --prefix=/${ci_host}
+                dep_prefix="/${ci_host}"
+                export PKG_CONFIG_SYSROOT_DIR="${sysroot}"
+            fi
         fi
-        export PKG_CONFIG_LIBDIR="${mingw}/lib/pkgconfig"
+
+        export PKG_CONFIG_LIBDIR="${dep_prefix}/lib/pkgconfig"
         export PKG_CONFIG_PATH=
-        export PKG_CONFIG="pkg-config --define-variable=prefix=${mingw}"
+        export PKG_CONFIG="pkg-config --define-variable=prefix=${dep_prefix}"
         unset CC
         unset CXX
         export TMPDIR=/tmp
@@ -359,16 +374,18 @@ case "$ci_buildsys" in
                     if [ "$ci_runtime" = "shared" ]; then
                         libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
                     fi
-                    init_wine "${mingw}/bin" "$(pwd)/bin" ${libgcc_path:+"$libgcc_path"}
+                    init_wine "${dep_prefix}/bin" "$(pwd)/bin" ${libgcc_path:+"$libgcc_path"}
                     cmdwrapper="xvfb-run -a"
                 fi
                 set _ "$@"
                 set "$@" -D CMAKE_TOOLCHAIN_FILE="${srcdir}/cmake/${ci_host}.cmake"
-                set "$@" -D CMAKE_PREFIX_PATH="${mingw}"
-                set "$@" -D CMAKE_INCLUDE_PATH="${mingw}/include"
-                set "$@" -D CMAKE_LIBRARY_PATH="${mingw}/lib"
-                set "$@" -D EXPAT_LIBRARY="${mingw}/lib/libexpat.dll.a"
-                set "$@" -D GLIB2_LIBRARIES="${mingw}/lib/libglib-2.0.dll.a ${mingw}/lib/libgobject-2.0.dll.a ${mingw}/lib/libgio-2.0.dll.a"
+                set "$@" -D CMAKE_PREFIX_PATH="${dep_prefix}"
+                if [ "$ci_local_packages" = yes ]; then
+                    set "$@" -D CMAKE_INCLUDE_PATH="${dep_prefix}/include"
+                    set "$@" -D CMAKE_LIBRARY_PATH="${dep_prefix}/lib"
+                    set "$@" -D EXPAT_LIBRARY="${dep_prefix}/lib/libexpat.dll.a"
+                    set "$@" -D GLIB2_LIBRARIES="${dep_prefix}/lib/libglib-2.0.dll.a ${dep_prefix}/lib/libgobject-2.0.dll.a ${dep_prefix}/lib/libgio-2.0.dll.a"
+                fi
                 if [ "$ci_test" = yes ]; then
                     set "$@" -D DBUS_USE_WINE=1
                 fi

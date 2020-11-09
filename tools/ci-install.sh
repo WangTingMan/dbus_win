@@ -48,6 +48,10 @@ NULL=
 # (ci_docker is empty in this case).
 : "${ci_in_docker:=no}"
 
+# ci_local_packages:
+# prefer local packages instead of distribution
+: "${ci_local_packages:=yes}"
+
 # ci_suite:
 # OS suite (release, branch) in which we are testing.
 # Typical values for ci_distro=debian: sid, jessie
@@ -204,39 +208,6 @@ case "$ci_distro" in
                 ;;
         esac
 
-        case "$ci_host" in
-            (*-w64-mingw32)
-                mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
-                if [ "${ci_host%%-*}" = i686 ]; then
-                    mingw="$(pwd)/mingw32"
-                else
-                    mingw="$(pwd)/mingw64"
-                fi
-                install -d "${mingw}"
-                for pkg in \
-                    bzip2-1.0.8-1 \
-                    expat-2.2.9-1 \
-                    gcc-libs-9.3.0-2 \
-                    gettext-0.19.8.1-8 \
-                    glib2-2.64.2-1 \
-                    iconv-1.16-1 \
-                    libffi-3.3-1 \
-                    libiconv-1.16-1 \
-                    libwinpthread-git-8.0.0.5814.9dbf4cc1-1 \
-                    pcre-8.44-1 \
-                    zlib-1.2.11-7 \
-                ; do
-                    wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
-                    tar -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
-                done
-
-                # limit access rights
-                if [ "$ci_in_docker" = yes ]; then
-                    chown -R user "${mingw}"
-                fi
-                ;;
-        esac
-
         # Make sure we have a messagebus user, even if the dbus package
         # isn't installed
         $sudo adduser --system --quiet --home /nonexistent --no-create-home \
@@ -248,5 +219,36 @@ case "$ci_distro" in
         exit 1
         ;;
 esac
+
+if [ "$ci_local_packages" = yes ]; then
+    case "$ci_host" in
+        (*-w64-mingw32)
+            mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
+            dep_prefix=$(pwd)/${ci_host}-prefix
+            install -d "${dep_prefix}"
+            for pkg in \
+                bzip2-1.0.8-1 \
+                expat-2.2.9-1 \
+                gcc-libs-9.3.0-2 \
+                gettext-0.19.8.1-8 \
+                glib2-2.64.2-1 \
+                iconv-1.16-1 \
+                libffi-3.3-1 \
+                libiconv-1.16-1 \
+                libwinpthread-git-8.0.0.5814.9dbf4cc1-1 \
+                pcre-8.44-1 \
+                zlib-1.2.11-7 \
+            ; do
+                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
+                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
+            done
+
+            # limit access rights
+            if [ "$ci_in_docker" = yes ]; then
+                chown -R user "${dep_prefix}"
+            fi
+            ;;
+    esac
+fi
 
 # vim:set sw=4 sts=4 et:
