@@ -38,28 +38,24 @@ if(DBUS_BUILD_TESTS AND CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_NAME STREQUAL "Win
     endif()
 endif()
 
-macro(add_test_executable _target _source)
-    set(_sources "${_source}")
-    if(WIN32 AND NOT MSVC)
-        # avoid triggering UAC
-        add_uac_manifest(_sources)
-    endif()
-    add_executable(${_target} ${_sources})
-    target_link_libraries(${_target} ${ARGN})
-    if(CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        # run tests with binfmt_misc
-        if(HAVE_BINFMT_WINE_SUPPORT)
-            add_test(NAME ${_target} COMMAND $<TARGET_FILE:${_target}> --tap)
-        else()
-            add_test(NAME ${_target} COMMAND ${TEST_WRAPPER} ${Z_DRIVE_IF_WINE}$<TARGET_FILE:${_target}> --tap)
-        endif()
-    else()
-        add_test(
-            NAME ${_target}
-            COMMAND $<TARGET_FILE:${_target}> --tap
-            WORKING_DIRECTORY ${DBUS_TEST_WORKING_DIR}
-        )
-    endif()
+#
+# add dbus specific test
+#
+# @param _name test name
+# @param _target cmake target to use with this test
+# @param ARGS <args> additional arguments added to the test command in front of the target file
+# @param ENV <env> additional environment variables to provide to the running test
+#
+macro(add_unit_test _name _target)
+    set(options)
+    set(oneValueArgs)
+    set(multiValueArgs ARGS ENV)
+    cmake_parse_arguments(_ "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    add_test(
+        NAME ${_name}
+        COMMAND ${TEST_WRAPPER} ${__ARGS} ${Z_DRIVE_IF_WINE}$<TARGET_FILE:${_target}> --tap
+        WORKING_DIRECTORY ${DBUS_TEST_WORKING_DIR}
+    )
     set(_env)
     list(APPEND _env "DBUS_SESSION_BUS_ADDRESS=")
     list(APPEND _env "DBUS_FATAL_WARNINGS=1")
@@ -69,9 +65,34 @@ macro(add_test_executable _target _source)
     list(APPEND _env "DBUS_TEST_EXEC=${DBUS_TEST_EXEC}")
     list(APPEND _env "DBUS_TEST_HOMEDIR=${DBUS_TEST_HOMEDIR}")
     list(APPEND _env "DBUS_TEST_UNINSTALLED=1")
-    set_tests_properties(${_target} PROPERTIES ENVIRONMENT "${_env}")
+    list(APPEND _env ${__ENV})
+    set_tests_properties(${_name} PROPERTIES ENVIRONMENT "${_env}")
 endmacro()
 
+#
+# create executable and add an associated unit test
+#
+# see @ref add_helper_executable for supported parameters
+#
+macro(add_test_executable _target _source)
+    add_helper_executable(${_target} "${_source}" ${ARGN})
+    add_unit_test(${_target} ${_target})
+endmacro()
+
+#
+# create an executable
+#
+# The executable file is named _target and is created
+# from the list of files provided with _source.
+# Other optional parameters assume that it is a
+# library to which this executable is linked.
+#
+# On Windows, a manifest is added to the executable
+# file to avoid triggering user access control (uac).
+#
+# @param _target target name
+# @param _source sources to add to this target
+#
 macro(add_helper_executable _target _source)
     set(_sources "${_source}")
     if(WIN32 AND NOT MSVC)
@@ -82,32 +103,21 @@ macro(add_helper_executable _target _source)
     target_link_libraries(${_target} ${ARGN})
 endmacro()
 
+#
+# create executable and add an associated unit test with dbus session setup
+#
+# see @ref add_helper_executable for supported parameters
+#
 macro(add_session_test_executable _target _source)
-    set(_sources "${_source}")
-    if(WIN32 AND NOT MSVC)
-        # avoid triggering UAC
-        add_uac_manifest(_sources)
-    endif()
-    add_executable(${_target} ${_sources})
-    target_link_libraries(${_target} ${ARGN})
-    add_test(NAME ${_target}
-        COMMAND
-        ${TEST_WRAPPER}
-        ${DBUS_TEST_RUN_SESSION}
-        --config-file=${DBUS_TEST_DATA}/valid-config-files/tmp-session.conf
-        --dbus-daemon=${DBUS_TEST_DAEMON}
-        ${Z_DRIVE_IF_WINE}$<TARGET_FILE:${_target}>
-        --tap
-        WORKING_DIRECTORY ${DBUS_TEST_WORKING_DIR}
+    add_helper_executable(${_target} "${_source}" ${ARGN})
+    add_unit_test(${_target} ${_target}
+        ARGS
+            ${DBUS_TEST_RUN_SESSION}
+            --config-file=${DBUS_TEST_DATA}/valid-config-files/tmp-session.conf
+            --dbus-daemon=${DBUS_TEST_DAEMON}
+        ENV
+            "DBUS_SESSION_BUS_PID="
     )
-    set(_env)
-    list(APPEND _env "DBUS_SESSION_BUS_PID=")
-    list(APPEND _env "DBUS_SESSION_BUS_ADDRESS=")
-    list(APPEND _env "DBUS_FATAL_WARNINGS=1")
-    list(APPEND _env "DBUS_TEST_DAEMON=${DBUS_TEST_DAEMON}")
-    list(APPEND _env "DBUS_TEST_DATA=${DBUS_TEST_DATA}")
-    list(APPEND _env "DBUS_TEST_HOMEDIR=${DBUS_TEST_HOMEDIR}")
-    set_tests_properties(${_target} PROPERTIES ENVIRONMENT "${_env}")
 endmacro()
 
 #
