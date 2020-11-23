@@ -1429,7 +1429,7 @@ _dbus_poll_select (DBusPollFD *fds,
   FD_ZERO (&write_set);
   FD_ZERO (&err_set);
 #ifdef DBUS_ENABLE_VERBOSE_MODE
-  _dbus_verbose("_dbus_poll: to=%d", timeout_milliseconds);
+  _dbus_verbose("_dbus_poll: to=%d\n", timeout_milliseconds);
   if (!_dbus_dump_fd_events (fds, n_fds))
     {
       ready = -1;
@@ -3014,6 +3014,7 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
   HANDLE lock;
   DBusString mutex_name;
 
+  _dbus_verbose ("scope:%s\n", scope);
   if (!_dbus_get_mutex_name(&mutex_name,scope))
     {
       _dbus_string_free( &mutex_name );
@@ -3021,7 +3022,10 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
     }
 
   if (hDBusDaemonMutex)
+    {
+      _dbus_verbose ("(scope:%s) -> yes\n", scope);
       return TRUE;
+    }
 
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
   lock = _dbus_global_lock( cUniqueDBusInitMutex );
@@ -3039,16 +3043,21 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
   _dbus_string_free( &mutex_name );
 
   if (hDBusDaemonMutex  == NULL)
+    {
+      _dbus_verbose ("(scope:%s) -> no\n", scope);
       return FALSE;
+    }
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
       CloseHandle(hDBusDaemonMutex);
       hDBusDaemonMutex = NULL;
+      _dbus_verbose ("(scope:%s) -> yes\n", scope);
       return TRUE;
     }
   // mutex wasn't created before, so return false.
   // We leave the mutex name allocated for later reusage
   // in _dbus_daemon_publish_session_bus_address.
+  _dbus_verbose ("(scope:%s) -> no\n", scope);
   return FALSE;
 }
 
@@ -3063,6 +3072,7 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
 
   _dbus_assert (address);
 
+  _dbus_verbose ("address:%s scope:%s\n", address, scope);
   if (!_dbus_get_mutex_name(&mutex_name,scope))
     {
       _dbus_string_free( &mutex_name );
@@ -3122,6 +3132,7 @@ _dbus_daemon_unpublish_session_bus_address (void)
 {
   HANDLE lock;
 
+  _dbus_verbose ("\n");
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
   lock = _dbus_global_lock( cUniqueDBusInitMutex );
 
