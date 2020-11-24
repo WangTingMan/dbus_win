@@ -48,6 +48,10 @@ NULL=
 # (ci_docker is empty in this case).
 : "${ci_in_docker:=no}"
 
+# ci_local_packages:
+# prefer local packages instead of distribution
+: "${ci_local_packages:=yes}"
+
 # ci_suite:
 # OS suite (release, branch) in which we are testing.
 # Typical values for ci_distro=debian: sid, jessie
@@ -105,68 +109,85 @@ case "$ci_distro" in
         esac
 
         $sudo apt-get -qq -y update
+        packages=()
 
         case "$ci_host" in
             (i686-w64-mingw32)
-                $sudo apt-get -qq -y --no-install-recommends install \
-                    binutils-mingw-w64-i686 \
-                    g++-mingw-w64-i686 \
-                    $wine32 wine \
-                    ${NULL}
+                packages=(
+                    "${packages[@]}"
+                    binutils-mingw-w64-i686
+                    g++-mingw-w64-i686
+                    $wine32 wine
+                )
                 ;;
             (x86_64-w64-mingw32)
-                $sudo apt-get -qq -y --no-install-recommends install \
-                    binutils-mingw-w64-x86-64\
-                    g++-mingw-w64-x86-64 \
-                    $wine64 wine \
-                    ${NULL}
+                packages=(
+                    "${packages[@]}"
+                    binutils-mingw-w64-x86-64
+                    g++-mingw-w64-x86-64
+                    $wine64 wine
+                )
                 ;;
         esac
 
         if [ "$ci_host/$ci_variant/$ci_suite" = "native/production/buster" ]; then
-            $sudo apt-get -qq -y --no-install-recommends install \
-                qttools5-dev-tools qt5-default \
-                ${NULL}
+            packages=(
+                "${packages[@]}"
+                qttools5-dev-tools
+                qt5-default
+            )
         fi
 
-        $sudo apt-get -qq -y --no-install-recommends install \
-            adduser \
-            autoconf-archive \
-            automake \
-            autotools-dev \
-            ccache \
-            cmake \
-            debhelper \
-            dh-autoreconf \
-            dh-exec \
-            docbook-xml \
-            docbook-xsl \
-            doxygen \
-            dpkg-dev \
-            g++ \
-            gcc \
-            gnome-desktop-testing \
-            libapparmor-dev \
-            libaudit-dev \
-            libcap-ng-dev \
-            libexpat-dev \
-            libglib2.0-dev \
-            libselinux1-dev \
-            libsystemd-dev \
-            libx11-dev \
-            sudo \
-            valgrind \
-            wget \
-            xauth \
-            xmlto \
-            xsltproc \
-            xvfb \
-            ${NULL}
+        packages=(
+            "${packages[@]}"
+            adduser
+            autoconf-archive
+            automake
+            autotools-dev
+            ccache
+            cmake
+            debhelper
+            dh-autoreconf
+            dh-exec
+            docbook-xml
+            docbook-xsl
+            doxygen
+            dpkg-dev
+            g++
+            gcc
+            gnome-desktop-testing
+            libapparmor-dev
+            libaudit-dev
+            libcap-ng-dev
+            libexpat-dev
+            libglib2.0-dev
+            libselinux1-dev
+            libsystemd-dev
+            libx11-dev
+            sudo
+            valgrind
+            wget
+            xauth
+            xmlto
+            xsltproc
+            xvfb
+        )
 
-        # Make sure we have a messagebus user, even if the dbus package
-        # isn't installed
-        $sudo adduser --system --quiet --home /nonexistent --no-create-home \
-            --disabled-password --group messagebus
+        case "$ci_suite" in
+            (stretch)
+                # Debian 9 'stretch' didn't have the ducktype package
+                ;;
+
+            (*)
+                # assume Ubuntu 18.04 'bionic', Debian 10 'buster' or newer
+                packages=(
+                    "${packages[@]}"
+                    ducktype yelp-tools
+                )
+                ;;
+        esac
+
+        $sudo apt-get -qq -y --no-install-recommends install "${packages[@]}"
 
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
@@ -176,6 +197,7 @@ case "$ci_distro" in
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
 
+        # manual package setup
         case "$ci_suite" in
             (jessie|xenial)
                 # autoconf-archive in Debian 8 and Ubuntu 16.04 is too old,
@@ -184,16 +206,12 @@ case "$ci_distro" in
                 $sudo dpkg -i autoconf-archive_*_all.deb
                 rm autoconf-archive_*_all.deb
                 ;;
-
-            (stretch)
-                # Debian 9 'stretch' didn't have the ducktype package
-                ;;
-
-            (*)
-                # assume Ubuntu 18.04 'bionic', Debian 10 'buster' or newer
-                $sudo apt-get -qq -y --no-install-recommends install ducktype yelp-tools
-                ;;
         esac
+
+        # Make sure we have a messagebus user, even if the dbus package
+        # isn't installed
+        $sudo adduser --system --quiet --home /nonexistent --no-create-home \
+            --disabled-password --group messagebus
         ;;
 
     (*)
@@ -201,5 +219,37 @@ case "$ci_distro" in
         exit 1
         ;;
 esac
+
+if [ "$ci_local_packages" = yes ]; then
+    case "$ci_host" in
+        (*-w64-mingw32)
+            mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
+            dep_prefix=$(pwd)/${ci_host}-prefix
+            install -d "${dep_prefix}"
+            packages=(
+                bzip2-1.0.8-1
+                expat-2.2.9-1
+                gcc-libs-9.3.0-2
+                gettext-0.19.8.1-8
+                glib2-2.64.2-1
+                iconv-1.16-1
+                libffi-3.3-1
+                libiconv-1.16-1
+                libwinpthread-git-8.0.0.5814.9dbf4cc1-1
+                pcre-8.44-1
+                zlib-1.2.11-7
+            )
+            for pkg in "${packages[@]}" ; do
+                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
+                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
+            done
+
+            # limit access rights
+            if [ "$ci_in_docker" = yes ]; then
+                chown -R user "${dep_prefix}"
+            fi
+            ;;
+    esac
+fi
 
 # vim:set sw=4 sts=4 et:

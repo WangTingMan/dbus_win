@@ -41,6 +41,7 @@ cache:
 
 variables:
   ci_in_docker: "yes"
+  ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
   ci_distro: "debian"
