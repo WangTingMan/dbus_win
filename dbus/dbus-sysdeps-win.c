@@ -960,10 +960,10 @@ is_winxp_sp3_or_lower (void)
 
    // Initialize the condition mask.
 
-   VER_SET_CONDITION( dwlConditionMask, VER_MAJORVERSION, op );
-   VER_SET_CONDITION( dwlConditionMask, VER_MINORVERSION, op );
-   VER_SET_CONDITION( dwlConditionMask, VER_SERVICEPACKMAJOR, op );
-   VER_SET_CONDITION( dwlConditionMask, VER_SERVICEPACKMINOR, op );
+   VER_SET_CONDITION (dwlConditionMask, VER_MAJORVERSION, op);
+   VER_SET_CONDITION (dwlConditionMask, VER_MINORVERSION, op);
+   VER_SET_CONDITION (dwlConditionMask, VER_SERVICEPACKMAJOR, op);
+   VER_SET_CONDITION (dwlConditionMask, VER_SERVICEPACKMINOR, op);
 
    // Perform the test.
 
@@ -2894,14 +2894,14 @@ HANDLE _dbus_global_lock (const char *mutexname)
   HANDLE mutex;
   DWORD gotMutex;
 
-  mutex = CreateMutexA( NULL, FALSE, mutexname );
-  if( !mutex )
+  mutex = CreateMutexA (NULL, FALSE, mutexname);
+  if (!mutex)
     {
       return FALSE;
     }
 
-   gotMutex = WaitForSingleObject( mutex, INFINITE );
-   switch( gotMutex )
+   gotMutex = WaitForSingleObject (mutex, INFINITE);
+   switch (gotMutex)
      {
        case WAIT_ABANDONED:
                ReleaseMutex (mutex);
@@ -3017,7 +3017,7 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
   _dbus_verbose ("scope:%s\n", scope);
   if (!_dbus_get_mutex_name(&mutex_name,scope))
     {
-      _dbus_string_free( &mutex_name );
+      _dbus_string_free (&mutex_name);
       return FALSE;
     }
 
@@ -3028,19 +3028,19 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
     }
 
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
-  lock = _dbus_global_lock( cUniqueDBusInitMutex );
+  lock = _dbus_global_lock (cUniqueDBusInitMutex);
 
   // we use CreateMutex instead of OpenMutex because of possible race conditions,
   // see http://msdn.microsoft.com/en-us/library/ms684315%28VS.85%29.aspx
-  hDBusDaemonMutex = CreateMutexA( NULL, FALSE, _dbus_string_get_const_data(&mutex_name) );
+  hDBusDaemonMutex = CreateMutexA (NULL, FALSE, _dbus_string_get_const_data(&mutex_name));
 
   /* The client uses mutex ownership to detect a running server, so the server should do so too.
      Fortunally the client deletes the mutex in the lock protected area, so checking presence 
      will work too.  */
 
-  _dbus_global_unlock( lock );
+  _dbus_global_unlock (lock);
 
-  _dbus_string_free( &mutex_name );
+  _dbus_string_free (&mutex_name);
 
   if (hDBusDaemonMutex  == NULL)
     {
@@ -3075,31 +3075,31 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
   _dbus_verbose ("address:%s scope:%s\n", address, scope);
   if (!_dbus_get_mutex_name(&mutex_name,scope))
     {
-      _dbus_string_free( &mutex_name );
+      _dbus_string_free (&mutex_name);
       return FALSE;
     }
 
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
-  lock = _dbus_global_lock( cUniqueDBusInitMutex );
+  lock = _dbus_global_lock (cUniqueDBusInitMutex);
 
   if (!hDBusDaemonMutex)
     {
-      hDBusDaemonMutex = CreateMutexA( NULL, FALSE, _dbus_string_get_const_data(&mutex_name) );
+      hDBusDaemonMutex = CreateMutexA (NULL, FALSE, _dbus_string_get_const_data(&mutex_name));
     }
-  _dbus_string_free( &mutex_name );
+  _dbus_string_free (&mutex_name);
 
   // acquire the mutex
-  if (WaitForSingleObject( hDBusDaemonMutex, 10 ) != WAIT_OBJECT_0)
+  if (WaitForSingleObject (hDBusDaemonMutex, 10) != WAIT_OBJECT_0)
     {
-      _dbus_global_unlock( lock );
-      CloseHandle( hDBusDaemonMutex );
+      _dbus_global_unlock (lock);
+      CloseHandle (hDBusDaemonMutex);
       return FALSE;
     }
 
   if (!_dbus_get_shm_name(&shm_name,scope))
     {
-      _dbus_string_free( &shm_name );
-      _dbus_global_unlock( lock );
+      _dbus_string_free (&shm_name);
+      _dbus_global_unlock (lock);
       return FALSE;
     }
 
@@ -3109,21 +3109,21 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
   hDBusSharedMem = CreateFileMappingA( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                        len >> 32, len & 0xffffffffu,
                                        _dbus_string_get_const_data(&shm_name) );
-  _dbus_assert( hDBusSharedMem );
+  _dbus_assert (hDBusSharedMem);
 
-  shared_addr = MapViewOfFile( hDBusSharedMem, FILE_MAP_WRITE, 0, 0, 0 );
+  shared_addr = MapViewOfFile (hDBusSharedMem, FILE_MAP_WRITE, 0, 0, 0);
 
   _dbus_assert (shared_addr);
 
   strcpy( shared_addr, address);
 
   // cleanup
-  UnmapViewOfFile( shared_addr );
+  UnmapViewOfFile (shared_addr);
 
-  _dbus_global_unlock( lock );
-  _dbus_verbose( "published session bus address at %s\n",_dbus_string_get_const_data (&shm_name) );
+  _dbus_global_unlock (lock);
+  _dbus_verbose ("published session bus address at %s\n",_dbus_string_get_const_data (&shm_name));
 
-  _dbus_string_free( &shm_name );
+  _dbus_string_free (&shm_name);
   return TRUE;
 }
 
@@ -3134,19 +3134,19 @@ _dbus_daemon_unpublish_session_bus_address (void)
 
   _dbus_verbose ("\n");
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
-  lock = _dbus_global_lock( cUniqueDBusInitMutex );
+  lock = _dbus_global_lock (cUniqueDBusInitMutex);
 
-  CloseHandle( hDBusSharedMem );
+  CloseHandle (hDBusSharedMem);
 
   hDBusSharedMem = NULL;
 
-  ReleaseMutex( hDBusDaemonMutex );
+  ReleaseMutex (hDBusDaemonMutex);
 
-  CloseHandle( hDBusDaemonMutex );
+  CloseHandle (hDBusDaemonMutex);
 
   hDBusDaemonMutex = NULL;
 
-  _dbus_global_unlock( lock );
+  _dbus_global_unlock (lock);
 }
 
 static dbus_bool_t
@@ -3160,28 +3160,28 @@ _dbus_get_autolaunch_shm (DBusString *address, DBusString *shm_name)
   for(i=0;i<20;++i) {
       // we know that dbus-daemon is available, so we wait until shm is available
       sharedMem = OpenFileMappingA( FILE_MAP_READ, FALSE, _dbus_string_get_const_data(shm_name));
-      if( sharedMem == 0 )
-          Sleep( 100 );
+      if (sharedMem == 0)
+          Sleep (100);
       if ( sharedMem != 0)
           break;
   }
 
-  if( sharedMem == 0 )
+  if (sharedMem == 0)
       return FALSE;
 
-  shared_addr = MapViewOfFile( sharedMem, FILE_MAP_READ, 0, 0, 0 );
+  shared_addr = MapViewOfFile (sharedMem, FILE_MAP_READ, 0, 0, 0);
 
-  if( !shared_addr )
+  if (!shared_addr)
       return FALSE;
 
-  _dbus_string_init( address );
+  _dbus_string_init (address);
 
-  _dbus_string_append( address, shared_addr );
+  _dbus_string_append (address, shared_addr);
 
   // cleanup
-  UnmapViewOfFile( shared_addr );
+  UnmapViewOfFile (shared_addr);
 
-  CloseHandle( sharedMem );
+  CloseHandle (sharedMem);
 
   return TRUE;
 }
@@ -3194,35 +3194,35 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
   DBusString mutex_name;
   dbus_bool_t bRet = TRUE;
 
-  if (!_dbus_get_mutex_name(&mutex_name,scope))
+  if (!_dbus_get_mutex_name (&mutex_name,scope))
     {
-      _dbus_string_free( &mutex_name );
+      _dbus_string_free (&mutex_name);
       return FALSE;
     }
 
   // sync _dbus_daemon_publish_session_bus_address, _dbus_daemon_unpublish_session_bus_address and _dbus_daemon_already_runs
-  lock = _dbus_global_lock( cUniqueDBusInitMutex );
+  lock = _dbus_global_lock (cUniqueDBusInitMutex);
 
   // do checks
-  daemon = CreateMutexA( NULL, FALSE, _dbus_string_get_const_data(&mutex_name) );
-  if(WaitForSingleObject( daemon, 10 ) != WAIT_TIMEOUT)
+  daemon = CreateMutexA (NULL, FALSE, _dbus_string_get_const_data(&mutex_name));
+  if(WaitForSingleObject (daemon, 10) != WAIT_TIMEOUT)
     {
       ReleaseMutex (daemon);
       CloseHandle (daemon);
 
-      _dbus_global_unlock( lock );
-      _dbus_string_free( &mutex_name );
+      _dbus_global_unlock (lock);
+      _dbus_string_free (&mutex_name);
       return FALSE;
     }
 
   // read shm
-  bRet = _dbus_get_autolaunch_shm( address, shm_name );
+  bRet = _dbus_get_autolaunch_shm (address, shm_name);
 
   // cleanup
-  CloseHandle ( daemon );
+  CloseHandle  (daemon);
 
-  _dbus_global_unlock( lock );
-  _dbus_string_free( &mutex_name );
+  _dbus_global_unlock (lock);
+  _dbus_string_free (&mutex_name);
 
   return bRet;
 }
