@@ -13,7 +13,7 @@ Maybe security fixes:
   between users of different names with the same numeric uid, so this
   configuration is not advisable on systems where D-Bus will be used.
   Thanks to Daniel Onaca.
-  (dbus#305, dbus!166; Simon McVittie)
+  (dbus#305, dbus!166, CVE-2020-35512; Simon McVittie)
 
 Other fixes:
 
