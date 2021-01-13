@@ -171,6 +171,7 @@ case "$ci_distro" in
             xmlto
             xsltproc
             xvfb
+            zstd
         )
 
         case "$ci_suite" in
@@ -227,21 +228,21 @@ if [ "$ci_local_packages" = yes ]; then
             dep_prefix=$(pwd)/${ci_host}-prefix
             install -d "${dep_prefix}"
             packages=(
-                bzip2-1.0.8-1
-                expat-2.2.9-1
-                gcc-libs-9.3.0-2
-                gettext-0.19.8.1-8
-                glib2-2.64.2-1
-                iconv-1.16-1
-                libffi-3.3-1
-                libiconv-1.16-1
-                libwinpthread-git-8.0.0.5814.9dbf4cc1-1
-                pcre-8.44-1
-                zlib-1.2.11-7
+                bzip2-1.0.8-2
+                expat-2.2.10-1
+                gcc-libs-10.2.0-6
+                gettext-0.19.8.1-10
+                glib2-2.66.4-1
+                iconv-1.16-2
+                libffi-3.3-2
+                libiconv-1.16-2
+                libwinpthread-git-8.0.0.5906.c9a21571-1
+                pcre-8.44-2
+                zlib-1.2.11-8
             )
             for pkg in "${packages[@]}" ; do
-                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
-                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.xz
+                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
+                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
             done
 
             # limit access rights
