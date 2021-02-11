@@ -224,12 +224,22 @@ set(DOC_DATA
 
 install(FILES ${DOC_DATA} DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/dbus)
 
+set(DBUS_DTD_DIR "${CMAKE_INSTALL_DATADIR}/xml/dbus-1" CACHE STRING  "Directory for installing DTD files")
+set(DBUS_XML_CATALOG_DIR "${DBUS_DTD_DIR}" CACHE STRING  "Directory for installing XML catalog file")
+
 set(EXTRA_DIST
     busconfig.dtd
     introspect.dtd
     introspect.xsl
 )
 
-install(FILES ${EXTRA_DIST} DESTINATION ${CMAKE_INSTALL_DATADIR}/xml/dbus-1)
+install(FILES ${EXTRA_DIST} DESTINATION ${DBUS_DTD_DIR})
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/catalog.xml.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/catalog.xml"
+  @ONLY)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/catalog.xml" DESTINATION ${DBUS_XML_CATALOG_DIR})
 
 endif()
