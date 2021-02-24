@@ -1245,6 +1245,24 @@
         (See <link linkend="message-protocol-marshaling-signature">Valid
         Signatures</link>.)
       </para>
+
+      <para>
+        It should be noted that while a variant itself does not require any
+        alignment padding, the contained value does need to be padded
+        according to the alignment rules of its type.
+      </para>
+
+      <para>
+        For instance, if the current position in the message is at a multiple of
+        8 bytes and the byte-order is big-endian, a variant containing a 64-bit
+        integer 5 would be marshalled as:
+
+        <screen>
+0x01 0x74 0x00                          <lineannotation>signature bytes (length = 1, signature = 't' and trailing nul)</lineannotation>
+               0x00 0x00 0x00 0x00 0x00 <lineannotation>padding to 8-byte boundary</lineannotation>
+0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x05 <lineannotation>8 bytes of contained value</lineannotation>
+        </screen>
+      </para>
     </sect2>
 
     <sect2>
