@@ -1207,7 +1207,9 @@
         array elements marshalled in sequence. <varname>n</varname> does not
         include the padding after the length, or any padding after the
         last element. i.e. <varname>n</varname> should be divisible by the
-        number of elements in the array.
+        number of elements in the array. Note that the alignment padding for the
+        first element is required even if there is no first element (an
+        empty array, where <varname>n</varname> is zero).
       </para>
 
       <para>
