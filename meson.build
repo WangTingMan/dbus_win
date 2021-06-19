@@ -822,13 +822,8 @@ config.set_quoted('DBUS_SESSION_CONFIG_FILE',
 
 system_socket = get_option('system_socket')
 if system_socket == ''
-    # We don't use runstatedir for this (yet?), because /var/run has been the
-    # interoperable system bus socket for 10+ years.
-    # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
     system_socket = (
-        get_option('prefix')
-        / get_option('localstatedir')
-        /'run'/'dbus'/'system_bus_socket'
+        get_option('prefix') / runstatedir / 'dbus' / 'system_bus_socket'
     )
 endif
 

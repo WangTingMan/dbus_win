@@ -1331,14 +1331,9 @@ AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
 ##### Set up location for system bus socket
 
-AS_IF([! test -z "$with_system_socket"],
+AS_IF([test -n "$with_system_socket"],
    [DBUS_SYSTEM_SOCKET=$with_system_socket],
-   [
-   # We don't use runstatedir for this (yet?), because /var/run has been the
-   # interoperable system bus socket for 10+ years.
-   # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
-   DBUS_SYSTEM_SOCKET=${EXPANDED_LOCALSTATEDIR}/run/dbus/system_bus_socket
-   ])
+   [DBUS_SYSTEM_SOCKET=${EXPANDED_RUNSTATEDIR}/dbus/system_bus_socket])
 
 dnl The actual check script is shared between Autotools and CMake.
 AS_IF([test "$dbus_win" != yes],
