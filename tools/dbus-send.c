@@ -488,7 +488,23 @@ main (int argc, char *argv[])
           exit (1);
         }
       *last_dot = '\0';
-      
+
+      if (!dbus_validate_interface (name, &error))
+        {
+          /* Typically this is "Interface name was not valid: \"xxx\""
+           * so we don't need to prefix anything special */
+          fprintf (stderr, "%s\n", error.message);
+          dbus_error_free (&error);
+          exit (1);
+        }
+
+      if (!dbus_validate_member (last_dot + 1, &error))
+        {
+          fprintf (stderr, "Invalid method name: %s\n", error.message);
+          dbus_error_free (&error);
+          exit (1);
+        }
+
       message = dbus_message_new_method_call (NULL,
                                               path,
                                               name,
@@ -508,7 +524,21 @@ main (int argc, char *argv[])
           exit (1);
         }
       *last_dot = '\0';
-      
+
+      if (!dbus_validate_interface (name, &error))
+        {
+          fprintf (stderr, "%s\n", error.message);
+          dbus_error_free (&error);
+          exit (1);
+        }
+
+      if (!dbus_validate_member (last_dot + 1, &error))
+        {
+          fprintf (stderr, "Invalid signal name: %s\n", error.message);
+          dbus_error_free (&error);
+          exit (1);
+        }
+
       message = dbus_message_new_signal (path, name, last_dot + 1);
       handle_oom (message != NULL);
     }
