@@ -417,6 +417,13 @@ main (int argc, char *argv[])
       usage (1);
     }
 
+  if (!dbus_validate_path (path, &error))
+    {
+      fprintf (stderr, "%s\n", error.message);
+      dbus_error_free (&error);
+      exit (1);
+    }
+
   if (address != NULL)
     {
       connection = dbus_connection_open (address, &error);
