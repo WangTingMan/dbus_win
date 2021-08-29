@@ -1100,6 +1100,10 @@ AC_SUBST([LIBDBUS_LIBS])
 DBUS_X_LIBS=
 DBUS_X_CFLAGS=
 
+AC_ARG_WITH([x],
+  [AS_HELP_STRING([--without-x], [build without X11 support])],
+  [], [with_x=auto])
+
 AC_ARG_ENABLE([x11-autolaunch],
   AS_HELP_STRING([--enable-x11-autolaunch], [build with X11 auto-launch support]),
   [], [enable_x11_autolaunch=auto])
@@ -1111,16 +1115,23 @@ if test "x$dbus_win" = xyes; then
 
     enable_x11_autolaunch=no
     have_x11=no
-else
-    AC_PATH_XTRA
+else if test "x$with_x" = xauto; then
+    PKG_CHECK_MODULES([X], [x11],
+            [AC_DEFINE([HAVE_X11], [1], [Define to 1 if you have X11 library])],
+            [ have_x11=no ])
 
-    if test "x$no_x" = xyes; then
-        have_x11=no
+    if test "x$have_x11" = xno; then
+        AC_MSG_WARN([Couldn't found X11, tried with pkg-config.])
     else
         have_x11=yes
-        DBUS_X_LIBS="$X_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS"
+        DBUS_X_LIBS="$X_LIBS"
         DBUS_X_CFLAGS="$X_CFLAGS"
     fi
+else
+    AS_IF([test "x$enable_x11_autolaunch" = "xyes"], [
+      AC_MSG_ERROR([--enable-x11-autolaunch and --without-x are not compatible])
+    ])
+fi
 fi
 
 if test "x$enable_x11_autolaunch,$have_x11" = xyes,no; then
