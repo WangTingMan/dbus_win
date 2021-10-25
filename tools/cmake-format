@@ -81,7 +81,7 @@ expke=$exp
 func=
 
 if test "$1" == "--all"; then
-	exp="${expt}${expts}${expku}${expki}${expks}${expke}"
+	exp="${expt};${expts}${expku}${expki}${expks}${expke}"
 	func=$1
 	shift
 elif test "$1" == "--end-args"; then
