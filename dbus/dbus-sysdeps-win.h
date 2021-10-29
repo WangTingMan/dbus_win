@@ -95,6 +95,20 @@ dbus_bool_t _dbus_getsid(char **sid, dbus_pid_t process_id);
 
 HANDLE      _dbus_spawn_program (const char *name, char **argv, char **envp);
 
+DBUS_PRIVATE_EXPORT
+void _dbus_win_set_error_from_last_error (DBusError  *error,
+                                          const char *format,
+                                          ...);
+
+DBUS_PRIVATE_EXPORT
+HANDLE _dbus_win_event_create_inheritable (DBusError *error);
+DBUS_PRIVATE_EXPORT
+dbus_bool_t _dbus_win_event_set (HANDLE handle, DBusError *error);
+DBUS_PRIVATE_EXPORT
+dbus_bool_t _dbus_win_event_wait (HANDLE handle, int timeout, DBusError *error);
+DBUS_PRIVATE_EXPORT
+dbus_bool_t _dbus_win_event_free (HANDLE handle, DBusError *error);
+
 #endif
 
 /** @} end of sysdeps-win.h */
