@@ -2,7 +2,7 @@
 #
 # cmake-format - a simple cmake formatter
 #
-# Copyright (c) 2019 Ralf Habacker <ralf.habacker@freenet.de>
+# Copyright (c) 2019,2021 Ralf Habacker <ralf.habacker@freenet.de>
 #
 # SPDX-License-Identifier: BSD
 #
@@ -12,7 +12,7 @@
 if test -z "$1"; then
 	echo "format cmake files                                                                   by Ralf Habacker"
 	echo
-	echo "Usage: $0  --all | --end-args | --indents | --keyword-case | --keyword-spaces | --tabs | --trailing-spaces"
+	echo "Usage: $0  --all | --end-args | --indents | --keyword-case | --keyword-spaces | --tabs | --trailing-spaces [<source-dir>]"
 	echo
 	echo "command line parameter:"
 	echo "   --all               all above"
@@ -23,6 +23,8 @@ if test -z "$1"; then
 	echo "   --tabs              replace tabs by 4 spaces"
 	echo "   --trailing-spaces   remove trailing spaces"
 	echo "   --check-indents     check indents"
+	echo "   [<source-dir>]      specify root dir to perform the requested action (optional)"
+	echo "                       If not specified, dbus source dir root is used"
 	exit 1
 fi
 
@@ -76,33 +78,52 @@ for j in $(echo $KEYWORDS); do
 	fi
 done
 expke=$exp
+func=
 
 if test "$1" == "--all"; then
-	exp="${expt}${expts}${expku}${expki}${expks}${expke}"
+	exp="${expt};${expts}${expku}${expki}${expks}${expke}"
+	func=$1
+	shift
 elif test "$1" == "--end-args"; then
 	exp=$expke
+	func=$1
+	shift
 elif test "$1" == "--indents"; then
 	exp=$expki
+	func=$1
+	shift
 elif test "$1" == "--keyword-case"; then
 	exp=$expku
+	func=$1
+	shift
 elif test "$1" == "--keyword-spaces"; then
 	exp=$expks
+	func=$1
+	shift
 elif test "$1" == "--tabs"; then
 	exp=$expt
+	func=$1
+	shift
 elif test "$1" == "--trailing-spaces"; then
 	exp=$expts
+	func=$1
+	shift
+elif test "$1" == "--check-indents"; then
+	echo "locations with unusual indention level changes, please inspect"
+	func=$1
+	shift
 fi
 
 # setup dir to apply
-s=$(dirname $0)
-root=$(realpath $s/..)
+if test -n "$1"; then
+    root=$1
+else
+    s=$(dirname $0)
+    root=$(realpath $s/..)
+fi
 
 #echo $exp
 #echo $root
-
-if test "$1" = "--check-indents"; then
-    echo "locations with unusual indention level changes, please inspect"
-fi
 
 # script for checking indents
 awk='BEGIN { debug=0; indent=0 }
@@ -118,7 +139,7 @@ debug == 1 { print FILENAME "[" NR "]:" indent " " oldindent ":  " $0; }
 # apply to cmake related files
 for i in $(find $root -name 'CMakeLists.txt' -o -name '*.cmake' | grep -v README.cmake | grep -v config.h.cmake | grep -v bat.cmake | grep -v '/Find'); do
 	# apply style
-	if ! test "$1" = "--check-indents"; then
+	if ! test "$func" = "--check-indents"; then
 		sed -i "$exp" $i
 	else
 		gawk "$awk" $i
