@@ -4246,6 +4246,24 @@
         reference implementation handles this method automatically.
       </para>
       <para>
+        On Unix, implementations should try to read the machine ID from
+        <literal>/var/lib/dbus/machine-id</literal> and
+        <literal>/etc/machine-id</literal>. The latter is
+        <ulink url='https://www.freedesktop.org/software/systemd/man/machine-id.html'>
+        defined by systemd</ulink>, but systems not using systemd may provide
+        an equivalent file.
+        If both exist, they are expected to have the same contents, and if they
+        differ, the spec does not define which takes precedence (the reference
+        implementation prefers <literal>/var/lib/dbus/machine-id</literal>,
+        but sd-bus does not).
+      </para>
+      <para>
+        On Windows, the hardware profile GUID is used as the machine ID,
+        with the punctuation removed. This can be obtained with the
+        <ulink url='https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcurrenthwprofilea'>
+        <function>GetCurrentHwProfile</function></ulink> function.
+      </para>
+      <para>
         The UUID is intended to be per-instance-of-the-operating-system, so may represent
         a virtual machine running on a hypervisor, rather than a physical machine.
         Basically if two processes see the same UUID, they should also see the same
