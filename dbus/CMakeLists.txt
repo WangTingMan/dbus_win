@@ -294,6 +294,8 @@ else(WIN32)
     endif()
 endif()
 
+target_include_directories(dbus-1 INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dbus-1.0>;$<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}/dbus-1.0/include>)
+
 # Assume that Linux has -Wl,--version-script and other platforms do not
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
     set(SOVERSION ${DBUS_LIBRARY_MAJOR})
