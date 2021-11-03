@@ -69,6 +69,8 @@ check_symbol_exists(getrandom    "sys/random.h"             HAVE_GETRANDOM)
 check_symbol_exists(getrlimit    "sys/resource.h;sys/time.h" HAVE_GETRLIMIT)
 check_symbol_exists(prlimit      "sys/resource.h;sys/time.h" HAVE_PRLIMIT)
 check_symbol_exists(setrlimit    "sys/resource.h;sys/time.h" HAVE_SETRLIMIT)
+check_symbol_exists(vasprintf    "stdio.h"                   HAVE_VASPRINTF)
+check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
