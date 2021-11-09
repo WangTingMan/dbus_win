@@ -6,8 +6,8 @@
 <article id="index">
   <articleinfo>
     <title>D-Bus Specification</title>
-    <releaseinfo>Version 0.36</releaseinfo>
-    <date>2020-04-21</date>
+    <releaseinfo>Version 0.37</releaseinfo>
+    <date>(not yet released)</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -77,6 +77,16 @@
        <revremark>
          See <ulink url='http://cgit.freedesktop.org/dbus/dbus/log/doc/dbus-specification.xml'>commit log</ulink>
        </revremark>
+     </revision>
+     <revision>
+       <revnumber>0.37</revnumber>
+       <date>(not yet released)</date>
+       <authorinitials></authorinitials>
+       <revdescription>
+         <itemizedlist>
+           <listitem><simpara>Clean up use of the term for an array of dict entries</simpara></listitem>
+         </itemizedlist>
+       </revdescription>
      </revision>
      <revision>
        <revnumber>0.36</revnumber>
@@ -4314,7 +4324,7 @@
                                                    in STRING property_name,
                                                    in VARIANT value);
               org.freedesktop.DBus.Properties.GetAll (in STRING interface_name,
-                                                      out DICT&lt;STRING,VARIANT&gt; props);
+                                                      out ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt; props);
         </programlisting>
       </para>
       <para>
@@ -4364,7 +4374,7 @@
       <para>
         <programlisting>
               org.freedesktop.DBus.Properties.PropertiesChanged (STRING interface_name,
-                                                                 DICT&lt;STRING,VARIANT&gt; changed_properties,
+                                                                 ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt; changed_properties,
                                                                  ARRAY&lt;STRING&gt; invalidated_properties);
         </programlisting>
       </para>
@@ -4411,7 +4421,7 @@
       </para>
       <para>
         <programlisting>
-          org.freedesktop.DBus.ObjectManager.GetManagedObjects (out DICT&lt;OBJPATH,DICT&lt;STRING,DICT&lt;STRING,VARIANT&gt;&gt;&gt; objpath_interfaces_and_properties);
+          org.freedesktop.DBus.ObjectManager.GetManagedObjects (out ARRAY of DICT_ENTRY&lt;OBJPATH,ARRAY of DICT_ENTRY&lt;STRING,ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt;&gt;&gt; objpath_interfaces_and_properties);
         </programlisting>
       </para>
       <para>
@@ -4434,7 +4444,7 @@
       <para>
         <programlisting>
           org.freedesktop.DBus.ObjectManager.InterfacesAdded (OBJPATH object_path,
-                                                              DICT&lt;STRING,DICT&lt;STRING,VARIANT&gt;&gt; interfaces_and_properties);
+                                                              ARRAY of DICT_ENTRY&lt;STRING,ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt;&gt; interfaces_and_properties);
           org.freedesktop.DBus.ObjectManager.InterfacesRemoved (OBJPATH object_path,
                                                                 ARRAY&lt;STRING&gt; interfaces);
         </programlisting>
@@ -6534,7 +6544,7 @@
         <para>
           As a method:
           <programlisting>
-            UpdateActivationEnvironment (in ARRAY of DICT&lt;STRING,STRING&gt; environment)
+            UpdateActivationEnvironment (in ARRAY of DICT_ENTRY&lt;STRING,STRING&gt; environment)
           </programlisting>
           Message arguments:
           <informaltable>
@@ -6549,7 +6559,7 @@
               <tbody>
                 <row>
                   <entry>0</entry>
-                  <entry>ARRAY of DICT&lt;STRING,STRING&gt;</entry>
+                  <entry>ARRAY of DICT_ENTRY&lt;STRING,STRING&gt;</entry>
                   <entry>Environment to add or update</entry>
                 </row>
               </tbody>
@@ -6728,7 +6738,7 @@
         <para>
           As a method:
           <programlisting>
-            DICT&lt;STRING,VARIANT&gt; GetConnectionCredentials (in STRING bus_name)
+            ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt; GetConnectionCredentials (in STRING bus_name)
           </programlisting>
           Message arguments:
           <informaltable>
@@ -6764,7 +6774,7 @@
             <tbody>
               <row>
                 <entry>0</entry>
-                <entry>DICT&lt;STRING,VARIANT&gt;</entry>
+                <entry>ARRAY of DICT_ENTRY&lt;STRING,VARIANT&gt;</entry>
                 <entry>Credentials</entry>
               </row>
             </tbody>
