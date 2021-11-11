@@ -497,7 +497,8 @@ build_env_string (char** envp)
 HANDLE
 _dbus_spawn_program (const char *name,
                      char      **argv,
-                     char      **envp)
+                     char      **envp,
+                     dbus_bool_t inherit_handles)
 {
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
   STARTUPINFOA si;
@@ -531,7 +532,12 @@ _dbus_spawn_program (const char *name,
 #ifdef DBUS_WINCE
   result = CreateProcessA (name, arg_string, NULL, NULL, FALSE, 0,
 #else
-  result = CreateProcessA (NULL, arg_string, NULL, NULL, FALSE, 0,
+  result = CreateProcessA (NULL,  /* no application name */
+                           arg_string,
+                           NULL, /* no process attributes */
+                           NULL, /* no thread attributes */
+                           inherit_handles, /* inherit handles */
+                           0, /* flags */
 #endif
 			   (LPVOID)env_string, NULL, &si, &pi);
   free (arg_string);
@@ -666,7 +672,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   _dbus_verbose ("babysitter: spawn child '%s'\n", my_argv[0]);
 
   PING();
-  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp);
+  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE);
 
   if (my_argv != NULL)
     {

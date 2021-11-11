@@ -57,6 +57,8 @@ set(dbus_cleanup_sockets_SOURCES
 
 set(dbus_run_session_SOURCES
     dbus-run-session.c
+    tool-common.c
+    tool-common.h
 )
 
 set(dbus_uuidgen_SOURCES

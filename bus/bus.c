@@ -764,11 +764,13 @@ process_config_postinit (BusContext      *context,
   return TRUE;
 }
 
+/* Takes ownership of print_addr_pipe fds, print_pid_pipe fds and ready_event_handle */
 BusContext*
 bus_context_new (const DBusString *config_file,
                  BusContextFlags   flags,
                  DBusPipe         *print_addr_pipe,
                  DBusPipe         *print_pid_pipe,
+                 void             *ready_event_handle,
                  const DBusString *address,
                  DBusError        *error)
 {
@@ -890,6 +892,17 @@ bus_context_new (const DBusString *config_file,
 
       _dbus_string_free (&addr);
     }
+
+#ifdef DBUS_WIN
+  if (ready_event_handle != NULL)
+    {
+      _dbus_verbose ("Notifying that we are ready to receive connections (event handle=%p)\n", ready_event_handle);
+      if (!_dbus_win_event_set (ready_event_handle, error))
+        goto failed;
+      if (!_dbus_win_event_free (ready_event_handle, error))
+        goto failed;
+    }
+#endif
 
   context->connections = bus_connections_new (context);
   if (context->connections == NULL)

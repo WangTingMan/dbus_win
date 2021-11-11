@@ -93,7 +93,10 @@ void        _dbus_threads_windows_ensure_ctor_linked (void);
 DBUS_PRIVATE_EXPORT
 dbus_bool_t _dbus_getsid(char **sid, dbus_pid_t process_id);
 
-HANDLE      _dbus_spawn_program (const char *name, char **argv, char **envp);
+HANDLE      _dbus_spawn_program (const char *name,
+                                 char **argv,
+                                 char **envp,
+                                 dbus_bool_t inherit_handles);
 
 DBUS_PRIVATE_EXPORT
 void _dbus_win_set_error_from_last_error (DBusError  *error,
