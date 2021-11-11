@@ -271,7 +271,13 @@ if(MSVC)
 else()
     set(WARNINGS "sign-compare")
     set(WARNINGS_DISABLED "")
-    set(WARNINGS_ERRORS "")
+    set(WARNINGS_ERRORS
+        missing-prototypes
+        strict-prototypes
+        declaration-after-statement
+        implicit-function-declaration
+        undef
+    )
 endif()
 generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS}" "${WARNINGS_DISABLED}" "${WARNINGS_ERRORS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGS_CFLAGS}")
