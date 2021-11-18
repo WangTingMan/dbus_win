@@ -191,7 +191,7 @@ endif()
 
 find_package(EXPAT)
 find_package(X11)
-find_package(GLib2)
+find_package(GLIB2)
 if(GLIB2_FOUND)
     option(DBUS_WITH_GLIB "build with glib" ON)
 endif()
