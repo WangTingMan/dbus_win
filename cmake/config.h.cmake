@@ -229,12 +229,24 @@
 #cmakedefine HAVE_SETRLIMIT 1
 #cmakedefine HAVE_UNIX_FD_PASSING 1
 #cmakedefine HAVE_SYSTEMD
+#cmakedefine HAVE_VASPRINTF 1
+#cmakedefine HAVE_VSNPRINTF 1
 
 /* Define to use epoll(4) on Linux */
 #cmakedefine DBUS_HAVE_LINUX_EPOLL 1
 
 /* Use the gcc __sync extension */
 #cmakedefine DBUS_USE_SYNC 1
+#cmakedefine HAVE_VASPRINTF 1
+#cmakedefine HAVE_VSNPRINTF 1
+
+/* whether -export-dynamic was passed to libtool */
+#cmakedefine DBUS_BUILT_R_DYNAMIC 1
+
+/* Enable GNU extensions on systems that have them.  */
+#ifndef _GNU_SOURCE
+#cmakedefine _GNU_SOURCE 1
+#endif
 
 // structs
 /* Define to 1 if you have struct cmsgred */
@@ -303,4 +315,7 @@
 #define FD_SETSIZE @FD_SETSIZE@
 #endif
 
+#cmakedefine01 HAVE_DECL_ENVIRON
+#cmakedefine01 HAVE_DECL_LOG_PERROR
+#cmakedefine01 HAVE_DECL_MSG_NOSIGNAL
 #endif  // _DBUS_CONFIG_H

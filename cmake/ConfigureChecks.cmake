@@ -69,6 +69,11 @@ check_symbol_exists(getrandom    "sys/random.h"             HAVE_GETRANDOM)
 check_symbol_exists(getrlimit    "sys/resource.h;sys/time.h" HAVE_GETRLIMIT)
 check_symbol_exists(prlimit      "sys/resource.h;sys/time.h" HAVE_PRLIMIT)
 check_symbol_exists(setrlimit    "sys/resource.h;sys/time.h" HAVE_SETRLIMIT)
+check_symbol_exists(vasprintf    "stdio.h"                   HAVE_VASPRINTF)
+check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
+check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
+check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
+check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
@@ -166,7 +171,7 @@ check_type_size("long"      SIZEOF_LONG)
 check_type_size("long long" SIZEOF_LONG_LONG)
 check_type_size("__int64"   SIZEOF___INT64)
 set(CMAKE_EXTRA_INCLUDE_FILES "sys/socket.h")
-check_type_size("socklen_t" SOCKLEN_T) # define HAVE_SOCKLEN_T and SOCKLEN_T for size
+check_type_size("socklen_t" HAVE_SOCKLEN_T)          #  dbus-sysdeps-unix.c
 set(CMAKE_EXTRA_INCLUDE_FILES)
 
 # DBUS_INT64_TYPE

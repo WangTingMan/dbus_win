@@ -197,7 +197,7 @@ if(GLIB2_FOUND)
 endif()
 
 # analogous to AC_USE_SYSTEM_EXTENSIONS in configure.ac
-add_definitions(-D_GNU_SOURCE)
+set(_GNU_SOURCE 1)
 
 # do config checks
 include(ConfigureChecks)
@@ -250,12 +250,12 @@ if(MSVC)
 
     # see https://msdn.microsoft.com/en-us/library/z78503e6.aspx
     # 4018 'expression' : signed/unsigned mismatch
-    set(WARNINGS "4018")
+    set(WARNINGS_C "4018")
     # 4090 'operation' : different 'modifier' qualifiers
     # 4101 'identifier' : unreferenced local variable
     # 4127 conditional expression is constant
     # 4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
-    set(WARNINGS_DISABLED "4090 4101 4127 4244")
+    set(WARNINGS_C_DISABLED "4090 4101 4127 4244")
     # 4002 too many actual parameters for macro 'identifier'
     # 4003 not enough actual parameters for macro 'identifier'
     # 4013 'function' undefined; assuming extern returning int
@@ -264,18 +264,28 @@ if(MSVC)
     # 4047 operator' : 'identifier1' differs in levels of indirection from 'identifier2'
     # 4114 same type qualifier used more than once
     # 4133 'type' : incompatible types - from 'type1' to 'type2'
-    set(WARNINGS_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
+    set(WARNINGS_C_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
     if(DBUS_MSVC_ANALYZE AND MSVC_VERSION GREATER 1600)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
     endif()
 else()
-    set(WARNINGS "sign-compare")
-    set(WARNINGS_DISABLED "")
-    set(WARNINGS_ERRORS "")
+    set(WARNINGS_C "sign-compare")
+    set(WARNINGS_C_DISABLED "")
+    set(WARNINGS_C_ERRORS
+        missing-prototypes
+        strict-prototypes
+        declaration-after-statement
+        implicit-function-declaration
+        undef
+    )
+    set(WARNINGS_CXX_ERRORS
+        undef
+    )
 endif()
-generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS}" "${WARNINGS_DISABLED}" "${WARNINGS_ERRORS}")
+generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS_C}" "${WARNINGS_C_DISABLED}" "${WARNINGS_C_ERRORS}")
+generate_warning_cflags(WARNINGS_CXXFLAGS "${WARNINGS_CXX}" "${WARNINGS_CXX_DISABLED}" "${WARNINGS_CXX_ERRORS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGS_CFLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS_CFLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS_CXXFLAGS}")
 
 # let wine be able to show file and lines in backtrace
 if(DBUS_USE_WINE)
@@ -287,7 +297,7 @@ if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
     set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wl,--export-dynamic")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,--export-dynamic")
-    add_definitions(-DDBUS_BUILT_R_DYNAMIC)
+    set(DBUS_BUILT_R_DYNAMIC 1)
 endif()
 
 if(DBUS_WITH_GLIB)
