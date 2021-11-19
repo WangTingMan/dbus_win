@@ -464,7 +464,7 @@ _dbus_directory_open (const DBusString *filename,
                           "Failed to read directory \"%s\": %s",
                           _dbus_string_get_const_data (filename), emsg);
           _dbus_win_free_error_string (emsg);
-          dbus_free ( iter );
+          dbus_free (iter);
           _dbus_string_free (&filespec);
           return NULL;
         }
