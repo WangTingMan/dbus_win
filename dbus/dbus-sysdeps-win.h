@@ -46,9 +46,6 @@ const char* _dbus_win_error_from_last_error (void);
 dbus_bool_t _dbus_win_startup_winsock (void);
 void _dbus_win_warn_win_error  (const char *message,
                                 unsigned long code);
-void _dbus_win_stderr_win_error (const char *app,
-                                 const char *message,
-                                  unsigned long code);
 DBUS_PRIVATE_EXPORT
 char * _dbus_win_error_string (int error_number);
 DBUS_PRIVATE_EXPORT

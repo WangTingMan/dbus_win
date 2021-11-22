@@ -501,14 +501,14 @@ run_session (const char *dbus_daemon,
   app_handle = _dbus_spawn_program (argv[prog_arg], argv + prog_arg, env, FALSE);
   if (!app_handle)
     {
-      _dbus_win_stderr_win_error (me, "unable to start child process", GetLastError ());
+      _dbus_win_set_error_from_last_error (&error, "Unable to start child process");
       goto out;
     }
 
   WaitForSingleObject (app_handle, INFINITE);
   if (!GetExitCodeProcess (app_handle, &exit_code))
     {
-      _dbus_win_stderr_win_error (me, "could not fetch exit code", GetLastError ());
+      _dbus_win_set_error_from_last_error (&error, "Could not fetch exit code");
       goto out;
     }
   ret = exit_code;
