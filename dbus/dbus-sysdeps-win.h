@@ -98,7 +98,7 @@ HANDLE      _dbus_spawn_program (const char *name,
 DBUS_PRIVATE_EXPORT
 void _dbus_win_set_error_from_last_error (DBusError  *error,
                                           const char *format,
-                                          ...);
+                                          ...) _DBUS_GNUC_PRINTF (2, 3);
 
 DBUS_PRIVATE_EXPORT
 HANDLE _dbus_win_event_create_inheritable (DBusError *error);
