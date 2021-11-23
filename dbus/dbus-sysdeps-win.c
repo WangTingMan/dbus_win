@@ -6,7 +6,7 @@
  * Copyright (C) 2005 Novell, Inc.
  * Copyright (C) 2006 Peter Kümmel  <syntheticpp@gmx.net>
  * Copyright (C) 2006 Christian Ehrlicher <ch.ehrlicher@gmx.de>
- * Copyright (C) 2006-2013 Ralf Habacker <ralf.habacker@freenet.de>
+ * Copyright (C) 2006-2021 Ralf Habacker <ralf.habacker@freenet.de>
  *
  * Licensed under the Academic Free License version 2.1
  *
@@ -4007,6 +4007,175 @@ int
 _dbus_get_low_level_socket_errno (void)
 {
   return WSAGetLastError ();
+}
+
+void
+_dbus_win_set_error_from_last_error (DBusError *error,
+                                     const char *format,
+                                     ...)
+{
+  const char *name;
+  char *message = NULL;
+
+  if (error == NULL)
+    return;
+
+  /* make sure to do this first, in case subsequent library calls overwrite GetLastError() */
+  name = _dbus_win_error_from_last_error ();
+  message = _dbus_win_error_string (GetLastError ());
+
+  if (format != NULL)
+    {
+      DBusString str;
+      va_list args;
+      dbus_bool_t retval;
+
+      if (!_dbus_string_init (&str))
+        goto out;
+
+      va_start (args, format);
+      retval = _dbus_string_append_printf_valist (&str, format, args);
+      va_end (args);
+      if (!retval)
+        {
+          _dbus_string_free (&str);
+          goto out;
+        }
+
+      dbus_set_error (error, name, "%s: %s", _dbus_string_get_const_data (&str), message);
+      _dbus_string_free (&str);
+    }
+  else
+    {
+      dbus_set_error (error, name, "%s", message);
+    }
+
+out:
+  if (message != NULL)
+    _dbus_win_free_error_string (message);
+}
+
+/**
+ * Creates a Windows event object and returns the corresponding handle
+ *
+ * The returned object is unnamed, is a manual-reset event object,
+ * is initially in the non-signalled state, and is inheritable by child
+ * processes.
+ *
+ * @param error the error to set
+ * @return handle for the created event
+ * @return #NULL if an error has occurred, the reason is returned in \p error
+ */
+HANDLE
+_dbus_win_event_create_inheritable (DBusError *error)
+{
+  HANDLE handle;
+
+  handle = CreateEvent (NULL, TRUE, FALSE, NULL);
+  if (handle == NULL)
+    {
+      _dbus_win_set_error_from_last_error (error, "Could not create event");
+      return NULL;
+    }
+  else if (GetLastError () == ERROR_ALREADY_EXISTS)
+   {
+      _dbus_win_set_error_from_last_error (error, "Event already exists");
+      return NULL;
+   }
+
+  if (!SetHandleInformation (handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT))
+    {
+      _dbus_win_set_error_from_last_error (error, "Could not set inheritance for event %s", handle);
+      CloseHandle (handle);
+      return NULL;
+    }
+  return handle;
+}
+
+/**
+ * Set a Windows event to the signalled state
+ *
+ * @param handle the handle for the event to be set
+ * @return TRUE the event was set successfully
+ * @return FALSE an error has occurred, the reason is returned in \p error
+ */
+dbus_bool_t
+_dbus_win_event_set (HANDLE handle, DBusError *error)
+{
+  _dbus_assert (handle != NULL);
+
+  if (!SetEvent (handle))
+    {
+      _dbus_win_set_error_from_last_error (error, "Could not trigger event (handle %p)", handle);
+      return FALSE;
+    }
+  return TRUE;
+}
+
+/**
+ * Wait for a Windows event to enter the signalled state
+ *
+ * @param handle the handle for the event to wait for
+ * @param timeout the waiting time in milliseconds, or INFINITE to wait forever,
+ *                or 0 to check immediately and not wait (polling)
+ * @param error the error to set
+ * @return TRUE the event was set successfully
+ * @return FALSE an error has occurred, the reason is returned in \p error
+ */
+dbus_bool_t
+_dbus_win_event_wait (HANDLE handle, int timeout, DBusError *error)
+{
+  DWORD status;
+
+  _dbus_assert (handle != NULL);
+
+  status = WaitForSingleObject (handle, timeout);
+  switch (status)
+    {
+      case WAIT_OBJECT_0:
+        return TRUE;
+
+      case WAIT_FAILED:
+        {
+          _dbus_win_set_error_from_last_error (error, "Unable to wait for event (handle %p)", handle);
+          return FALSE;
+        }
+
+      case WAIT_TIMEOUT:
+        /* GetLastError() is not set */
+        dbus_set_error (error, DBUS_ERROR_TIMEOUT, "Timed out waiting for event (handle %p)", handle);
+        return FALSE;
+
+      default:
+        /* GetLastError() is probably not set? */
+        dbus_set_error (error, DBUS_ERROR_FAILED, "Unknown result '%lu' while waiting for event (handle %p)", status, handle);
+        return FALSE;
+    }
+}
+
+/**
+ * Delete a Windows event
+ *
+ * @param handle handle for the event to delete
+ * @param error the error to set (optional)
+ * @return TRUE the event has been deleted successfully or the handle specifies a #NULL or invalid handle
+ * @return FALSE an error has occurred, the reason is returned in \p error if specified
+ */
+dbus_bool_t
+_dbus_win_event_free (HANDLE handle, DBusError *error)
+{
+  if (handle == NULL || handle == INVALID_HANDLE_VALUE)
+    return TRUE;
+
+  if (CloseHandle (handle))
+    return TRUE;
+
+  /* the handle may already be closed */
+  if (GetLastError () == ERROR_INVALID_HANDLE)
+    return TRUE;
+
+  _dbus_win_set_error_from_last_error (error, "Could not close event (handle %p)", handle);
+  return FALSE;
 }
 
 /** @} end of sysdeps-win */

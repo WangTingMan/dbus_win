@@ -32,6 +32,7 @@
     <arg choice='opt'>--nosyslog </arg>
     <arg choice='opt'>--syslog </arg>
     <arg choice='opt'>--syslog-only </arg>
+    <arg choice='opt'>--ready-event-handle=value</arg>
     <sbr/>
 </cmdsynopsis>
 </refsynopsisdiv>
@@ -198,6 +199,29 @@ files.</para>
         the system log.</para>
     </listitem>
   </varlistentry>
+
+  <varlistentry>
+    <term><option>--ready-event-handle=value</option></term>
+    <listitem>
+      <para>With this option, the dbus daemon raises an event when it is ready to process
+        connections. The <replaceable>handle</replaceable> must be the Windows handle
+        for an event object, in the format printed by the <function>printf</function>
+        format string <literal>%p</literal>. The parent process must create this event
+        object (for example with the <function>CreateEvent</function> function) in a
+        nonsignaled state, then configure it to be inherited by the dbus-daemon process.
+        The dbus-daemon will signal the event as if via <function>SetEvent</function>
+        when it is ready to receive connections from clients. The parent process can
+        wait for this to occur by using functions such as
+        <function>WaitForSingleObject</function>.
+        This option is only supported under Windows. On Unix platforms,
+        a similar result can be achieved by waiting for the address and/or
+        process ID to be printed to the inherited file descriptors used
+        for <option>--print-address</option> and/or <option>--print-pid</option>.
+      </para>
+    </listitem>
+  </varlistentry>
+
+
 
 </variablelist>
 </refsect1>
