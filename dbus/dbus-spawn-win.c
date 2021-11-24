@@ -514,7 +514,7 @@ _dbus_spawn_program (const char *name,
   arg_string = build_commandline (argv);
 #endif
   if (!arg_string)
-    return INVALID_HANDLE_VALUE;
+    return NULL;
 
   env_string = build_env_string(envp);
 
@@ -545,7 +545,7 @@ _dbus_spawn_program (const char *name,
     free (env_string);
 
   if (!result)
-    return INVALID_HANDLE_VALUE;
+    return NULL;
 
   CloseHandle (pi.hThread);
   return pi.hProcess;
@@ -680,7 +680,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
     }
 
   PING();
-  if (handle == INVALID_HANDLE_VALUE)
+  if (handle == NULL)
     {
       sitter->child_handle = NULL;
       sitter->have_spawn_errno = TRUE;

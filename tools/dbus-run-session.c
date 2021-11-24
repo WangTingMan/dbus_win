@@ -442,7 +442,7 @@ run_session (const char *dbus_daemon,
   dbus_daemon_argv[4] = NULL;
 
   server_handle = _dbus_spawn_program (dbus_daemon, dbus_daemon_argv, NULL, TRUE);
-  if (!server_handle)
+  if (server_handle == NULL)
     {
       _dbus_win_set_error_from_last_error (&error, "Could not start dbus daemon");
       goto out;
@@ -530,7 +530,7 @@ run_session (const char *dbus_daemon,
     goto out;
 
   app_handle = _dbus_spawn_program (argv[prog_arg], argv + prog_arg, env, FALSE);
-  if (!app_handle)
+  if (app_handle == NULL)
     {
       _dbus_win_set_error_from_last_error (&error, "Unable to start child process");
       goto out;
