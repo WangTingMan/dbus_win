@@ -441,12 +441,9 @@ run_session (const char *dbus_daemon,
   dbus_daemon_argv[3] = _dbus_string_get_data (&argv_strings[3]);
   dbus_daemon_argv[4] = NULL;
 
-  server_handle = _dbus_spawn_program (dbus_daemon, dbus_daemon_argv, NULL, TRUE);
+  server_handle = _dbus_spawn_program (dbus_daemon, dbus_daemon_argv, NULL, TRUE, &error);
   if (server_handle == NULL)
-    {
-      _dbus_win_set_error_from_last_error (&error, "Could not start dbus daemon");
-      goto out;
-    }
+    goto out;
 
   /* wait until dbus-daemon is ready for connections */
   if (ready_event_handle != NULL)
@@ -529,12 +526,9 @@ run_session (const char *dbus_daemon,
   if (!env)
     goto out;
 
-  app_handle = _dbus_spawn_program (argv[prog_arg], argv + prog_arg, env, FALSE);
+  app_handle = _dbus_spawn_program (argv[prog_arg], argv + prog_arg, env, FALSE, &error);
   if (app_handle == NULL)
-    {
-      _dbus_win_set_error_from_last_error (&error, "Unable to start child process");
-      goto out;
-    }
+    goto out;
 
   WaitForSingleObject (app_handle, INFINITE);
   if (!GetExitCodeProcess (app_handle, &exit_code))

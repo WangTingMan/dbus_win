@@ -494,11 +494,23 @@ build_env_string (char** envp)
   return compose_string (envp, '\0');
 }
 
+/**
+ * Creates a process with arguments and environment variables
+ *
+ * @param name name of the program
+ * @param argv list of char* pointers for the arguments
+ * @param envp list of char pointers for the environment
+ * @param inherit_handles specifies whether handles should be inherited by the child process
+ * @param error the error to set, if NULL no error will be set
+ * @return #NULL if an error occurred, the reason is returned in \p error
+ * @note The call to GetLastError() after this function may not return the expected value.
+ */
 HANDLE
 _dbus_spawn_program (const char *name,
                      char      **argv,
                      char      **envp,
-                     dbus_bool_t inherit_handles)
+                     dbus_bool_t inherit_handles,
+                     DBusError  *error)
 {
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
   STARTUPINFOA si;
@@ -514,7 +526,10 @@ _dbus_spawn_program (const char *name,
   arg_string = build_commandline (argv);
 #endif
   if (!arg_string)
-    return NULL;
+    {
+      dbus_set_error (error, DBUS_ERROR_FAILED, "No arguments given to start '%s' or out of memory", name);
+      goto out;
+    }
 
   env_string = build_env_string(envp);
 
@@ -545,7 +560,13 @@ _dbus_spawn_program (const char *name,
     free (env_string);
 
   if (!result)
-    return NULL;
+    {
+      _dbus_win_set_error_from_last_error (error, "Unable to start '%s' with arguments '%s'", name, arg_string);
+      goto out;
+    }
+
+out:
+  _DBUS_ASSERT_ERROR_XOR_BOOL (error, result);
 
   CloseHandle (pi.hThread);
   return pi.hProcess;
@@ -672,7 +693,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   _dbus_verbose ("babysitter: spawn child '%s'\n", my_argv[0]);
 
   PING();
-  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE);
+  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, NULL);
 
   if (my_argv != NULL)
     {
