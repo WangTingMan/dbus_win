@@ -4085,7 +4085,7 @@ _dbus_win_event_create_inheritable (DBusError *error)
 
   if (!SetHandleInformation (handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT))
     {
-      _dbus_win_set_error_from_last_error (error, "Could not set inheritance for event %s", handle);
+      _dbus_win_set_error_from_last_error (error, "Could not set inheritance for event %p", handle);
       CloseHandle (handle);
       return NULL;
     }
