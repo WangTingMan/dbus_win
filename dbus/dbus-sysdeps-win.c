@@ -4158,7 +4158,7 @@ _dbus_win_event_wait (HANDLE handle, int timeout, DBusError *error)
  *
  * @param handle handle for the event to delete
  * @param error the error to set (optional)
- * @return TRUE the event has been deleted successfully or the handle specifies a #NULL or invalid handle
+ * @return TRUE the event has been deleted successfully or the handle is one of the special sentinel values #NULL or #INVALID_HANDLE_VALUE
  * @return FALSE an error has occurred, the reason is returned in \p error if specified
  */
 dbus_bool_t
