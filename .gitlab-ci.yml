@@ -47,7 +47,7 @@ variables:
   ci_distro: "debian"
   ci_suite: "buster"
 
-build:production:
+production:
   stage: build
   image: "debian:buster-slim"
   variables:
@@ -56,14 +56,14 @@ build:production:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
 
-build:debug:
+debug:
   stage: build
   image: "debian:buster-slim"
   variables:
     ci_variant: "debug"
   script: *script
 
-build:reduced:
+reduced:
   stage: build
   when: manual
   image: "debian:buster-slim"
@@ -71,7 +71,7 @@ build:reduced:
     ci_variant: "reduced"
   script: *script
 
-build:legacy:
+legacy:
   stage: build
   when: manual
   image: "debian:buster-slim"
@@ -79,14 +79,14 @@ build:legacy:
     ci_variant: "legacy"
   script: *script
 
-build:cmake:
+cmake:
   stage: build
   image: "debian:buster-slim"
   variables:
     ci_buildsys: "cmake-dist"
   script: *script
 
-build:i686-w64-mingw32-debug:
+i686-w64-mingw32-debug:
   stage: build
   image: "debian:buster-slim"
   variables:
@@ -94,7 +94,7 @@ build:i686-w64-mingw32-debug:
     ci_variant: "debug"
   script: *script
 
-build:i686-w64-mingw32-cmake:
+i686-w64-mingw32-cmake:
   stage: build
   when: manual
   image: "debian:buster-slim"
@@ -103,14 +103,14 @@ build:i686-w64-mingw32-cmake:
     ci_host: "i686-w64-mingw32"
   script: *script
 
-build:x86_64-w64-mingw32:
+x86_64-w64-mingw32:
   stage: build
   image: "debian:buster-slim"
   variables:
     ci_host: "x86_64-w64-mingw32"
   script: *script
 
-build:x86_64-w64-mingw32-cmake-debug:
+x86_64-w64-mingw32-cmake-debug:
   stage: build
   image: "debian:buster-slim"
   variables:
@@ -119,7 +119,7 @@ build:x86_64-w64-mingw32-cmake-debug:
     ci_variant: "debug"
   script: *script
 
-build:stretch:
+stretch:
   when: manual
   stage: build
   image: "debian:stretch-slim"
@@ -127,7 +127,7 @@ build:stretch:
     ci_suite: "stretch"
   script: *script
 
-build:xenial:
+xenial:
   when: manual
   stage: build
   image: "ubuntu:xenial"
