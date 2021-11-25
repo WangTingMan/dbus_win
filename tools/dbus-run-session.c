@@ -451,9 +451,40 @@ run_session (const char *dbus_daemon,
   /* wait until dbus-daemon is ready for connections */
   if (ready_event_handle != NULL)
     {
+      DWORD status;
+      HANDLE events[2];
+
       _dbus_verbose ("Wait until dbus-daemon is ready for connections (event handle %p)\n", ready_event_handle);
-      if (!_dbus_win_event_wait (ready_event_handle, 30000, &error))
-        goto out;
+
+      events[0] = ready_event_handle;
+      events[1] = server_handle;
+      status = WaitForMultipleObjects (2, events, FALSE, 30000);
+
+      switch (status)
+        {
+          case WAIT_OBJECT_0:
+            /* ready event signalled, everything is okay */
+            break;
+
+          case WAIT_OBJECT_0 + 1:
+            /* dbus-daemon process has exited */
+            dbus_set_error (&error, DBUS_ERROR_SPAWN_CHILD_EXITED, "dbus-daemon exited before signalling ready");
+            goto out;
+
+          case WAIT_FAILED:
+            _dbus_win_set_error_from_last_error (&error, "Unable to wait for server readiness (handle %p)", ready_event_handle);
+            goto out;
+
+          case WAIT_TIMEOUT:
+            /* GetLastError() is not set */
+            dbus_set_error (&error, DBUS_ERROR_TIMEOUT, "Timed out waiting for server readiness or exit (handle %p)", ready_event_handle);
+            goto out;
+
+          default:
+            /* GetLastError() is probably not set? */
+            dbus_set_error (&error, DBUS_ERROR_FAILED, "Unknown result '%lu' while waiting for server readiness (handle %p)", status, ready_event_handle);
+            goto out;
+        }
       _dbus_verbose ("Got signal that dbus-daemon is ready for connections\n");
     }
 
