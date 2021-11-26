@@ -130,6 +130,8 @@ init_wine() {
 # One of static, shared; used for windows cross builds
 : "${ci_runtime:=static}"
 
+echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_docker=$ci_docker ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
+
 if [ -n "$ci_docker" ]; then
     exec docker run \
         --env=ci_buildsys="${ci_buildsys}" \
