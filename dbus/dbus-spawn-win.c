@@ -450,105 +450,146 @@ protect_argv (char  * const *argv,
   return argc;
 }
 
-
-/* From GPGME, relicensed by g10 Code GmbH.  */
-static char *
-compose_string (char **strings, char separator)
+static dbus_bool_t
+build_commandline (char **argv, DBusString *result)
 {
-  int i;
-  int n = 0;
-  char *buf;
-  char *p;
-
-  if (!strings || !strings[0])
-    return 0;
-  for (i = 0; strings[i]; i++)
-    n += strlen (strings[i]) + 1;
-  n++;
-
-  buf = p = malloc (n);
-  if (!buf)
-    return NULL;
-  for (i = 0; strings[i]; i++)
-    {
-      strcpy (p, strings[i]);
-      p += strlen (strings[i]);
-      *(p++) = separator;
-    }
-  p--;
-  *(p++) = '\0';
-  *p = '\0';
-
-  return buf;
+  return _dbus_string_append_strings (result, argv, ' ');
 }
 
-static char *
-build_commandline (char **argv)
+static dbus_bool_t
+build_env_block (char** envp, DBusString *result)
 {
-  return compose_string (argv, ' ');
+  if (!_dbus_string_append_strings (result, envp, '\0'))
+    return FALSE;
+
+   /* We need a double `\0` to terminate the environment block.
+    * DBusString provides one `\0` after the length-counted data,
+    * so add one more. */
+   if (!_dbus_string_append_byte (result, '\0'))
+     return FALSE;
+
+  return TRUE;
 }
 
-static char *
-build_env_string (char** envp)
-{
-  return compose_string (envp, '\0');
-}
-
+/**
+ * Creates a process with arguments and environment variables
+ *
+ * @param name name of the program
+ * @param argv list of char* pointers for the arguments
+ * @param envp list of char pointers for the environment
+ * @param inherit_handles specifies whether handles should be inherited by the child process
+ * @param error the error to set, if NULL no error will be set
+ * @return #NULL if an error occurred, the reason is returned in \p error
+ * @note The call to GetLastError() after this function may not return the expected value.
+ */
 HANDLE
 _dbus_spawn_program (const char *name,
                      char      **argv,
                      char      **envp,
-                     dbus_bool_t inherit_handles)
+                     dbus_bool_t inherit_handles,
+                     DBusError  *error)
 {
   PROCESS_INFORMATION pi = { NULL, 0, 0, 0 };
   STARTUPINFOA si;
-  char *arg_string, *env_string;
-  BOOL result;
+  DBusString arg_string = _DBUS_STRING_INIT_INVALID;
+  DBusString env_block = _DBUS_STRING_INIT_INVALID;
+  BOOL result = FALSE;
+  char *env = NULL;
+
+  if (!_dbus_string_init (&arg_string) || !_dbus_string_init (&env_block))
+    {
+      _DBUS_SET_OOM (error);
+      goto out;
+    }
 
 #ifdef DBUS_WINCE
   if (argv && argv[0])
-    arg_string = build_commandline (argv + 1);
-  else
-    arg_string = NULL;
+    {
+      if (!build_commandline (argv + 1, &arg_string))
+        goto out;
+    }
 #else
-  arg_string = build_commandline (argv);
+  if (!build_commandline (argv, &arg_string))
+    {
+      _DBUS_SET_OOM (error);
+      goto out;
+    }
 #endif
-  if (!arg_string)
-    return INVALID_HANDLE_VALUE;
+  if (_dbus_string_get_length (&arg_string) == 0)
+    {
+      dbus_set_error (error, DBUS_ERROR_FAILED, "No arguments given to start '%s'", name);
+      goto out;
+    }
 
-  env_string = build_env_string(envp);
+  if (envp != NULL)
+    {
+      if (!build_env_block (envp, &env_block))
+        {
+          _DBUS_SET_OOM (error);
+          goto out;
+        }
+      /* env_block consists of '0' terminated strings */
+      env = _dbus_string_get_data (&env_block);
+    }
 
   memset (&si, 0, sizeof (si));
   si.cb = sizeof (si);
 
 #ifdef DBUS_ENABLE_VERBOSE_MODE
   {
-    char *s = compose_string (envp, ';');
-    _dbus_verbose ("spawning '%s'' with args: '%s' env: '%s'\n", name, arg_string, s);
-    free (s);
+    DBusString temp = _DBUS_STRING_INIT_INVALID;
+
+    if (!_dbus_string_init (&temp))
+    {
+      _DBUS_SET_OOM (error);
+      goto out;
+    }
+
+    if (!_dbus_string_append_strings (&temp, envp, ';'))
+      {
+        _dbus_string_free (&temp);
+        _DBUS_SET_OOM (error);
+        goto out;
+      }
+
+    _dbus_verbose ("spawning '%s'' with args: '%s' env: '%s'\n", name,
+                   _dbus_string_get_const_data (&arg_string),
+                   _dbus_string_get_const_data (&temp));
+    _dbus_string_free (&temp);
   }
 #endif
 
 #ifdef DBUS_WINCE
-  result = CreateProcessA (name, arg_string, NULL, NULL, FALSE, 0,
+  result = CreateProcessA (name, _dbus_string_get_const_data (&arg_string), NULL, NULL, FALSE, 0,
 #else
   result = CreateProcessA (NULL,  /* no application name */
-                           arg_string,
+                           _dbus_string_get_data (&arg_string),
                            NULL, /* no process attributes */
                            NULL, /* no thread attributes */
                            inherit_handles, /* inherit handles */
                            0, /* flags */
 #endif
-			   (LPVOID)env_string, NULL, &si, &pi);
-  free (arg_string);
-  if (env_string)
-    free (env_string);
-
+                           env, NULL, &si, &pi);
   if (!result)
-    return INVALID_HANDLE_VALUE;
+    {
+      _dbus_win_set_error_from_last_error (error, "Unable to start '%s' with arguments '%s'",
+                                           name, _dbus_string_get_const_data (&arg_string));
+      goto out;
+    }
 
-  CloseHandle (pi.hThread);
-  return pi.hProcess;
+out:
+  _DBUS_ASSERT_ERROR_XOR_BOOL (error, result);
+
+  _dbus_string_free (&arg_string);
+  _dbus_string_free (&env_block);
+
+  if (result)
+    {
+      CloseHandle (pi.hThread);
+      return pi.hProcess;
+    }
+
+  return NULL;
 }
 
 
@@ -672,7 +713,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   _dbus_verbose ("babysitter: spawn child '%s'\n", my_argv[0]);
 
   PING();
-  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE);
+  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, NULL);
 
   if (my_argv != NULL)
     {
@@ -680,7 +721,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
     }
 
   PING();
-  if (handle == INVALID_HANDLE_VALUE)
+  if (handle == NULL)
     {
       sitter->child_handle = NULL;
       sitter->have_spawn_errno = TRUE;

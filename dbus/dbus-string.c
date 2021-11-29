@@ -1191,6 +1191,35 @@ _dbus_string_append_byte (DBusString    *str,
   return TRUE;
 }
 
+/**
+ * Append vector with \p strings connected by \p separator
+ *
+ * @param str the string
+ * @param strings vector with char* pointer for merging
+ * @param separator separator to merge the vector
+ * @return #FALSE if not enough memory
+ * @return #TRUE success or empty string vector
+ */
+dbus_bool_t
+_dbus_string_append_strings (DBusString *str, char **strings, char separator)
+{
+  int i;
+
+  if (strings == NULL)
+    return TRUE;
+
+  for (i = 0; strings[i]; i++)
+    {
+      if (i > 0 && !_dbus_string_append_byte (str, (unsigned char) separator))
+        return FALSE;
+
+      if (!_dbus_string_append (str, strings[i]))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 delete (DBusRealString *real,
         int             start,
