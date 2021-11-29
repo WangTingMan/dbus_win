@@ -126,7 +126,7 @@ load_ex_ip_helper_procedures(void)
       return FALSE;
     }
 
-  lpfnAllocateAndGetTcpExTableFromStack = (ProcAllocateAndGetTcpExtTableFromStack)GetProcAddress (hModule, "AllocateAndGetTcpExTableFromStack");
+  lpfnAllocateAndGetTcpExTableFromStack = (ProcAllocateAndGetTcpExtTableFromStack) (void (*)(void))GetProcAddress (hModule, "AllocateAndGetTcpExTableFromStack");
   if (lpfnAllocateAndGetTcpExTableFromStack == NULL)
     {
       _dbus_verbose ("could not find function AllocateAndGetTcpExTableFromStack in iphlpapi.dll\n");
