@@ -545,6 +545,11 @@ set(DBUS_DAEMON_NAME "dbus-daemon" CACHE STRING "The name of the dbus daemon exe
 
 #include(ConfigureChecks.cmake)
 
+# only defined but expected as boolean
+if(DEFINED HAVE_DECL_ENVIRON)
+    set(HAVE_DECL_ENVIRON 1)
+endif()
+
 # compiler definitions
 add_definitions(-DHAVE_CONFIG_H)
 add_definitions(${DBUS_BUS_CFLAGS})
