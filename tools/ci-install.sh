@@ -62,6 +62,8 @@ NULL=
 # One of debug, reduced, legacy, production
 : "${ci_variant:=production}"
 
+echo "ci_distro=$ci_distro ci_docker=$ci_docker ci_in_docker=$ci_in_docker ci_host=$ci_host ci_local_packages=$ci_local_packages ci_suite=$ci_suite ci_variant=$ci_variant $0"
+
 if [ $(id -u) = 0 ]; then
     sudo=
 else
