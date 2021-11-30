@@ -647,6 +647,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   HANDLE handle;
   int argc;
   char **my_argv = NULL;
+  DBusError local_error = DBUS_ERROR_INIT;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
   _dbus_assert (argv[0] != NULL);
@@ -717,7 +718,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   _dbus_verbose ("babysitter: spawn child '%s'\n", my_argv[0]);
 
   PING();
-  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, NULL);
+  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, &local_error);
 
   if (my_argv != NULL)
     {
@@ -727,13 +728,26 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   PING();
   if (handle == NULL)
     {
-      sitter->child_handle = NULL;
-      sitter->have_spawn_errno = TRUE;
-      sitter->spawn_errno = GetLastError();
-      dbus_set_error_const (error, DBUS_ERROR_SPAWN_EXEC_FAILED,
-                            "Failed to spawn child");
+      if (dbus_error_has_name (&local_error, DBUS_ERROR_NO_MEMORY))
+        {
+          sitter->child_handle = NULL;
+          sitter->have_spawn_errno = TRUE;
+          sitter->spawn_errno = ERROR_NOT_ENOUGH_MEMORY;
+          dbus_move_error (&local_error, error);
+        }
+      else
+        {
+          sitter->child_handle = NULL;
+          sitter->have_spawn_errno = TRUE;
+          sitter->spawn_errno = GetLastError();
+          dbus_set_error (error, DBUS_ERROR_SPAWN_EXEC_FAILED,
+                          "Failed to spawn child: %s", local_error.message);
+        }
+      dbus_error_free (&local_error);
       goto out0;
     }
+  else
+    dbus_error_free (&local_error);
 
   sitter->child_handle = handle;
 
