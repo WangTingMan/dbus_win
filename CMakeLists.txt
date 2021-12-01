@@ -233,6 +233,8 @@ endif()
 string(APPEND CMAKE_C_FLAGS " -fno-common")
 string(APPEND CMAKE_CXX_FLAGS " -fno-common")
 
+option(ENABLE_WERROR "Unconditionally make all compiler warnings fatal" OFF)
+
 if(MSVC)
     # Use the highest warning level
     if(WALL)
@@ -331,6 +333,9 @@ else()
     )
     set(WARNINGS_ERRORS
     )
+    if(ENABLE_WERROR)
+        list(APPEND WARNINGS error)
+    endif()
 endif()
 
 generate_compiler_warning_flags(
