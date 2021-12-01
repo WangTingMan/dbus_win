@@ -228,6 +228,11 @@ endif()
 #
 # setup warnings
 #
+# We're treating -fno-common like a warning: it makes the linker more
+# strict, because on some systems the linker is *always* this strict
+string(APPEND CMAKE_C_FLAGS " -fno-common")
+string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+
 if(MSVC)
     # Use the highest warning level
     if(WALL)
@@ -250,12 +255,12 @@ if(MSVC)
 
     # see https://msdn.microsoft.com/en-us/library/z78503e6.aspx
     # 4018 'expression' : signed/unsigned mismatch
-    set(WARNINGS_C "4018")
+    set(WARNINGS "4018")
     # 4090 'operation' : different 'modifier' qualifiers
     # 4101 'identifier' : unreferenced local variable
     # 4127 conditional expression is constant
     # 4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
-    set(WARNINGS_C_DISABLED "4090 4101 4127 4244")
+    set(WARNINGS_DISABLED "4090 4101 4127 4244")
     # 4002 too many actual parameters for macro 'identifier'
     # 4003 not enough actual parameters for macro 'identifier'
     # 4013 'function' undefined; assuming extern returning int
@@ -264,26 +269,92 @@ if(MSVC)
     # 4047 operator' : 'identifier1' differs in levels of indirection from 'identifier2'
     # 4114 same type qualifier used more than once
     # 4133 'type' : incompatible types - from 'type1' to 'type2'
-    set(WARNINGS_C_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
+    set(WARNINGS_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
     if(DBUS_MSVC_ANALYZE AND MSVC_VERSION GREATER 1600)
         string(APPEND CMAKE_C_FLAGS " /analyze")
     endif()
 else()
-    set(WARNINGS_C "sign-compare")
-    set(WARNINGS_C_DISABLED "")
-    set(WARNINGS_C_ERRORS
-        missing-prototypes
-        strict-prototypes
+    set(WARNINGS
+        all
+        array-bounds
+        cast-align
+        char-subscripts
         declaration-after-statement
+        double-promotion
+        duplicated-branches
+        duplicated-cond
+        extra
+        float-equal
+        format-nonliteral
+        format-security
+        format=2
         implicit-function-declaration
+        init-self
+        inline
+        jump-misses-init
+        logical-op
+        missing-declarations
+        missing-format-attribute
+        missing-include-dirs
+        missing-noreturn
+        missing-prototypes
+        nested-externs
+        no-error=missing-field-initializers
+        no-error=unused-label
+        no-error=unused-parameter
+        no-missing-field-initializers
+        no-unused-label
+        no-unused-parameter
+        null-dereference
+        old-style-definition
+        packed
+        pointer-arith
+        pointer-sign
+        redundant-decls
+        restrict
+        return-type
+        shadow
+        sign-compare
+        strict-aliasing
+        strict-prototypes
+        switch-default
+        switch-enum
         undef
+        unused-but-set-variable
+        write-strings
     )
-    set(WARNINGS_CXX_ERRORS
-        undef
+    set(WARNINGS_DISABLED
+        error=overloaded-virtual
+        error=missing-field-initializers
+        error=unused-parameter
+        unused-parameter
+    )
+    set(WARNINGS_ERRORS
     )
 endif()
-generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS_C}" "${WARNINGS_C_DISABLED}" "${WARNINGS_C_ERRORS}")
-generate_warning_cflags(WARNINGS_CXXFLAGS "${WARNINGS_CXX}" "${WARNINGS_CXX_DISABLED}" "${WARNINGS_CXX_ERRORS}")
+
+generate_compiler_warning_flags(
+    RESULTVAR
+        WARNINGS_CFLAGS
+    WARNINGS
+        ${WARNINGS}
+        pointer-sign
+    DISABLED
+        ${WARNINGS_DISABLED}
+    ERRORS
+        ${WARNINGS_ERRORS}
+)
+generate_compiler_warning_flags(
+    RESULTVAR
+        WARNINGS_CXXFLAGS
+    WARNINGS
+        ${WARNINGS}
+    DISABLED
+        ${WARNINGS_DISABLED}
+    ERRORS
+        ${WARNINGS_ERRORS}
+)
+
 string(APPEND CMAKE_C_FLAGS " ${WARNINGS_CFLAGS}")
 string(APPEND CMAKE_CXX_FLAGS " ${WARNINGS_CFLAGS}")
 

@@ -120,18 +120,25 @@ macro(add_session_test_executable _target _source)
     )
 endmacro()
 
-#
 # generate compiler flags from MSVC warning identifiers (e.g. '4114') or gcc warning keys (e.g. 'pointer-sign')
+# Options:
+#   [DISABLED <list>] list of warnings to disable
+#   [ERRORS <list>] list of warnings to report as error
+#   RESULTVAR <var> variable name to get results
+#   WARNINGS <list> list of warnings to add
 #
-# @param target the variable name which will contain the warnings flags
-# @param warnings a string with space delimited warnings
-# @param disabled_warnings a string with space delimited disabled warnings
-# @param error_warnings a string with space delimited warnings which should result into compile errors
-#
-macro(generate_warning_cflags target warnings disabled_warnings error_warnings)
-    if(DEBUG_MACROS)
-        message("generate_warning_cflags got: ${warnings} - ${disabled_warnings} - ${error_warnings}")
-    endif()
+macro(generate_compiler_warning_flags)
+    # Support if() IN_LIST operator
+    cmake_policy(SET CMP0057 NEW)
+    set(options)
+    set(oneValueArgs RESULTVAR)
+    set(multiValueArgs WARNINGS DISABLED ERRORS)
+    cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    unset(USED)
+    unset(USED_WARNINGS)
+    unset(USED_DISABLED)
+
     if(MSVC)
         # level 1 is default
         set(enabled_prefix "/w1")
@@ -144,33 +151,40 @@ macro(generate_warning_cflags target warnings disabled_warnings error_warnings)
     endif()
 
     set(temp)
-    string(REPLACE " " ";" warnings_list "${warnings}")
-    foreach(warning ${warnings_list})
-        string(STRIP ${warning} _warning)
-        if(_warning)
-            set(temp "${temp} ${enabled_prefix}${_warning}")
+    foreach(warning ${ARGS_ERRORS})
+        set(temp "${temp} ${error_prefix}${warning}")
+        list(APPEND USED ${warning})
+    endforeach()
+    foreach(warning ${ARGS_WARNINGS})
+        if(warning IN_LIST ARGS_ERRORS)
+            message(WARNING "warning '${warning}' already specified as error, ignored")
+        elseif(warning IN_LIST ARGS_DISABLED)
+            message(WARNING "warning '${warning}' already specified as disabled, ignored")
+        elseif(NOT warning IN_LIST USED)
+            set(temp "${temp} ${enabled_prefix}${warning}")
+            list(APPEND USED_WARNINGS ${warning})
+            list(APPEND USED ${warning})
         endif()
     endforeach()
 
-    string(REPLACE " " ";" disabled_warnings_list "${disabled_warnings}")
-    foreach(warning ${disabled_warnings_list})
-        string(STRIP ${warning} _warning)
-        if(_warning)
-            set(temp "${temp} ${disabled_prefix}${_warning}")
+    foreach(warning ${ARGS_DISABLED})
+        if(warning IN_LIST ARGS_ERRORS)
+            message(WARNING "disabled warning '${warning}' already specified as error, ignored")
+        elseif(warning IN_LIST ARGS_WARNINGS)
+            message(WARNING "disabled warning '${warning}' already specified as warning, ignored")
+        elseif(NOT warning IN_LIST USED)
+            set(temp "${temp} ${disabled_prefix}${warning}")
+            list(APPEND USED_DISABLED ${warning})
+            list(APPEND USED ${warning})
         endif()
     endforeach()
 
-    string(REPLACE " " ";" error_warnings_list "${error_warnings}")
-    foreach(warning ${error_warnings_list})
-        string(STRIP ${warning} _warning)
-        if(_warning)
-            set(temp "${temp} ${error_prefix}${_warning}")
-        endif()
+    foreach(warning ${ARGS_ERRORS})
+        set(temp "${temp} ${error_prefix}${warning}")
     endforeach()
-    set(${target} "${temp}")
-    if(DEBUG_MACROS)
-        message("generate_warning_cflags return: ${${target}}")
-    endif()
+    set(${ARGS_RESULTVAR} "${temp}")
+    message(STATUS "effectively used warnings for '${ARGS_RESULTVAR}': ${USED_WARNINGS}")
+    message(STATUS "effectively used disabled warnings for '${ARGS_RESULTVAR}': ${USED_DISABLED}")
 endmacro()
 
 #
