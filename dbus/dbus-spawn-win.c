@@ -510,6 +510,7 @@ _dbus_spawn_program (const char *name,
   if (argv && argv[0])
     {
       if (!build_commandline (argv + 1, &arg_string))
+        _DBUS_SET_OOM (error);
         goto out;
     }
 #else
