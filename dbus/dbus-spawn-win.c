@@ -417,8 +417,10 @@ protect_argv (char  * const *argv,
       q = args[i] = dbus_malloc (len + need_dblquotes*2 + 1);
 
       if (q == NULL)
-        return -1;
-
+        {
+          dbus_free_string_array (args);
+          return -1;
+        }
 
       p = argv[i];
 
