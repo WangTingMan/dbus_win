@@ -368,15 +368,16 @@ protect_argv (char  * const *argv,
 {
   int i;
   int argc = 0;
+  char **args = NULL;
 
   while (argv[argc])
     ++argc;
-  *new_argv = dbus_malloc ((argc + 1) * sizeof (char *));
-  if (*new_argv == NULL)
+  args = dbus_malloc ((argc + 1) * sizeof (char *));
+  if (args == NULL)
     return -1;
 
   for (i = 0; i < argc; i++)
-    (*new_argv)[i] = NULL;
+    (args)[i] = NULL;
 
   /* Quote each argv element if necessary, so that it will get
    * reconstructed correctly in the C runtime startup code.  Note that
@@ -413,7 +414,7 @@ protect_argv (char  * const *argv,
           p++;
         }
 
-      q = (*new_argv)[i] = dbus_malloc (len + need_dblquotes*2 + 1);
+      q = args[i] = dbus_malloc (len + need_dblquotes*2 + 1);
 
       if (q == NULL)
         return -1;
@@ -443,9 +444,10 @@ protect_argv (char  * const *argv,
       if (need_dblquotes)
         *q++ = '"';
       *q++ = '\0';
-      /* printf ("argv[%d]:%s, need_dblquotes:%s len:%d => %s\n", i, argv[i], need_dblquotes?"TRUE":"FALSE", len, (*new_argv)[i]); */
+      /* printf ("argv[%d]:%s, need_dblquotes:%s len:%d => %s\n", i, argv[i], need_dblquotes?"TRUE":"FALSE", len, (args)[i]); */
     }
-  (*new_argv)[argc] = NULL;
+  args[argc] = NULL;
+  *new_argv = args;
 
   return argc;
 }
