@@ -158,6 +158,9 @@ ENABLE_SYSTEMD:STRING=AUTO
 // Directory for systemd service files
 WITH_SYSTEMD_SYSTEMUNITDIR:STRING=
 
+// Be verbose on generating config files
+ENABLE_VERBOSE_CONFIG:BOOL=OFF
+
 // enable user-session semantics for session bus under systemd
 ENABLE_USER_SESSION:BOOL=ON
 

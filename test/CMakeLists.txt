@@ -227,7 +227,6 @@ set(TESTDIRS
     data/equiv-config-files/entities
     data/equiv-config-files/entities/basic.d
 )
-set(CONFIG_VERBOSE 1)
 
 foreach(DIR ${TESTDIRS})
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DIR})
@@ -235,23 +234,32 @@ endforeach()
 
 ### copy tests to builddir so that generated tests and static tests 
 ### are all in one place.
-message(STATUS "Copying test files to test directory")
+if(NOT ENABLE_VERBOSE_CONFIG)
+    set(HINT " (use -DENABLE_VERBOSE_CONFIG=ON to see the list of files)")
+endif()
+
+message(STATUS "Copying test files to test directory${HINT}")
+
+macro(dbus_configure_file _src _dest)
+    configure_file(${_src} ${_dest} ${ARGN})
+    if(ENABLE_VERBOSE_CONFIG)
+        message("   generating ${_dest}")
+    endif()
+endmacro()
+
 foreach(FILE_TYPE *.message-raw *.auth-script *.sha1 *.txt *.conf *.service)
     foreach(DIR ${TESTDIRS})
         file(GLOB FILES "${DIR}/${FILE_TYPE}" )
         foreach(FILE ${FILES})
             get_filename_component(FILENAME ${FILE} NAME)
             set(TARGET ${CMAKE_CURRENT_BINARY_DIR}/${DIR}/${FILENAME})
-            configure_file(${FILE} ${TARGET} COPYONLY)
-            if(CONFIG_VERBOSE)
-                message("${FILE}")
-            endif()
+            dbus_configure_file(${FILE} ${TARGET} COPYONLY)
         endforeach()
     endforeach()
 endforeach()
 
 ### generate test files
-message(STATUS "Generating test files from templates into test directory")
+message(STATUS "Generating test files from templates into test directory${HINT}")
 
 foreach(FILE_TYPE *.conf.in *.service.in)
     foreach(DIR ${TESTDIRS})
@@ -260,14 +268,11 @@ foreach(FILE_TYPE *.conf.in *.service.in)
         get_filename_component(FILENAME ${FILE} NAME)
         string(REGEX REPLACE "\\.in$" "" FILENAME ${FILENAME})
         set(TARGET ${CMAKE_CURRENT_BINARY_DIR}/${DIR}/${FILENAME})
-        configure_file(${FILE} ${TARGET} @ONLY IMMEDIATE)
-        if(CONFIG_VERBOSE)
-        message("${FILE}")
-        endif()
+        dbus_configure_file(${FILE} ${TARGET} @ONLY IMMEDIATE)
     endforeach()
     endforeach()
 endforeach()
 
-message(STATUS "Copying generated bus config files to test directory")
-configure_file(../bus/session.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files/session.conf @ONLY)
-configure_file(../bus/system.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files-system/system.conf @ONLY)
+message(STATUS "Copying generated bus config files to test directory${HINT}")
+dbus_configure_file(../bus/session.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files/session.conf @ONLY)
+dbus_configure_file(../bus/system.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files-system/system.conf @ONLY)
