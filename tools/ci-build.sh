@@ -390,6 +390,8 @@ case "$ci_buildsys" in
                 fi
                 if [ "$ci_test" = yes ]; then
                     set "$@" -D DBUS_USE_WINE=1
+                    # test-dbus-daemon needs more time on Windows
+                    export DBUS_TEST_TIMEOUT_MULTIPLIER=2
                 fi
                 shift
                 ;;
