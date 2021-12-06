@@ -255,18 +255,6 @@ dbus_bool_t
 _dbus_decrement_fail_alloc_counter (void)
 {
   _dbus_initialize_malloc_debug ();
-#ifdef DBUS_WIN
-  {
-    static dbus_bool_t called = 0;
-
-    if (!called)
-      {
-        _dbus_verbose_raw ("TODO: memory allocation testing errors disabled for now\n");
-        called = 1;
-      }
-    return FALSE;
-  }
-#endif
 
   if (fail_alloc_counter <= 0)
     {

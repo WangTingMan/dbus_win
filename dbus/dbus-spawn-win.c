@@ -368,15 +368,16 @@ protect_argv (char  * const *argv,
 {
   int i;
   int argc = 0;
+  char **args = NULL;
 
   while (argv[argc])
     ++argc;
-  *new_argv = dbus_malloc ((argc + 1) * sizeof (char *));
-  if (*new_argv == NULL)
+  args = dbus_malloc ((argc + 1) * sizeof (char *));
+  if (args == NULL)
     return -1;
 
   for (i = 0; i < argc; i++)
-    (*new_argv)[i] = NULL;
+    (args)[i] = NULL;
 
   /* Quote each argv element if necessary, so that it will get
    * reconstructed correctly in the C runtime startup code.  Note that
@@ -413,11 +414,13 @@ protect_argv (char  * const *argv,
           p++;
         }
 
-      q = (*new_argv)[i] = dbus_malloc (len + need_dblquotes*2 + 1);
+      q = args[i] = dbus_malloc (len + need_dblquotes*2 + 1);
 
       if (q == NULL)
-        return -1;
-
+        {
+          dbus_free_string_array (args);
+          return -1;
+        }
 
       p = argv[i];
 
@@ -443,9 +446,10 @@ protect_argv (char  * const *argv,
       if (need_dblquotes)
         *q++ = '"';
       *q++ = '\0';
-      /* printf ("argv[%d]:%s, need_dblquotes:%s len:%d => %s\n", i, argv[i], need_dblquotes?"TRUE":"FALSE", len, (*new_argv)[i]); */
+      /* printf ("argv[%d]:%s, need_dblquotes:%s len:%d => %s\n", i, argv[i], need_dblquotes?"TRUE":"FALSE", len, (args)[i]); */
     }
-  (*new_argv)[argc] = NULL;
+  args[argc] = NULL;
+  *new_argv = args;
 
   return argc;
 }
@@ -506,6 +510,7 @@ _dbus_spawn_program (const char *name,
   if (argv && argv[0])
     {
       if (!build_commandline (argv + 1, &arg_string))
+        _DBUS_SET_OOM (error);
         goto out;
     }
 #else
@@ -643,6 +648,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   HANDLE handle;
   int argc;
   char **my_argv = NULL;
+  DBusError local_error = DBUS_ERROR_INIT;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
   _dbus_assert (argv[0] != NULL);
@@ -713,7 +719,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   _dbus_verbose ("babysitter: spawn child '%s'\n", my_argv[0]);
 
   PING();
-  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, NULL);
+  handle = _dbus_spawn_program (sitter->log_name, my_argv, (char **) envp, FALSE, &local_error);
 
   if (my_argv != NULL)
     {
@@ -723,13 +729,26 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter           **sitter_p,
   PING();
   if (handle == NULL)
     {
-      sitter->child_handle = NULL;
-      sitter->have_spawn_errno = TRUE;
-      sitter->spawn_errno = GetLastError();
-      dbus_set_error_const (error, DBUS_ERROR_SPAWN_EXEC_FAILED,
-                            "Failed to spawn child");
+      if (dbus_error_has_name (&local_error, DBUS_ERROR_NO_MEMORY))
+        {
+          sitter->child_handle = NULL;
+          sitter->have_spawn_errno = TRUE;
+          sitter->spawn_errno = ERROR_NOT_ENOUGH_MEMORY;
+          dbus_move_error (&local_error, error);
+        }
+      else
+        {
+          sitter->child_handle = NULL;
+          sitter->have_spawn_errno = TRUE;
+          sitter->spawn_errno = GetLastError();
+          dbus_set_error (error, DBUS_ERROR_SPAWN_EXEC_FAILED,
+                          "Failed to spawn child: %s", local_error.message);
+        }
+      dbus_error_free (&local_error);
       goto out0;
     }
+  else
+    dbus_error_free (&local_error);
 
   sitter->child_handle = handle;
 
