@@ -4031,13 +4031,17 @@ _dbus_win_set_error_from_last_error (DBusError *error,
       dbus_bool_t retval;
 
       if (!_dbus_string_init (&str))
-        goto out;
+        {
+          _DBUS_SET_OOM (error);
+          goto out;
+        }
 
       va_start (args, format);
       retval = _dbus_string_append_printf_valist (&str, format, args);
       va_end (args);
       if (!retval)
         {
+          _DBUS_SET_OOM (error);
           _dbus_string_free (&str);
           goto out;
         }
@@ -4053,6 +4057,8 @@ _dbus_win_set_error_from_last_error (DBusError *error,
 out:
   if (message != NULL)
     _dbus_win_free_error_string (message);
+
+  _DBUS_ASSERT_ERROR_IS_SET (error);
 }
 
 /**
