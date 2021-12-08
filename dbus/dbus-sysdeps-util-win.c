@@ -426,6 +426,7 @@ _dbus_directory_open (const DBusString *filename,
     {
       if (!_dbus_string_append (&filespec, "*"))
         {
+          _dbus_string_free (&filespec);
           dbus_set_error (error, DBUS_ERROR_NO_MEMORY,
                           "Could not append filename wildcard");
           return NULL;
@@ -435,6 +436,7 @@ _dbus_directory_open (const DBusString *filename,
     {
       if (!_dbus_string_append (&filespec, "\\*"))
         {
+          _dbus_string_free (&filespec);
           dbus_set_error (error, DBUS_ERROR_NO_MEMORY,
                           "Could not append filename wildcard 2");
           return NULL;

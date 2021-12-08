@@ -241,8 +241,10 @@ _dbus_string_init_const_len (DBusString *str,
 }
 
 /**
- * Initializes a string from another string. The
- * string must eventually be freed with _dbus_string_free().
+ * Initializes a string from another string
+ *
+ * The string must be freed with _dbus_string_free() in case of success.
+ * In case of error the string is freed by this function itself.
  *
  * @param str memory to hold the string
  * @param from instance from which the string is initialized
@@ -252,9 +254,14 @@ dbus_bool_t
 _dbus_string_init_from_string(DBusString       *str,
                               const DBusString *from)
 {
- if (!_dbus_string_init (str))
-     return FALSE;
- return _dbus_string_append (str, _dbus_string_get_const_data (from));
+  if (!_dbus_string_init (str))
+    return FALSE;
+  if (!_dbus_string_append (str, _dbus_string_get_const_data (from)))
+    {
+      _dbus_string_free (str);
+      return FALSE;
+    }
+  return TRUE;
 }
 
 /**
