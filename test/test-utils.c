@@ -653,10 +653,20 @@ _dbus_test_help_page (const char *appname)
   fprintf(stdout, "%s [<options>] [<test-data-dir>] [<specific-test>]\n", appname);
   fprintf(stdout, "Options:\n");
   fprintf(stdout, "    --help         this page\n");
+  fprintf(stdout, "    --list-tests   show available tests\n");
   fprintf(stdout, "    --tap          expect test data dir to be set by environment variable DBUS_TEST_DATA\n");
   fprintf(stdout, "Environment variables:\n");
   fprintf(stdout, "    DBUS_TEST_ONLY=<specific-test>    set specific test to run\n");
   fprintf(stdout, "    DBUS_TEST_DATA=<test-data-dir>    set test data dir (required when using --tap)\n");
+}
+
+static void
+_dbus_test_show_available_tests (const DBusTestCase  *tests)
+{
+  const DBusTestCase *p;
+
+  for (p = tests; p->name; p++)
+    fprintf(stdout, "%s\n", p->name);
 }
 
 /*
@@ -700,6 +710,12 @@ _dbus_test_main (int                  argc,
     {
       _dbus_test_help_page (argv[0]);
       exit(0);
+    }
+
+  else if (argc > 1 && strcmp (argv[1], "--list-tests") == 0)
+    {
+      _dbus_test_show_available_tests (tests);
+      exit (0);
     }
 
   /* We can't assume that strings from _dbus_getenv() will remain valid
