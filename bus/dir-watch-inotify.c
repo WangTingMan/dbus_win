@@ -234,7 +234,7 @@ _init_inotify (BusContext *context)
 #else
       inotify_fd = inotify_init ();
 #endif
-      if (inotify_fd <= 0)
+      if (inotify_fd < 0)
         {
           _dbus_warn ("Cannot initialize inotify");
           goto out;
