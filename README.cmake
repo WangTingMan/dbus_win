@@ -139,6 +139,9 @@ DBUS_ENABLE_ANSI:BOOL=OFF
 // build DOXYGEN documentation (requires Doxygen)
 DBUS_ENABLE_DOXYGEN_DOCS:BOOL=OFF
 
+// Unconditionally make all compiler warnings fatal
+ENABLE_WERROR:BOOL=OFF
+
 // build qt help documentation (requires qhelpgenerator(-qt5));
 // set INSTALL_QCH_DIR for custom qch installation path
 ENABLE_QT_HELP:STRING=AUTO

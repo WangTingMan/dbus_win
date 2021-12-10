@@ -8,7 +8,7 @@ set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 project(dbus)
 
 # we need to be up to date
-cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif()
@@ -220,14 +220,21 @@ if(MSVC)
         set(GROUP_CODE flat)
     endif()
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
-    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   /FIconfig.h")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /FIconfig.h")
+    string(APPEND CMAKE_C_FLAGS_DEBUG " /FIconfig.h")
+    string(APPEND CMAKE_C_FLAGS_RELEASE " /FIconfig.h")
     option(DBUS_MSVC_ANALYZE "Enable code analyzing for MSVC compiler: /analyze" OFF)
 endif()
 
 #
 # setup warnings
 #
+# We're treating -fno-common like a warning: it makes the linker more
+# strict, because on some systems the linker is *always* this strict
+string(APPEND CMAKE_C_FLAGS " -fno-common")
+string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+
+option(ENABLE_WERROR "Unconditionally make all compiler warnings fatal" OFF)
+
 if(MSVC)
     # Use the highest warning level
     if(WALL)
@@ -236,13 +243,13 @@ if(MSVC)
         if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
             string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         else()
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+            string(APPEND CMAKE_CXX_FLAGS " /W4")
         endif()
 
         if(CMAKE_C_FLAGS MATCHES "/W[0-4]")
             string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
         else()
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+            string(APPEND CMAKE_C_FLAGS " /W4")
         endif()
     else()
         set(CMAKE_CXX_WARNING_LEVEL 3 CACHE STRING "warning level" FORCE)
@@ -250,12 +257,12 @@ if(MSVC)
 
     # see https://msdn.microsoft.com/en-us/library/z78503e6.aspx
     # 4018 'expression' : signed/unsigned mismatch
-    set(WARNINGS_C "4018")
+    set(WARNINGS "4018")
     # 4090 'operation' : different 'modifier' qualifiers
     # 4101 'identifier' : unreferenced local variable
     # 4127 conditional expression is constant
     # 4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
-    set(WARNINGS_C_DISABLED "4090 4101 4127 4244")
+    set(WARNINGS_DISABLED "4090 4101 4127 4244")
     # 4002 too many actual parameters for macro 'identifier'
     # 4003 not enough actual parameters for macro 'identifier'
     # 4013 'function' undefined; assuming extern returning int
@@ -264,39 +271,108 @@ if(MSVC)
     # 4047 operator' : 'identifier1' differs in levels of indirection from 'identifier2'
     # 4114 same type qualifier used more than once
     # 4133 'type' : incompatible types - from 'type1' to 'type2'
-    set(WARNINGS_C_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
+    set(WARNINGS_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
     if(DBUS_MSVC_ANALYZE AND MSVC_VERSION GREATER 1600)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
+        string(APPEND CMAKE_C_FLAGS " /analyze")
     endif()
 else()
-    set(WARNINGS_C "sign-compare")
-    set(WARNINGS_C_DISABLED "")
-    set(WARNINGS_C_ERRORS
-        missing-prototypes
-        strict-prototypes
+    set(WARNINGS
+        all
+        array-bounds
+        cast-align
+        char-subscripts
         declaration-after-statement
+        double-promotion
+        duplicated-branches
+        duplicated-cond
+        extra
+        float-equal
+        format-nonliteral
+        format-security
+        format=2
         implicit-function-declaration
+        init-self
+        inline
+        jump-misses-init
+        logical-op
+        missing-declarations
+        missing-format-attribute
+        missing-include-dirs
+        missing-noreturn
+        missing-prototypes
+        nested-externs
+        no-error=missing-field-initializers
+        no-error=unused-label
+        no-error=unused-parameter
+        no-missing-field-initializers
+        no-unused-label
+        no-unused-parameter
+        null-dereference
+        old-style-definition
+        packed
+        pointer-arith
+        pointer-sign
+        redundant-decls
+        restrict
+        return-type
+        shadow
+        sign-compare
+        strict-aliasing
+        strict-prototypes
+        switch-default
+        switch-enum
         undef
+        unused-but-set-variable
+        write-strings
     )
-    set(WARNINGS_CXX_ERRORS
-        undef
+    set(WARNINGS_DISABLED
+        error=overloaded-virtual
+        error=missing-field-initializers
+        error=unused-parameter
+        unused-parameter
     )
+    set(WARNINGS_ERRORS
+    )
+    if(ENABLE_WERROR)
+        list(APPEND WARNINGS error)
+    endif()
 endif()
-generate_warning_cflags(WARNINGS_CFLAGS "${WARNINGS_C}" "${WARNINGS_C_DISABLED}" "${WARNINGS_C_ERRORS}")
-generate_warning_cflags(WARNINGS_CXXFLAGS "${WARNINGS_CXX}" "${WARNINGS_CXX_DISABLED}" "${WARNINGS_CXX_ERRORS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGS_CFLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS_CXXFLAGS}")
+
+generate_compiler_warning_flags(
+    RESULTVAR
+        WARNINGS_CFLAGS
+    WARNINGS
+        ${WARNINGS}
+        pointer-sign
+    DISABLED
+        ${WARNINGS_DISABLED}
+    ERRORS
+        ${WARNINGS_ERRORS}
+)
+generate_compiler_warning_flags(
+    RESULTVAR
+        WARNINGS_CXXFLAGS
+    WARNINGS
+        ${WARNINGS}
+    DISABLED
+        ${WARNINGS_DISABLED}
+    ERRORS
+        ${WARNINGS_ERRORS}
+)
+
+string(APPEND CMAKE_C_FLAGS " ${WARNINGS_CFLAGS}")
+string(APPEND CMAKE_CXX_FLAGS " ${WARNINGS_CFLAGS}")
 
 # let wine be able to show file and lines in backtrace
 if(DBUS_USE_WINE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gstabs")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gstabs")
+    string(APPEND CMAKE_C_FLAGS " -gstabs")
+    string(APPEND CMAKE_CXX_FLAGS " -gstabs")
 endif()
 
 if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
-    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wl,--export-dynamic")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wl,--export-dynamic")
+    string(APPEND CMAKE_C_FLAGS_DEBUG " -Wl,--export-dynamic")
+    string(APPEND CMAKE_CXX_FLAGS_DEBUG " -Wl,--export-dynamic")
     set(DBUS_BUILT_R_DYNAMIC 1)
 endif()
 
@@ -305,7 +381,7 @@ if(DBUS_WITH_GLIB)
     autodefine(GLIB_VERSION_MAX_ALLOWED)
 endif()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}  -D_DEBUG")
+string(APPEND CMAKE_C_FLAGS_DEBUG " -D_DEBUG")
 
 #########################################################################
 # Windows CE (>= 5.0.0)
