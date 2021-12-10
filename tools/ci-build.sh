@@ -204,10 +204,11 @@ case "$ci_host" in
 esac
 
 srcdir="$(pwd)"
+builddir="ci-build-${ci_variant}-${ci_host}"
 # clean up directories from possible previous builds
-rm -rf ci-build-${ci_variant}-${ci_host}
-mkdir -p ci-build-${ci_variant}-${ci_host}
-cd ci-build-${ci_variant}-${ci_host}
+rm -rf "$builddir"
+mkdir -p "$builddir"
+cd "$builddir"
 
 make="make -j${ci_parallel} V=1 VERBOSE=1"
 
