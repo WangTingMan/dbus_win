@@ -149,9 +149,6 @@ ENABLE_QT_HELP:STRING=AUTO
 // enable bus daemon usage statistics
 DBUS_ENABLE_STATS:BOOL=OFF
 
-// enable restricted servers for app containers
-DBUS_ENABLE_CONTAINERS:BOOL=OFF
-
 // build with systemd at_console support
 ENABLE_SYSTEMD:STRING=AUTO
 

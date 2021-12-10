@@ -1975,7 +1975,9 @@ bus_driver_fill_connection_credentials (DBusCredentials *credentials,
   dbus_pid_t pid = DBUS_PID_UNSET;
   const char *windows_sid = NULL;
   const char *linux_security_label = NULL;
+#ifdef DBUS_ENABLE_CONTAINERS
   const char *path;
+#endif
 
   if (credentials == NULL && conn != NULL)
     credentials = _dbus_connection_get_credentials (conn);
@@ -2030,6 +2032,7 @@ bus_driver_fill_connection_credentials (DBusCredentials *credentials,
         return FALSE;
     }
 
+#ifdef DBUS_ENABLE_CONTAINERS
   /* This has to come from the connection, not the credentials */
   if (conn != NULL &&
       bus_containers_connection_is_contained (conn, &path, NULL, NULL))
@@ -2039,6 +2042,7 @@ bus_driver_fill_connection_credentials (DBusCredentials *credentials,
                                       path))
         return FALSE;
     }
+#endif
 
   return TRUE;
 }
