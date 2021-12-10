@@ -647,6 +647,18 @@ _dbus_check_fdleaks_leave (DBusInitialFDs *fds,
 #endif
 }
 
+static void
+_dbus_test_help_page (const char *appname)
+{
+  fprintf(stdout, "%s [<options>] [<test-data-dir>] [<specific-test>]\n", appname);
+  fprintf(stdout, "Options:\n");
+  fprintf(stdout, "    --help         this page\n");
+  fprintf(stdout, "    --tap          expect test data dir to be set by environment variable DBUS_TEST_DATA\n");
+  fprintf(stdout, "Environment variables:\n");
+  fprintf(stdout, "    DBUS_TEST_ONLY=<specific-test>    set specific test to run\n");
+  fprintf(stdout, "    DBUS_TEST_DATA=<test-data-dir>    set test data dir (required when using --tap)\n");
+}
+
 /*
  * _dbus_test_main:
  * @argc: number of command-line arguments
@@ -684,6 +696,12 @@ _dbus_test_main (int                  argc,
   setlocale(LC_ALL, "");
 #endif
 
+  if (argc > 1 && strcmp (argv[1], "--help") == 0)
+    {
+      _dbus_test_help_page (argv[0]);
+      exit(0);
+    }
+
   /* We can't assume that strings from _dbus_getenv() will remain valid
    * forever, because some tests call setenv(), which is allowed to
    * reallocate the entire environment block, and in Wine it seems that it
@@ -701,8 +719,11 @@ _dbus_test_main (int                  argc,
   if (test_data_dir != NULL)
     _dbus_test_diag ("Test data in %s", test_data_dir);
   else if (flags & DBUS_TEST_FLAGS_REQUIRE_DATA)
-    _dbus_test_fatal ("Must specify test data directory as argv[1] or "
-                      "in DBUS_TEST_DATA environment variable");
+    {
+      _dbus_test_help_page (argv[0]);
+      _dbus_test_fatal ("Must specify test data directory as argv[1] or "
+                        "in DBUS_TEST_DATA environment variable");
+    }
   else
     _dbus_test_diag ("No test data!");
 
