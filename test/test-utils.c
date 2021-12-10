@@ -669,6 +669,20 @@ _dbus_test_show_available_tests (const DBusTestCase  *tests)
     fprintf(stdout, "%s\n", p->name);
 }
 
+static const DBusTestCase*
+_dbus_test_find_test (const DBusTestCase *tests, const char *specific_test)
+{
+  const DBusTestCase *p;
+
+  for (p = tests; p->name; p++)
+    {
+      if (strcmp (specific_test, p->name) == 0)
+        return p;
+    }
+  return NULL;
+}
+
+
 /*
  * _dbus_test_main:
  * @argc: number of command-line arguments
@@ -747,6 +761,15 @@ _dbus_test_main (int                  argc,
     specific_test = strdup0_or_die (argv[2]);
   else
     specific_test = strdup0_or_die (_dbus_getenv ("DBUS_TEST_ONLY"));
+
+  /* check that test is present */
+  if (specific_test)
+    {
+      if (_dbus_test_find_test (tests, specific_test) == NULL)
+        {
+          _dbus_test_fatal ("Invalid test name '%s' specified", specific_test);
+        }
+    }
 
   /* Some NSS modules like those for sssd and LDAP might allocate fds
    * on a one-per-process basis. Make sure those have already been
