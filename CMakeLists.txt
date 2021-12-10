@@ -96,6 +96,7 @@ endif()
 
 option(DBUS_RELOCATABLE "Attempt to make metadata relocatable" ON)
 option(DBUS_ENABLE_PKGCONFIG "Enable pkgconfig support" ON)
+option(ENABLE_VERBOSE_CONFIG "Be verbose on generating config files" OFF)
 
 # For simplicity, we're not relocatable if CMAKE_INSTALL_LIBDIR
 # is something more complicated (e.g. Debian multiarch);
