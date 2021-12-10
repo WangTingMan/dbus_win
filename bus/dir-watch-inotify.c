@@ -236,7 +236,7 @@ _init_inotify (BusContext *context)
 #endif
       if (inotify_fd < 0)
         {
-          _dbus_warn ("Cannot initialize inotify");
+          _dbus_warn ("Cannot initialize inotify: %s", _dbus_strerror (errno));
           goto out;
         }
 
