@@ -84,7 +84,10 @@
        <authorinitials></authorinitials>
        <revdescription>
          <itemizedlist>
-           <listitem><simpara>Clean up use of the term for an array of dict entries</simpara></listitem>
+           <listitem><simpara>Update recommendations for interoperable DBUS_COOKIE_SHA1 timeouts</simpara></listitem>
+           <listitem><simpara>Clarify padding requirements for arrays and variants</simpara></listitem>
+           <listitem><simpara>Describe where the interoperable machine ID comes from</simpara></listitem>
+           <listitem><simpara>Clarify use of dictionary (array of dict-entry) types</simpara></listitem>
          </itemizedlist>
        </revdescription>
      </revision>
