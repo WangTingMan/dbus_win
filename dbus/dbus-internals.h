@@ -193,8 +193,13 @@ void _dbus_real_assert_not_reached (const char *explanation,
 
 #define _DBUS_ZERO(object) (memset (&(object), '\0', sizeof ((object))))
 
+#ifdef offsetof
+#define _DBUS_STRUCT_OFFSET(struct_type, member) \
+    (offsetof (struct_type, member))
+#else
 #define _DBUS_STRUCT_OFFSET(struct_type, member)	\
     ((intptr_t) ((unsigned char*) &((struct_type*) 0)->member))
+#endif
 
 #define _DBUS_ALIGNOF(type) \
     (_DBUS_STRUCT_OFFSET (struct { char _1; type _2; }, _2))
