@@ -2957,7 +2957,7 @@ _dbus_get_install_root_as_hash (DBusString *out)
 static dbus_bool_t
 _dbus_get_address_string (DBusString *out, const char *basestring, const char *scope)
 {
-  _dbus_string_init (out);
+  _dbus_assert (out != NULL);
   _dbus_string_append (out, basestring);
 
   if (!scope)
@@ -2971,7 +2971,6 @@ _dbus_get_address_string (DBusString *out, const char *basestring, const char *s
       DBusString temp;
       if (!_dbus_get_install_root_as_hash (&temp))
         {
-          _dbus_string_free (out);
            return FALSE;
         }
       _dbus_string_append (out, "-");
@@ -2983,7 +2982,6 @@ _dbus_get_address_string (DBusString *out, const char *basestring, const char *s
       _dbus_string_append (out,"-");
       if (!_dbus_append_user_from_current_process (out))
         {
-           _dbus_string_free (out);
            return FALSE;
         }
     }
@@ -2996,12 +2994,29 @@ _dbus_get_address_string (DBusString *out, const char *basestring, const char *s
   return TRUE;
 }
 
+/**
+ * Return name of shared memory segment constructed from the autolaunch scope \p scope
+ *
+ * See @ref _dbus_get_address_string for further usage information.
+ *
+ * @param out initialized DBusString instance to return shared memory segment name
+ * @returns #FALSE on OOM, #TRUE if not OOM
+ */
 static dbus_bool_t
 _dbus_get_shm_name (DBusString *out,const char *scope)
 {
   return _dbus_get_address_string (out, cDBusDaemonAddressInfo, scope);
 }
 
+/**
+ * Return mutex name for scope \p scope in \p out
+ *
+ * See @ref _dbus_get_address_string for further usage information.
+ *
+ * @param out initialized DBusString instance to return mutex name
+ * @param scope scope for the requested mutex name
+ * @returns #FALSE on OOM, #TRUE if not OOM
+ */
 static dbus_bool_t
 _dbus_get_mutex_name (DBusString *out, const char *scope)
 {
@@ -3013,6 +3028,9 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
 {
   HANDLE lock;
   DBusString mutex_name;
+
+  if (!_dbus_string_init (&mutex_name))
+    return FALSE;
 
   _dbus_verbose ("scope:%s\n", scope);
   if (!_dbus_get_mutex_name (&mutex_name, scope))
@@ -3072,6 +3090,9 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
 
   _dbus_assert (address);
 
+  if (!_dbus_string_init (&mutex_name))
+    return FALSE;
+
   _dbus_verbose ("address:%s scope:%s\n", address, scope);
   if (!_dbus_get_mutex_name (&mutex_name, scope))
     {
@@ -3093,6 +3114,12 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
     {
       _dbus_global_unlock (lock);
       CloseHandle (hDBusDaemonMutex);
+      return FALSE;
+    }
+
+  if (!_dbus_string_init (&shm_name))
+    {
+      _dbus_global_unlock (lock);
       return FALSE;
     }
 
@@ -3210,6 +3237,9 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
   DBusString mutex_name;
   dbus_bool_t bRet = TRUE;
 
+  if (!_dbus_string_init (&mutex_name))
+    return FALSE;
+
   if (!_dbus_get_mutex_name (&mutex_name,scope))
     {
       _dbus_string_free (&mutex_name);
@@ -3260,10 +3290,16 @@ _dbus_get_autolaunch_address (const char *scope,
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
-  if (!_dbus_get_shm_name (&shm_name,scope))
+  if (!_dbus_string_init (&shm_name))
+    {
+      _DBUS_SET_OOM(error);
+      return FALSE;
+    }
+
+  if (!_dbus_get_shm_name (&shm_name, scope))
     {
       dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not determine shm name");
-      return FALSE;
+      goto out;
     }
 
   mutex = _dbus_global_lock (cDBusAutolaunchMutex);
