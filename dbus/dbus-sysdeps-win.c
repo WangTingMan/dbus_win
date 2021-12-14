@@ -2934,10 +2934,18 @@ static const char *cDBusDaemonMutex = "DBusDaemonMutex";
 // named shm for dbus adress info (per user)
 static const char *cDBusDaemonAddressInfo = "DBusDaemonAddressInfo";
 
+/**
+ * Return the hash of the installation root directory, which can be
+ * used to construct a per-installation-root scope for autolaunching
+ *
+ * @param out initialized DBusString instance to return hash string
+ * @returns #FALSE on OOM, #TRUE if not OOM
+ */
 static dbus_bool_t
 _dbus_get_install_root_as_hash (DBusString *out)
 {
   DBusString install_path;
+  _dbus_assert (out != NULL);
 
   _dbus_string_init (&install_path);
 
@@ -2945,7 +2953,6 @@ _dbus_get_install_root_as_hash (DBusString *out)
       _dbus_string_get_length (&install_path) == 0)
     return FALSE;
 
-  _dbus_string_init (out);
   _dbus_string_tolower_ascii (&install_path, 0, _dbus_string_get_length (&install_path));
 
   if (!_dbus_sha_compute (&install_path, out))
@@ -2969,13 +2976,21 @@ _dbus_get_address_string (DBusString *out, const char *basestring, const char *s
         || strcmp (scope, "install-path") == 0)
     {
       DBusString temp;
+      dbus_bool_t retval = FALSE;
+
+      if (!_dbus_string_init (&temp))
+        return FALSE;
+
       if (!_dbus_get_install_root_as_hash (&temp))
-        {
-           return FALSE;
-        }
-      _dbus_string_append (out, "-");
-      _dbus_string_append (out, _dbus_string_get_const_data(&temp));
+        goto out;
+
+      if (!_dbus_string_append_printf (out, "-%s", dbus_string_get_const_data (&temp)))
+        goto out;
+
+      retval = TRUE;
+out:
       _dbus_string_free (&temp);
+      return retval;
     }
   else if (strcmp (scope, "*user") == 0)
     {
