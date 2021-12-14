@@ -2945,20 +2945,26 @@ static dbus_bool_t
 _dbus_get_install_root_as_hash (DBusString *out)
 {
   DBusString install_path;
+  dbus_bool_t retval = FALSE;
   _dbus_assert (out != NULL);
 
-  _dbus_string_init (&install_path);
+  if (!_dbus_string_init (&install_path))
+    return FALSE;
 
   if (!_dbus_get_install_root (&install_path) ||
       _dbus_string_get_length (&install_path) == 0)
-    return FALSE;
+    goto out;
 
   _dbus_string_tolower_ascii (&install_path, 0, _dbus_string_get_length (&install_path));
 
   if (!_dbus_sha_compute (&install_path, out))
-    return FALSE;
+    goto out;
 
-  return TRUE;
+  retval = TRUE;
+
+out:
+  _dbus_string_free (&install_path);
+  return retval;
 }
 
 /**
