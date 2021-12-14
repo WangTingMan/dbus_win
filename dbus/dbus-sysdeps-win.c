@@ -2961,15 +2961,29 @@ _dbus_get_install_root_as_hash (DBusString *out)
   return TRUE;
 }
 
+/**
+ * Build a name from \p basestring and \p scope, and append it to \p out
+ *
+ * The name will be suitable for naming Windows objects such as mutexes
+ * and shared memory segments that need to be unique for each distinct
+ * \p scope, but shared between clients with the same \p scope.
+ *
+ * If \p scope has one of the special values recognised in autolaunch:
+ * addresses on Windows, substitute a unique string based on the scope
+ * (the username or the hash of the installation path) instead of the
+ * literal scope itself.
+ *
+ * @param out initialized DBusString instance to return bus address
+ * @returns #FALSE on OOM, #TRUE if not OOM
+ */
 static dbus_bool_t
 _dbus_get_address_string (DBusString *out, const char *basestring, const char *scope)
 {
   _dbus_assert (out != NULL);
-  _dbus_string_append (out, basestring);
 
-  if (!scope)
+  if (!scope || strlen (scope) == 0)
     {
-      return TRUE;
+      return _dbus_string_append (out, basestring);
     }
   else if (strcmp (scope, "*install-path") == 0
         // for 1.3 compatibility
@@ -2984,7 +2998,14 @@ _dbus_get_address_string (DBusString *out, const char *basestring, const char *s
       if (!_dbus_get_install_root_as_hash (&temp))
         goto out;
 
-      if (!_dbus_string_append_printf (out, "-%s", dbus_string_get_const_data (&temp)))
+      if (_dbus_string_get_length (&temp) == 0)
+        {
+          _dbus_string_set_length (out, 0);
+          retval = TRUE;
+          goto out;
+        }
+
+      if (!_dbus_string_append_printf (out, "%s-%s", basestring, _dbus_string_get_const_data (&temp)))
         goto out;
 
       retval = TRUE;
@@ -2994,19 +3015,22 @@ out:
     }
   else if (strcmp (scope, "*user") == 0)
     {
-      _dbus_string_append (out,"-");
-      if (!_dbus_append_user_from_current_process (out))
-        {
-           return FALSE;
-        }
+      char *sid = NULL;
+      dbus_bool_t retval;
+
+      if (!_dbus_getsid (&sid, _dbus_getpid()))
+        return FALSE;
+
+      retval = _dbus_string_append_printf (out, "%s-%s", basestring, sid);
+
+      LocalFree(sid);
+
+      return retval;
     }
-  else if (strlen (scope) > 0)
+  else /* strlen(scope) > 0 */
     {
-      _dbus_string_append (out, "-");
-      _dbus_string_append (out, scope);
-      return TRUE;
+      return _dbus_string_append_printf (out, "%s-%s", basestring, scope);
     }
-  return TRUE;
 }
 
 /**
