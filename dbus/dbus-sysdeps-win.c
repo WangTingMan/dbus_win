@@ -3127,6 +3127,22 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
   return TRUE;
 }
 
+/**
+ * Clear the platform-specific centralized location where the session
+ * bus address is published.
+ *
+ * This must only be called if \ref DBusServer.published_address is #TRUE,
+ * which is be the case if and only if platform-specific code has published
+ * the address centrally.
+ *
+ * On Windows, this is implemented by closing a global shared memory segment.
+ *
+ * On Unix, the session bus address is not published in a centralized
+ * location by libdbus, so this function does nothing. The closest
+ * equivalent on Unix is that the session bus address is published by the
+ * dbus-launch tool, and unpublished automatically when the dbus-launch
+ * tool exits.
+ */
 void
 _dbus_daemon_unpublish_session_bus_address (void)
 {

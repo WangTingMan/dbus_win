@@ -4632,11 +4632,10 @@ _dbus_append_keyring_directory_for_credentials (DBusString      *directory,
   return FALSE;
 }
 
-//PENDING(kdab) docs
+/* Documented in dbus-sysdeps-win.c, does nothing on Unix */
 void
 _dbus_daemon_unpublish_session_bus_address (void)
 {
-
 }
 
 /**
