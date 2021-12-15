@@ -110,6 +110,10 @@ dbus_bool_t _dbus_win_event_wait (HANDLE handle, int timeout, DBusError *error);
 DBUS_PRIVATE_EXPORT
 dbus_bool_t _dbus_win_event_free (HANDLE handle, DBusError *error);
 
+dbus_bool_t _dbus_daemon_is_session_bus_address_published (const char *scope);
+dbus_bool_t _dbus_daemon_publish_session_bus_address (const char *address,
+                                                      const char *shm_name);
+
 #endif
 
 /** @} end of sysdeps-win.h */
