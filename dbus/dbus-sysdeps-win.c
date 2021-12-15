@@ -2938,6 +2938,9 @@ static const char *cDBusDaemonAddressInfo = "DBusDaemonAddressInfo";
  * Return the hash of the installation root directory, which can be
  * used to construct a per-installation-root scope for autolaunching
  *
+ * If the installation root directory could not be
+ * determined, the returned length is set to zero.
+ *
  * @param out initialized DBusString instance to return hash string
  * @returns #FALSE on OOM, #TRUE if not OOM
  */
@@ -2951,9 +2954,16 @@ _dbus_get_install_root_as_hash (DBusString *out)
   if (!_dbus_string_init (&install_path))
     return FALSE;
 
-  if (!_dbus_get_install_root (&install_path) ||
-      _dbus_string_get_length (&install_path) == 0)
+  if (!_dbus_get_install_root (&install_path))
     goto out;
+
+  /* the install path can't be determined */
+  if (_dbus_string_get_length (&install_path) == 0)
+    {
+      _dbus_string_set_length (out, 0);
+      retval = TRUE;
+      goto out;
+    }
 
   _dbus_string_tolower_ascii (&install_path, 0, _dbus_string_get_length (&install_path));
 
@@ -2978,6 +2988,9 @@ out:
  * addresses on Windows, substitute a unique string based on the scope
  * (the username or the hash of the installation path) instead of the
  * literal scope itself.
+ *
+ * With the '*install-path' \p scope the returned length can be zero,
+ * indicating that the name could not be determined.
  *
  * @param out initialized DBusString instance to return bus address
  * @returns #FALSE on OOM, #TRUE if not OOM
@@ -3078,7 +3091,9 @@ _dbus_daemon_is_session_bus_address_published (const char *scope)
     return FALSE;
 
   _dbus_verbose ("scope:%s\n", scope);
-  if (!_dbus_get_mutex_name (&mutex_name, scope))
+  if (!_dbus_get_mutex_name (&mutex_name, scope) ||
+      /* not determinable */
+      _dbus_string_get_length (&mutex_name) == 0)
     {
       _dbus_string_free (&mutex_name);
       return FALSE;
@@ -3139,7 +3154,9 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
     return FALSE;
 
   _dbus_verbose ("address:%s scope:%s\n", address, scope);
-  if (!_dbus_get_mutex_name (&mutex_name, scope))
+  if (!_dbus_get_mutex_name (&mutex_name, scope) ||
+      /* not determinable */
+      _dbus_string_get_length (&mutex_name) == 0)
     {
       _dbus_string_free (&mutex_name);
       return FALSE;
@@ -3168,7 +3185,9 @@ _dbus_daemon_publish_session_bus_address (const char* address, const char *scope
       return FALSE;
     }
 
-  if (!_dbus_get_shm_name (&shm_name, scope))
+  if (!_dbus_get_shm_name (&shm_name, scope) ||
+      /* not determinable */
+      _dbus_string_get_length (&shm_name) == 0)
     {
       _dbus_string_free (&shm_name);
       _dbus_global_unlock (lock);
@@ -3285,7 +3304,9 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
   if (!_dbus_string_init (&mutex_name))
     return FALSE;
 
-  if (!_dbus_get_mutex_name (&mutex_name,scope))
+  if (!_dbus_get_mutex_name (&mutex_name,scope) ||
+      /* not determinable */
+      _dbus_string_get_length (&mutex_name) == 0)
     {
       _dbus_string_free (&mutex_name);
       return FALSE;
@@ -3341,7 +3362,9 @@ _dbus_get_autolaunch_address (const char *scope,
       return FALSE;
     }
 
-  if (!_dbus_get_shm_name (&shm_name, scope))
+  if (!_dbus_get_shm_name (&shm_name, scope) ||
+      /* not determinable */
+      _dbus_string_get_length (&shm_name) == 0)
     {
       dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not determine shm name");
       goto out;
