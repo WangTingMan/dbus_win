@@ -661,23 +661,34 @@ _dbus_test_help_page (const char *appname)
 }
 
 static void
-_dbus_test_show_available_tests (const DBusTestCase  *tests)
+_dbus_test_show_available_tests (size_t n_tests,
+                                 const DBusTestCase *tests)
 {
-  const DBusTestCase *p;
+  size_t i;
 
-  for (p = tests; p->name; p++)
-    fprintf(stdout, "%s\n", p->name);
+  for (i = 0; i < n_tests; i++)
+    {
+      if (tests[i].name == NULL)
+        break;
+
+      fprintf(stdout, "%s\n", tests[i].name);
+    }
 }
 
-static const DBusTestCase*
-_dbus_test_find_test (const DBusTestCase *tests, const char *specific_test)
+static const DBusTestCase *
+_dbus_test_find_test (size_t n_tests,
+                      const DBusTestCase *tests,
+                      const char *specific_test)
 {
-  const DBusTestCase *p;
+  size_t i;
 
-  for (p = tests; p->name; p++)
+  for (i = 0; i < n_tests; i++)
     {
-      if (strcmp (specific_test, p->name) == 0)
-        return p;
+      if (tests[i].name == NULL)
+        break;
+
+      if (strcmp (specific_test, tests[i].name) == 0)
+        return &tests[i];
     }
   return NULL;
 }
@@ -728,7 +739,7 @@ _dbus_test_main (int                  argc,
 
   else if (argc > 1 && strcmp (argv[1], "--list-tests") == 0)
     {
-      _dbus_test_show_available_tests (tests);
+      _dbus_test_show_available_tests (n_tests, tests);
       exit (0);
     }
 
@@ -765,7 +776,7 @@ _dbus_test_main (int                  argc,
   /* check that test is present */
   if (specific_test)
     {
-      if (_dbus_test_find_test (tests, specific_test) == NULL)
+      if (_dbus_test_find_test (n_tests, tests, specific_test) == NULL)
         {
           _dbus_test_fatal ("Invalid test name '%s' specified", specific_test);
         }
