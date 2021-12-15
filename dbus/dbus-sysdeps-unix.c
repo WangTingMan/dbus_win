@@ -4633,14 +4633,6 @@ _dbus_append_keyring_directory_for_credentials (DBusString      *directory,
 }
 
 //PENDING(kdab) docs
-dbus_bool_t
-_dbus_daemon_publish_session_bus_address (const char* addr,
-                                          const char *scope)
-{
-  return TRUE;
-}
-
-//PENDING(kdab) docs
 void
 _dbus_daemon_unpublish_session_bus_address (void)
 {
