@@ -3243,22 +3243,23 @@ _dbus_get_autolaunch_shm (DBusString *address, DBusString *shm_name)
   int i;
 
   // read shm
-  for(i=0;i<20;++i) {
+  for (i = 0; i < 20; ++i)
+    {
       // we know that dbus-daemon is available, so we wait until shm is available
       sharedMem = OpenFileMappingA (FILE_MAP_READ, FALSE, _dbus_string_get_const_data (shm_name));
       if (sharedMem == 0)
-          Sleep (100);
-      if ( sharedMem != 0)
-          break;
-  }
+        Sleep (100);
+      if (sharedMem != 0)
+        break;
+    }
 
   if (sharedMem == 0)
-      return FALSE;
+    return FALSE;
 
   shared_addr = MapViewOfFile (sharedMem, FILE_MAP_READ, 0, 0, 0);
 
   if (!shared_addr)
-      return FALSE;
+    return FALSE;
 
   _dbus_string_init (address);
 
@@ -3283,7 +3284,7 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
   if (!_dbus_string_init (&mutex_name))
     return FALSE;
 
-  if (!_dbus_get_mutex_name (&mutex_name,scope) ||
+  if (!_dbus_get_mutex_name (&mutex_name, scope) ||
       /* not determinable */
       _dbus_string_get_length (&mutex_name) == 0)
     {
@@ -3300,7 +3301,7 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
 
   // do checks
   daemon = CreateMutexA (NULL, FALSE, _dbus_string_get_const_data (&mutex_name));
-  if(WaitForSingleObject (daemon, 10) != WAIT_TIMEOUT)
+  if (WaitForSingleObject (daemon, 10) != WAIT_TIMEOUT)
     {
       ReleaseMutex (daemon);
       CloseHandle (daemon);
@@ -3333,14 +3334,14 @@ _dbus_get_autolaunch_address (const char *scope,
   LPSTR lpFile;
   char dbus_exe_path[MAX_PATH];
   DBusString dbus_args = _DBUS_STRING_INIT_INVALID;
-  const char * daemon_name = DBUS_DAEMON_NAME ".exe";
+  const char *daemon_name = DBUS_DAEMON_NAME ".exe";
   DBusString shm_name;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
   if (!_dbus_string_init (&shm_name))
     {
-      _DBUS_SET_OOM(error);
+      _DBUS_SET_OOM (error);
       return FALSE;
     }
 
@@ -3365,12 +3366,12 @@ _dbus_get_autolaunch_address (const char *scope,
   if (_dbus_daemon_already_runs (address, &shm_name, scope))
     {
       _dbus_verbose ("found running dbus daemon for scope '%s' at %s\n",
-                     scope ? scope : "", _dbus_string_get_const_data (&shm_name) );
+                     scope ? scope : "", _dbus_string_get_const_data (&shm_name));
       retval = TRUE;
       goto out;
     }
 
-  if (!SearchPathA (NULL, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+  if (!SearchPathA (NULL, daemon_name, NULL, sizeof (dbus_exe_path), dbus_exe_path, &lpFile))
     {
       // Look in directory containing dbus shared library
       HMODULE hmod;
@@ -3381,7 +3382,7 @@ _dbus_get_autolaunch_address (const char *scope,
                      "trying path where dbus shared library is located");
 
       hmod = _dbus_win_get_dll_hmodule ();
-      rc = GetModuleFileNameA (hmod, dbus_module_path, sizeof(dbus_module_path));
+      rc = GetModuleFileNameA (hmod, dbus_module_path, sizeof (dbus_module_path));
       if (rc <= 0)
         {
           dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not retrieve dbus shared library file name");
@@ -3393,7 +3394,7 @@ _dbus_get_autolaunch_address (const char *scope,
           char *ext_idx = strrchr (dbus_module_path, '\\');
           if (ext_idx)
             *ext_idx = '\0';
-          if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+          if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof (dbus_exe_path), dbus_exe_path, &lpFile))
             {
               dbus_set_error (error, DBUS_ERROR_FAILED,
                               "Could not find dbus-daemon executable. "
@@ -3407,11 +3408,10 @@ _dbus_get_autolaunch_address (const char *scope,
         }
     }
 
-
   // Create process
-  ZeroMemory (&si, sizeof(si));
+  ZeroMemory (&si, sizeof (si));
   si.cb = sizeof (si);
-  ZeroMemory (&pi, sizeof(pi));
+  ZeroMemory (&pi, sizeof (pi));
 
   if (!_dbus_string_init (&dbus_args))
     {
@@ -3427,8 +3427,8 @@ _dbus_get_autolaunch_address (const char *scope,
       goto out;
     }
 
-//  argv[i] = "--config-file=bus\\session.conf";
-  if(CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+  //  argv[i] = "--config-file=bus\\session.conf";
+  if (CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
     {
       CloseHandle (pi.hThread);
       CloseHandle (pi.hProcess);
@@ -3450,8 +3450,7 @@ out:
   _dbus_string_free (&dbus_args);
 
   return retval;
- }
-
+}
 
 /** Makes the file readable by every user in the system.
  *
