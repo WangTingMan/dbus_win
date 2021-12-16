@@ -3344,7 +3344,7 @@ _dbus_get_autolaunch_address (const char *scope,
                               DBusString *address,
                               DBusError *error)
 {
-  HANDLE mutex;
+  HANDLE mutex = NULL;
   STARTUPINFOA si;
   PROCESS_INFORMATION pi;
   dbus_bool_t retval = FALSE;
@@ -3454,7 +3454,8 @@ _dbus_get_autolaunch_address (const char *scope,
 
 out:
   _DBUS_ASSERT_ERROR_XOR_BOOL (error, retval);
-  _dbus_global_unlock (mutex);
+  if (mutex != NULL)
+    _dbus_global_unlock (mutex);
   _dbus_string_free (&shm_name);
   _dbus_string_free (&dbus_args);
 
