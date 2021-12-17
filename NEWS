@@ -28,6 +28,8 @@ Dependencies:
 • GLib >= 2.38 is required if full test coverage is enabled
   (reduced from 2.40 in dbus 1.12.x.)
 
+• Building using CMake now requires CMake 3.4.
+
 • Building documentation using CMake now requires xsltproc, Docbook DTDs
   (for example docbook-xml on Debian derivatives), and Docbook XSLT
   stylesheets (for example docbook-xsl on Debian derivatives). Using
@@ -123,6 +125,10 @@ dbus 1.13.20 (2021-12-17)
 =========================
 
 The “not how anyone wanted to learn the Greek alphabet” release.
+
+Dependencies:
+
+• Building using CMake now requires CMake 3.4.
 
 Enhancements:
 
