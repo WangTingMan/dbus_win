@@ -7,7 +7,7 @@
   <articleinfo>
     <title>D-Bus Specification</title>
     <releaseinfo>Version 0.37</releaseinfo>
-    <date>(not yet released)</date>
+    <date>2021-12-17</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -80,7 +80,7 @@
      </revision>
      <revision>
        <revnumber>0.37</revnumber>
-       <date>(not yet released)</date>
+       <date>2021-12-17</date>
        <authorinitials></authorinitials>
        <revdescription>
          <itemizedlist>

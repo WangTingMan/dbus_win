@@ -114,8 +114,10 @@ Miscellaneous behaviour changes:
 • Tarball releases no longer contain pre-2007 changelogs and are now
   compressed with xz, so they should be somewhat smaller
 
-dbus 1.13.20 (UNRELEASED)
+dbus 1.13.20 (2021-12-17)
 =========================
+
+The “not how anyone wanted to learn the Greek alphabet” release.
 
 Enhancements:
 
@@ -151,6 +153,9 @@ Bug fixes:
   wrapped application before the dbus-daemon was ready
   (dbus#297, Ralf Habacker)
 
+• Fix build with clang 13 by using Standard C offsetof where available
+  (dbus!237, Simon McVittie)
+
 • Fix build of tests on FreeBSD (dbus!167, Simon McVittie)
 
 • Various CMake build improvements
@@ -161,7 +166,8 @@ Bug fixes:
   with mingw toolchain
   (dbus!172, Julien Schueller)
 
-• Make documentation build more reproducible (dbus!189, Arnout Engelen)
+• Make documentation build more reproducible
+  (dbus!189, dbus!238; Arnout Engelen, Simon McVittie)
 
 • On Unix, make X11 autolaunch cope with slashes in DISPLAY
   (dbus#8, dbus#311; William Earley)
@@ -185,7 +191,10 @@ Bug fixes:
 • Fix build with newer mingw compilers (dbus#355, Ralf Habacker)
 
 • Various Windows error-handling fixes
-  (dbus!229, dbus#357, dbus#279, dbus#360; Ralf Habacker, Simon McVittie)
+  (dbus!229, dbus#357, dbus#279, dbus#360, dbus#365;
+  Ralf Habacker, Simon McVittie)
+
+• Clearer diagnostics when tests are skipped (dbus#363, Simon McVittie)
 
 • CI improvements
   (dbus#318, dbus!197, dbus!187, dbus!196, dbus!201, dbus#359;
