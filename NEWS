@@ -114,6 +114,11 @@ Miscellaneous behaviour changes:
 • Tarball releases no longer contain pre-2007 changelogs and are now
   compressed with xz, so they should be somewhat smaller
 
+dbus 1.13.22 (UNRELEASED)
+=========================
+
+...
+
 dbus 1.13.20 (2021-12-17)
 =========================
 
