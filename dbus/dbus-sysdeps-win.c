@@ -2895,6 +2895,26 @@ static const char *cDBusDaemonMutex = "DBusDaemonMutex";
 // named shm for dbus adress info (per user)
 static const char *cDBusDaemonAddressInfo = "DBusDaemonAddressInfo";
 
+/* custom command line parameter for autolaunching daemon */
+static const char *autolaunch_custom_command_line_parameter = "";
+
+/**
+ * Set command line parameters for the dbus daemon to start
+ * for an autolaunch session.
+ *
+ * The specified instance must be valid until the dbus-daemon
+ * is started.
+ *
+ * This function is not thread-safe, and can only be called from a
+ * single-threaded unit test.
+ *
+ * @param path string to use as command line parameter
+ */
+void _dbus_test_win_autolaunch_set_command_line_parameter (const char *path)
+{
+  autolaunch_custom_command_line_parameter = path;
+}
+
 /**
  * Return the hash of the installation root directory, which can be
  * used to construct a per-installation-root scope for autolaunching
@@ -3420,7 +3440,8 @@ _dbus_get_autolaunch_address (const char *scope,
       goto out;
     }
 
-  if (!_dbus_string_append_printf (&dbus_args, "\"%s\" --session", dbus_exe_path))
+  if (!_dbus_string_append_printf (&dbus_args, "\"%s\" %s", dbus_exe_path,
+                                   autolaunch_custom_command_line_parameter ? autolaunch_custom_command_line_parameter : "--session"))
     {
       dbus_set_error_const (error, DBUS_ERROR_NO_MEMORY, "Failed to append string to argument buffer");
       retval = FALSE;
