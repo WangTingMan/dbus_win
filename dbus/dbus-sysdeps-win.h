@@ -117,6 +117,10 @@ dbus_bool_t _dbus_daemon_publish_session_bus_address (const char *address,
 DBUS_PRIVATE_EXPORT
 DBusRMutex  *_dbus_win_rmutex_named_new (const char* name);
 
+DBUS_PRIVATE_EXPORT
+void _dbus_test_win_autolaunch_set_command_line_parameter (const char *path);
+DBUS_PRIVATE_EXPORT
+void _dbus_test_win_set_autolaunch_handle_location (HANDLE *location);
 #endif
 
 /** @} end of sysdeps-win.h */

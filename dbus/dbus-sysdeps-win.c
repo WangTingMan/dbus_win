@@ -2915,6 +2915,24 @@ void _dbus_test_win_autolaunch_set_command_line_parameter (const char *path)
   autolaunch_custom_command_line_parameter = path;
 }
 
+static HANDLE *autolaunch_handle_location;
+
+/**
+ * Set location where to store process handle of an autostarted server
+ *
+ * This function is not thread-safe, and can only be called from a
+ * single-threaded unit test.
+ *
+ * After using the handle it must be closed with @ref CloseHandle().
+ *
+ * @param location Pointer where to store the handle
+ */
+void
+_dbus_test_win_set_autolaunch_handle_location (HANDLE *location)
+{
+  autolaunch_handle_location = location;
+}
+
 /**
  * Return the hash of the installation root directory, which can be
  * used to construct a per-installation-root scope for autolaunching
@@ -3452,7 +3470,15 @@ _dbus_get_autolaunch_address (const char *scope,
   if (CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
     {
       CloseHandle (pi.hThread);
-      CloseHandle (pi.hProcess);
+      if (autolaunch_handle_location != NULL)
+        {
+          *autolaunch_handle_location = pi.hProcess;
+          _dbus_verbose ("Returning process handle of started server (handle=%p)\n", pi.hProcess);
+        }
+      else
+        {
+          CloseHandle (pi.hProcess);
+        }
       retval = _dbus_get_autolaunch_shm (address, &shm_name);
       if (retval == FALSE)
         dbus_set_error_const (error, DBUS_ERROR_FAILED, "Failed to get autolaunch address from launched dbus-daemon");
