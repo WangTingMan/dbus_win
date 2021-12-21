@@ -3529,7 +3529,7 @@ _dbus_get_autolaunch_address (const char *scope,
           dbus_set_error (error, DBUS_ERROR_FAILED, "Unknown result '%lu' while waiting for server readiness (handle %p)", status, ready_event_handle);
           goto out;
         }
-      _dbus_verbose ("Got signal that dbus-daemon is ready for connections\n");
+      _dbus_verbose ("Got signal that dbus-daemon with process id '%ld' is ready for connections\n", GetProcessId (pi.hProcess));
 
       if (autolaunch_handle_location != NULL)
         {
