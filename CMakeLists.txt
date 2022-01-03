@@ -325,6 +325,9 @@ else()
         unused-but-set-variable
         write-strings
     )
+    set(WARNINGS_C
+        pointer-sign
+    )
     set(WARNINGS_DISABLED
         error=overloaded-virtual
         error=missing-field-initializers
@@ -343,7 +346,7 @@ generate_compiler_warning_flags(
         WARNINGS_CFLAGS
     WARNINGS
         ${WARNINGS}
-        pointer-sign
+        ${WARNINGS_C}
     DISABLED
         ${WARNINGS_DISABLED}
     ERRORS
