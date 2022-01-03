@@ -228,10 +228,12 @@ endif()
 #
 # setup warnings
 #
-# We're treating -fno-common like a warning: it makes the linker more
-# strict, because on some systems the linker is *always* this strict
-string(APPEND CMAKE_C_FLAGS " -fno-common")
-string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+if(NOT MSVC)
+    # We're treating -fno-common like a warning: it makes the linker more
+    # strict, because on some systems the linker is *always* this strict
+    string(APPEND CMAKE_C_FLAGS " -fno-common")
+    string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+endif()
 
 option(ENABLE_WERROR "Unconditionally make all compiler warnings fatal" OFF)
 
