@@ -25,20 +25,6 @@ image: debian:buster-slim
 stages:
   - build
 
-before_script:
-  - ./tools/ci-install.sh
-  - mkdir -p .ccache
-  - export CCACHE_BASEDIR="$(pwd)"
-  - export CCACHE_DIR="$CCACHE_BASEDIR/.ccache"
-  # Debian's ccache package creates symlinks here for all supported
-  # compilers
-  - export PATH="/usr/lib/ccache:$PATH"
-
-cache:
-  key: ${CI_JOB_NAME}
-  paths:
-    - .ccache/
-
 variables:
   ci_in_docker: "yes"
   ci_local_packages: "yes"
@@ -50,6 +36,18 @@ variables:
 .debian-build:
   stage: build
   image: "debian:buster-slim"
+  cache:
+    key: ${CI_JOB_NAME}
+    paths:
+      - .ccache/
+  before_script:
+    - ./tools/ci-install.sh
+    - mkdir -p .ccache
+    - export CCACHE_BASEDIR="$(pwd)"
+    - export CCACHE_DIR="$CCACHE_BASEDIR/.ccache"
+    # Debian's ccache package creates symlinks here for all supported
+    # compilers
+    - export PATH="/usr/lib/ccache:$PATH"
   script:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
