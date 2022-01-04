@@ -47,93 +47,78 @@ variables:
   ci_distro: "debian"
   ci_suite: "buster"
 
-production:
+.debian-build:
   stage: build
   image: "debian:buster-slim"
-  variables:
-    ci_variant: "production"
-  script: &script
+  script:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
 
+production:
+  extends: .debian-build
+  variables:
+    ci_variant: "production"
+
 debug:
-  stage: build
-  image: "debian:buster-slim"
+  extends: .debian-build
   variables:
     ci_variant: "debug"
-  script: *script
 
 reduced:
-  stage: build
+  extends: .debian-build
   when: manual
-  image: "debian:buster-slim"
   variables:
     ci_variant: "reduced"
-  script: *script
 
 legacy:
-  stage: build
+  extends: .debian-build
   when: manual
-  image: "debian:buster-slim"
   variables:
     ci_variant: "legacy"
-  script: *script
 
 cmake:
-  stage: build
-  image: "debian:buster-slim"
+  extends: .debian-build
   variables:
     ci_buildsys: "cmake-dist"
-  script: *script
 
 i686-w64-mingw32-debug:
-  stage: build
-  image: "debian:buster-slim"
+  extends: .debian-build
   variables:
     ci_host: "i686-w64-mingw32"
     ci_variant: "debug"
-  script: *script
 
 i686-w64-mingw32-cmake:
-  stage: build
+  extends: .debian-build
   when: manual
-  image: "debian:buster-slim"
   variables:
     ci_buildsys: "cmake"
     ci_host: "i686-w64-mingw32"
-  script: *script
 
 x86_64-w64-mingw32:
-  stage: build
-  image: "debian:buster-slim"
+  extends: .debian-build
   variables:
     ci_host: "x86_64-w64-mingw32"
-  script: *script
 
 x86_64-w64-mingw32-cmake-debug:
-  stage: build
-  image: "debian:buster-slim"
+  extends: .debian-build
   variables:
     ci_buildsys: "cmake"
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
-  script: *script
 
 stretch:
+  extends: .debian-build
   when: manual
-  stage: build
   image: "debian:stretch-slim"
   variables:
     ci_suite: "stretch"
-  script: *script
 
 xenial:
+  extends: .debian-build
   when: manual
-  stage: build
   image: "ubuntu:xenial"
   variables:
     ci_distro: "ubuntu"
     ci_suite: "xenial"
-  script: *script
 
 # vim:set sw=2 sts=2 et:
