@@ -525,8 +525,8 @@ sha1_handle_first_client_response (DBusAuth         *auth,
   /* We haven't sent a challenge yet, we're expecting a desired
    * username from the client.
    */
-  DBusString tmp;
-  DBusString tmp2;
+  DBusString tmp = _DBUS_STRING_INIT_INVALID;
+  DBusString tmp2 = _DBUS_STRING_INIT_INVALID;
   dbus_bool_t retval = FALSE;
   DBusError error = DBUS_ERROR_INIT;
   DBusCredentials *myself = NULL;
@@ -557,7 +557,7 @@ sha1_handle_first_client_response (DBusAuth         *auth,
       if (dbus_error_has_name (&error, DBUS_ERROR_NO_MEMORY))
         {
           dbus_error_free (&error);
-          goto out;
+          return FALSE;
         }
 
       _dbus_verbose ("%s: Did not get a valid username from client: %s\n",
