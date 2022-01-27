@@ -122,7 +122,7 @@ bus_match_rule_unref (BusMatchRule *rule)
     }
 }
 
-#if defined(DBUS_ENABLE_VERBOSE_MODE) || defined(DBUS_ENABLE_STATS)
+#if defined(DBUS_ENABLE_VERBOSE_MODE) || defined(DBUS_ENABLE_STATS) || defined(DBUS_ENABLE_EMBEDDED_TESTS)
 static dbus_bool_t
 append_key_and_escaped_value (DBusString *str, const char *token, const char *value)
 {
@@ -312,7 +312,7 @@ match_rule_to_string (BusMatchRule *rule)
   _dbus_string_free (&str);
   return NULL;
 }
-#endif /* defined(DBUS_ENABLE_VERBOSE_MODE) || defined(DBUS_ENABLE_STATS) */
+#endif /* defined(DBUS_ENABLE_VERBOSE_MODE) || defined(DBUS_ENABLE_STATS) || defined(DBUS_ENABLE_EMBEDDED_TESTS) */
 
 dbus_bool_t
 bus_match_rule_set_message_type (BusMatchRule *rule,

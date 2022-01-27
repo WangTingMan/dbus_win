@@ -228,10 +228,12 @@ endif()
 #
 # setup warnings
 #
-# We're treating -fno-common like a warning: it makes the linker more
-# strict, because on some systems the linker is *always* this strict
-string(APPEND CMAKE_C_FLAGS " -fno-common")
-string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+if(NOT MSVC)
+    # We're treating -fno-common like a warning: it makes the linker more
+    # strict, because on some systems the linker is *always* this strict
+    string(APPEND CMAKE_C_FLAGS " -fno-common")
+    string(APPEND CMAKE_CXX_FLAGS " -fno-common")
+endif()
 
 option(ENABLE_WERROR "Unconditionally make all compiler warnings fatal" OFF)
 
@@ -257,12 +259,12 @@ if(MSVC)
 
     # see https://msdn.microsoft.com/en-us/library/z78503e6.aspx
     # 4018 'expression' : signed/unsigned mismatch
-    set(WARNINGS "4018")
+    set(WARNINGS 4018)
     # 4090 'operation' : different 'modifier' qualifiers
     # 4101 'identifier' : unreferenced local variable
     # 4127 conditional expression is constant
     # 4244 'argument' : conversion from 'type1' to 'type2', possible loss of data
-    set(WARNINGS_DISABLED "4090 4101 4127 4244")
+    set(WARNINGS_DISABLED 4090 4101 4127 4244)
     # 4002 too many actual parameters for macro 'identifier'
     # 4003 not enough actual parameters for macro 'identifier'
     # 4013 'function' undefined; assuming extern returning int
@@ -271,7 +273,7 @@ if(MSVC)
     # 4047 operator' : 'identifier1' differs in levels of indirection from 'identifier2'
     # 4114 same type qualifier used more than once
     # 4133 'type' : incompatible types - from 'type1' to 'type2'
-    set(WARNINGS_ERRORS "4002 4003 4013 4028 4031 4047 4114 4133")
+    set(WARNINGS_ERRORS 4002 4003 4013 4028 4031 4047 4114 4133)
     if(DBUS_MSVC_ANALYZE AND MSVC_VERSION GREATER 1600)
         string(APPEND CMAKE_C_FLAGS " /analyze")
     endif()
