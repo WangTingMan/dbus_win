@@ -43,7 +43,7 @@ if ($?) {
 }
 
 Write-Host "No image found at $registry_user_image or $registry_central_image; rebuilding"
-docker --config "windows-docker.conf" build $DOCKER_BUILD_ARGS --no-cache -t "$registry_user_image" -f "$dockerfile" "./ci/docker/windows"
+docker --config "windows-docker.conf" build $DOCKER_BUILD_ARGS --no-cache -t "$registry_user_image" -f "$dockerfile" "./tools/docker/windows"
 if (!$?) {
   Write-Host "Container build failed"
   docker --config "windows-docker.conf" logout "$registry_uri"
