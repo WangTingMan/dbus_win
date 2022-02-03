@@ -1431,10 +1431,7 @@ _dbus_poll_select (DBusPollFD *fds,
 #ifdef DBUS_ENABLE_VERBOSE_MODE
   _dbus_verbose("_dbus_poll: to=%d\n", timeout_milliseconds);
   if (!_dbus_dump_fd_events (fds, n_fds))
-    {
-      ready = -1;
-      goto oom;
-    }
+    return -1;
 #endif
 
   for (i = 0; i < n_fds; i++)
@@ -1474,8 +1471,7 @@ _dbus_poll_select (DBusPollFD *fds,
         if (!_dbus_dump_fdset (fds, n_fds, &read_set, &write_set, &err_set))
           {
             _dbus_win_set_errno (ENOMEM);
-            ready = -1;
-            goto oom;
+            return -1;
           }
 #endif
         for (i = 0; i < n_fds; i++)
@@ -1494,7 +1490,6 @@ _dbus_poll_select (DBusPollFD *fds,
               fdp->revents |= _DBUS_POLLERR;
           }
       }
-oom:
   return ready;
 }
 #endif
