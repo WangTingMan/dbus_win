@@ -427,6 +427,25 @@ case "$ci_buildsys" in
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls)
         ;;
+
+    (meson)
+        # The test coverage for OOM-safety is too verbose to be useful on
+        # travis-ci, and too slow when running under wine.
+        export DBUS_TEST_MALLOC_FAILURES=0
+
+        meson=meson
+        case "$ci_host" in
+            (*-w64-mingw32)
+                meson=mingw64-meson
+                ;;
+        esac
+        # FIXME: ducktype target fails on debian CI..
+        $meson setup -Dducktype_docs=disabled
+        $meson compile
+        [ "$ci_test" = no ] || $meson test
+        DESTDIR=DESTDIR $meson install
+        ( cd DESTDIR && find . -ls)
+        ;;
 esac
 
 # vim:set sw=4 sts=4 et:

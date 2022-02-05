@@ -44,7 +44,7 @@ variables:
   # If you are hacking on them or need a them to rebuild, its enough
   # to change any part of the string of the image you want.
   ###
-  WINDOWS_TAG: "2022-01-07.1"
+  WINDOWS_TAG: "2022-02-06.2"
 
   UPSTREAM_BRANCH: 'master'
   UPSTREAM_REPO: 'dbus/dbus'
@@ -76,6 +76,17 @@ variables:
       - $CI_PROJECT_DIR/test-results.xml
     reports:
       junit: $CI_PROJECT_DIR/test-results.xml
+
+.meson-common:
+  variables:
+    ci_buildsys: "meson"
+  artifacts:
+    reports:
+      junit: "$builddir/meson-logs/testlog.junit.xml"
+    name: "dbus-$CI_JOB_NAME"
+    when: always
+    paths:
+      - "$builddir/meson-logs/testlog.txt"
 
 windows amd64 image:
   stage: "build docker"
@@ -165,6 +176,13 @@ debian cmake:
   variables:
     ci_buildsys: "cmake-dist"
 
+debian meson:
+  extends:
+    - .meson-common
+    - .debian-build
+  variables:
+    builddir: "ci-build-production-native"
+
 debian mingw32 autotools debug:
   extends: .debian-build
   variables:
@@ -240,6 +258,16 @@ opensuse mingw64 cmake debug:
     ci_local_packages: "no"
     ci_variant: "debug"
 
+opensuse mingw64 meson debug:
+  extends:
+    - .meson-common
+    - .suse-build
+  variables:
+    ci_host: "x86_64-w64-mingw32"
+    ci_local_packages: "no"
+    ci_variant: "debug"
+    builddir: "ci-build-$ci_variant-$ci_host"
+
 .ubuntu-build:
   extends: .unix-host-build
   image: "ubuntu:latest"
@@ -289,5 +317,25 @@ windows vs15-64 cmake:
     - cmake --install build --config Debug
     # FIXME: a few tests timeout on gitlab runner for unknown reason
     - cd build ; ctest -C Debug -VV --timeout 1200 -E '(dbus-daemon|monitor)' --output-junit $ci_cmake_junit_output
+
+windows-meson-mingw-ucrt64:
+  extends: .win-build
+  script:
+    - $env:MSYSTEM = "UCRT64"
+    - $env:CHERE_INVOKING = "1"
+    - $env:MSYS2_PATH_TYPE = "inherit"
+    - $env:PATH += ";C:\msys64\usr\bin"
+    # FIXME: -j1: for some reason on CI ninja: fatal: pipe: Too many open files
+    - C:\msys64\usr\bin\bash -lc "
+        meson build &&
+        ninja -j1 -C build &&
+        meson test -C build"
+
+windows-meson-vs15-x86:
+  extends: .win-build
+  script:
+    - cmd.exe /C "C:\BuildTools\Common7\Tools\VsDevCmd.bat -host_arch=amd64 -arch=x86 &&
+        meson build &&
+        meson test -C build"
 
 # vim:set sw=2 sts=2 et:

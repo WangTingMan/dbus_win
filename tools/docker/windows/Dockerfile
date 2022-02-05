@@ -29,7 +29,7 @@ RUN (New-Object System.Net.WebClient).DownloadString('https://wrapdb.mesonbuild.
 RUN (New-Object System.Net.WebClient).DownloadString('https://zlib.net/fossils/') >$null
 
 # MinGW environment
-RUN c:\msys64\usr\bin\bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-toolchain expat glib2-devel'
+RUN c:\msys64\usr\bin\bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-toolchain expat glib2-devel ninja'
 
 # Visual Studio can't be installed with choco.
 # It depends on dotnetfx v4.8.0.20190930, which requires a reboot: dotnetfx (exit code 3010)

@@ -169,6 +169,8 @@ case "$ci_distro" in
             libselinux1-dev
             libsystemd-dev
             libx11-dev
+            meson
+            ninja-build
             sudo
             valgrind
             wget
@@ -206,6 +208,7 @@ case "$ci_distro" in
             automake
             cmake
             libtool
+            meson
         )
 
         # docs
@@ -272,7 +275,7 @@ case "$ci_distro" in
                     "${packages[@]}"
                     mingw${bits}-cross-gcc-c++
                     mingw${bits}-libexpat-devel
-                    mingw${bits}-glib2-devel
+                    mingw${bits}-cross-meson
                 )
                 ;;
 
