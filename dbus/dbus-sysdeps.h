@@ -561,6 +561,18 @@ typedef struct
 dbus_bool_t _dbus_stat             (const DBusString *filename,
                                     DBusStat         *statbuf,
                                     DBusError        *error);
+
+DBusSocket _dbus_connect_unix_socket (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
+DBusSocket _dbus_listen_unix_socket  (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
+
+DBusSocket _dbus_connect_exec (const char     *path,
+                               char *const    argv[],
+                               DBusError      *error);
+
 DBUS_PRIVATE_EXPORT
 dbus_bool_t _dbus_socketpair (DBusSocket       *fd1,
                               DBusSocket       *fd2,
