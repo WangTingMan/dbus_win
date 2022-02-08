@@ -40,8 +40,9 @@
  */
 
 /**
- * Tries to interpret the address entry in a platform-specific
- * way, creating a platform-specific server type if appropriate.
+ * Tries to interpret the address entry for UNIX socket
+ * addresses.
+ *
  * Sets error if the result is not OK.
  *
  * @param entry an address entry
@@ -51,9 +52,9 @@
  *
  */
 DBusServerListenResult
-_dbus_server_listen_platform_specific (DBusAddressEntry *entry,
-                                       DBusServer      **server_p,
-                                       DBusError        *error)
+_dbus_server_listen_unix_socket (DBusAddressEntry *entry,
+                                 DBusServer      **server_p,
+                                 DBusError        *error)
 {
   const char *method;
 
@@ -217,7 +218,38 @@ _dbus_server_listen_platform_specific (DBusAddressEntry *entry,
           return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
         }
     }
-  else if (strcmp (method, "systemd") == 0)
+  else
+    {
+      /* If we don't handle the method, we return NULL with the
+       * error unset
+       */
+      _DBUS_ASSERT_ERROR_IS_CLEAR(error);
+      return DBUS_SERVER_LISTEN_NOT_HANDLED;
+    }
+}
+
+/**
+ * Tries to interpret the address entry in a platform-specific
+ * way, creating a platform-specific server type if appropriate.
+ * Sets error if the result is not OK.
+ *
+ * @param entry an address entry
+ * @param server_p location to store a new DBusServer, or #NULL on failure.
+ * @param error location to store rationale for failure on bad address
+ * @returns the outcome
+ *
+ */
+DBusServerListenResult
+_dbus_server_listen_platform_specific (DBusAddressEntry *entry,
+                                       DBusServer      **server_p,
+                                       DBusError        *error)
+{
+  const char *method;
+
+  *server_p = NULL;
+
+  method = dbus_address_entry_get_method (entry);
+  if (strcmp (method, "systemd") == 0)
     {
       int i, n;
       DBusSocket *fds;

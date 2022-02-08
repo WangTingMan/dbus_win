@@ -126,6 +126,10 @@ typedef enum
   DBUS_SERVER_LISTEN_ADDRESS_ALREADY_USED /**< address is already used */
 } DBusServerListenResult;
 
+DBusServerListenResult _dbus_server_listen_unix_socket (DBusAddressEntry *entry,
+                                                        DBusServer      **server_p,
+                                                        DBusError        *error);
+
 DBusServerListenResult _dbus_server_listen_platform_specific (DBusAddressEntry  *entry,
                                                               DBusServer       **server_p,
                                                               DBusError         *error);
