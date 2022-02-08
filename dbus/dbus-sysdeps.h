@@ -212,7 +212,7 @@ dbus_bool_t _dbus_set_socket_nonblocking (DBusSocket      fd,
                                           DBusError      *error);
 
 DBUS_PRIVATE_EXPORT
-dbus_bool_t _dbus_close_socket     (DBusSocket        fd,
+dbus_bool_t _dbus_close_socket     (DBusSocket       *fd,
                                     DBusError        *error);
 DBUS_PRIVATE_EXPORT
 int         _dbus_read_socket      (DBusSocket        fd,

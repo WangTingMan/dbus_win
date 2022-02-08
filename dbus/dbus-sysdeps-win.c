@@ -490,13 +490,14 @@ _dbus_write_socket (DBusSocket        fd,
  * @returns #FALSE if error set
  */
 dbus_bool_t
-_dbus_close_socket (DBusSocket fd,
-                    DBusError *error)
+_dbus_close_socket (DBusSocket *fd,
+                    DBusError  *error)
 {
+  _dbus_assert (fd != NULL);
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
  again:
-  if (closesocket (fd.sock) == SOCKET_ERROR)
+  if (closesocket (fd->sock) == SOCKET_ERROR)
     {
       DBUS_SOCKET_SET_ERRNO ();
       
@@ -505,10 +506,10 @@ _dbus_close_socket (DBusSocket fd,
         
       dbus_set_error (error, _dbus_error_from_errno (errno),
                       "Could not close socket: socket=%Iu, , %s",
-                      fd.sock, _dbus_strerror_from_errno ());
+                      fd->sock, _dbus_strerror_from_errno ());
       return FALSE;
     }
-  _dbus_verbose ("socket=%Iu, \n", fd.sock);
+  _dbus_verbose ("socket=%Iu, \n", fd->sock);
 
   return TRUE;
 }

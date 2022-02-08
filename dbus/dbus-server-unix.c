@@ -258,7 +258,7 @@ _dbus_server_listen_platform_specific (DBusAddressEntry *entry,
   systemd_err:
       for (i = 0; i < n; i++)
         {
-          _dbus_close_socket (fds[i], NULL);
+          _dbus_close_socket (&fds[i], NULL);
         }
       dbus_free (fds);
       _dbus_string_free (&address);
@@ -372,7 +372,7 @@ _dbus_server_new_for_domain_socket (const char     *path,
   return server;
 
  failed_2:
-  _dbus_close_socket (listen_fd, NULL);
+  _dbus_close_socket (&listen_fd, NULL);
  failed_1:
   dbus_free (path_copy);
  failed_0:

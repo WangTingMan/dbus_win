@@ -305,10 +305,13 @@ _dbus_open_unix_socket (int              *fd,
  * @returns #FALSE if error is set
  */
 dbus_bool_t
-_dbus_close_socket (DBusSocket        fd,
+_dbus_close_socket (DBusSocket       *fd,
                     DBusError        *error)
 {
-  return _dbus_close (fd.fd, error);
+  _dbus_assert (fd != NULL);
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  return _dbus_close (fd->fd, error);
 }
 
 /**

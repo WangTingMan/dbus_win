@@ -103,7 +103,7 @@ handle_new_client_fd_and_unlock (DBusServer *server,
   transport = _dbus_transport_new_for_socket (client_fd, &server->guid_hex, NULL);
   if (transport == NULL)
     {
-      _dbus_close_socket (client_fd, NULL);
+      _dbus_close_socket (&client_fd, NULL);
       SERVER_UNLOCK (server);
       return FALSE;
     }
@@ -243,7 +243,7 @@ socket_disconnect (DBusServer *server)
 
       if (_dbus_socket_is_valid (socket_server->fds[i]))
         {
-          _dbus_close_socket (socket_server->fds[i], NULL);
+          _dbus_close_socket (&socket_server->fds[i], NULL);
           _dbus_socket_invalidate (&socket_server->fds[i]);
         }
     }
@@ -513,7 +513,7 @@ failed:
   if (listen_fds != NULL)
     {
       for (i = 0; i < nlisten_fds; i++)
-        _dbus_close_socket (listen_fds[i], NULL);
+        _dbus_close_socket (&listen_fds[i], NULL);
       dbus_free (listen_fds);
     }
 

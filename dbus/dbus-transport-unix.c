@@ -103,7 +103,7 @@ _dbus_transport_new_for_domain_socket (const char     *path,
   return transport;
 
  failed_1:
-  _dbus_close_socket (fd, NULL);
+  _dbus_close_socket (&fd, NULL);
  failed_0:
   _dbus_string_free (&address);
   return NULL;
@@ -203,7 +203,7 @@ _dbus_transport_new_for_exec (const char     *path,
 
  failed:
   if (fd.fd >= 0)
-    _dbus_close_socket (fd, NULL);
+    _dbus_close_socket (&fd, NULL);
 
   _dbus_string_free (&address);
   return NULL;

@@ -160,7 +160,7 @@ close_socket_to_babysitter (DBusBabysitter *sitter)
 
   if (sitter->socket_to_babysitter.sock != INVALID_SOCKET)
     {
-      _dbus_close_socket (sitter->socket_to_babysitter, NULL);
+      _dbus_close_socket (&sitter->socket_to_babysitter, NULL);
       sitter->socket_to_babysitter.sock = INVALID_SOCKET;
     }
 }
@@ -188,7 +188,7 @@ _dbus_babysitter_unref (DBusBabysitter *sitter)
 
       if (sitter->socket_to_main.sock != INVALID_SOCKET)
         {
-          _dbus_close_socket (sitter->socket_to_main, NULL);
+          _dbus_close_socket (&sitter->socket_to_main, NULL);
           sitter->socket_to_main.sock = INVALID_SOCKET;
         }
 
