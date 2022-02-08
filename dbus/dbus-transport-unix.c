@@ -210,20 +210,20 @@ _dbus_transport_new_for_exec (const char     *path,
 }
 
 /**
- * Opens platform specific transport types.
- * 
- * @param entry the address entry to try opening
+ * Opens a UNIX socket transport.
+ *
+ * @param entry the address entry to try opening as a unix transport.
  * @param transport_p return location for the opened transport
  * @param error error to be set
  * @returns result of the attempt
  */
 DBusTransportOpenResult
-_dbus_transport_open_platform_specific (DBusAddressEntry  *entry,
-                                        DBusTransport    **transport_p,
-                                        DBusError         *error)
+_dbus_transport_open_unix_socket (DBusAddressEntry  *entry,
+                                  DBusTransport    **transport_p,
+                                  DBusError         *error)
 {
   const char *method;
-  
+
   method = dbus_address_entry_get_method (entry);
   _dbus_assert (method != NULL);
 
@@ -232,14 +232,14 @@ _dbus_transport_open_platform_specific (DBusAddressEntry  *entry,
       const char *path = dbus_address_entry_get_value (entry, "path");
       const char *tmpdir = dbus_address_entry_get_value (entry, "tmpdir");
       const char *abstract = dbus_address_entry_get_value (entry, "abstract");
-          
+
       if (tmpdir != NULL)
         {
           _dbus_set_bad_address (error, NULL, NULL,
                                  "cannot use the \"tmpdir\" option for an address to connect to, only in an address to listen on");
           return DBUS_TRANSPORT_OPEN_BAD_ADDRESS;
         }
-          
+
       if (path == NULL && abstract == NULL)
         {
           _dbus_set_bad_address (error, "unix",
@@ -346,8 +346,33 @@ _dbus_transport_open_platform_specific (DBusAddressEntry  *entry,
           return DBUS_TRANSPORT_OPEN_OK;
         }
     }
+  else
+    {
+      _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+      return DBUS_TRANSPORT_OPEN_NOT_HANDLED;
+    }
+}
+
+/**
+ * Opens platform specific transport types.
+ *
+ * @param entry the address entry to try opening
+ * @param transport_p return location for the opened transport
+ * @param error error to be set
+ * @returns result of the attempt
+ */
+DBusTransportOpenResult
+_dbus_transport_open_platform_specific (DBusAddressEntry  *entry,
+                                        DBusTransport    **transport_p,
+                                        DBusError         *error)
+{
 #ifdef DBUS_ENABLE_LAUNCHD
-  else if (strcmp (method, "launchd") == 0)
+  const char *method;
+
+  method = dbus_address_entry_get_method (entry);
+  _dbus_assert (method != NULL);
+
+  if (strcmp (method, "launchd") == 0)
     {
       DBusError tmp_error = DBUS_ERROR_INIT;
       const char *launchd_env_var = dbus_address_entry_get_value (entry, "env");
@@ -398,8 +423,8 @@ _dbus_transport_open_platform_specific (DBusAddressEntry  *entry,
           return DBUS_TRANSPORT_OPEN_OK;
         }
     }
-#endif
   else
+#endif /* DBUS_ENABLE_LAUNCHD */
     {
       _DBUS_ASSERT_ERROR_IS_CLEAR (error);
       return DBUS_TRANSPORT_OPEN_NOT_HANDLED;
