@@ -1043,7 +1043,6 @@ socket_disconnect (DBusTransport *transport)
   free_watches (transport);
   
   _dbus_close_socket (&socket_transport->fd, NULL);
-  _dbus_socket_invalidate (&socket_transport->fd);
 }
 
 static dbus_bool_t
@@ -1431,7 +1430,6 @@ _dbus_transport_new_for_tcp_socket (const char     *host,
     {
       dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
       _dbus_close_socket (&fd, NULL);
-      _dbus_socket_invalidate (&fd);
     }
 
   return transport;

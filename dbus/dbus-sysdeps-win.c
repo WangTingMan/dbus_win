@@ -1645,7 +1645,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
                           _dbus_error_from_errno (saved_errno),
                           "Failed to open socket: %s",
                           _dbus_strerror (saved_errno));
-          _dbus_socket_invalidate (&fd);
+          _dbus_assert (!_dbus_socket_is_valid (fd));
           goto out;
         }
       _DBUS_ASSERT_ERROR_IS_CLEAR(error);
@@ -1653,8 +1653,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
       if (connect (fd.sock, (struct sockaddr*) tmp->ai_addr, tmp->ai_addrlen) == SOCKET_ERROR)
         {
           saved_errno = _dbus_get_low_level_socket_errno ();
-          closesocket(fd.sock);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
 
           connect_error = dbus_new0 (DBusError, 1);
 
@@ -1701,8 +1700,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
 
       if (!ret)
         {
-          closesocket (fd.sock);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
           goto out;
         }
     }
@@ -1712,8 +1710,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
 
   if (!_dbus_set_socket_nonblocking (fd, error))
     {
-      closesocket (fd.sock);
-      _dbus_socket_invalidate (&fd);
+      _dbus_close_socket (&fd, NULL);
       goto out;
     }
 
@@ -1831,6 +1828,7 @@ _dbus_listen_tcp_socket (const char     *host,
                           _dbus_error_from_errno (saved_errno),
                          "Failed to open socket: %s",
                          _dbus_strerror (saved_errno));
+          _dbus_assert (!_dbus_socket_is_valid (fd));
           goto failed;
         }
       _DBUS_ASSERT_ERROR_IS_CLEAR(error);

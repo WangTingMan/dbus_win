@@ -1503,7 +1503,6 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
                       _dbus_error_from_gai (res, errno),
                       "Failed to lookup host/port: \"%s:%s\": %s (%d)",
                       host, port, gai_strerror(res), res);
-      _dbus_socket_invalidate (&fd);
       goto out;
     }
 
@@ -1521,8 +1520,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
       if (connect (fd.fd, (struct sockaddr*) tmp->ai_addr, tmp->ai_addrlen) < 0)
         {
           saved_errno = errno;
-          _dbus_close (fd.fd, NULL);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
 
           connect_error = dbus_new0 (DBusError, 1);
 
@@ -1569,16 +1567,14 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
 
       if (!ret)
         {
-          _dbus_close (fd.fd, NULL);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
           goto out;
         }
     }
 
   if (!_dbus_set_fd_nonblocking (fd.fd, error))
     {
-      _dbus_close (fd.fd, NULL);
-      _dbus_socket_invalidate (&fd);
+      _dbus_close_socket (&fd, NULL);
       goto out;
     }
 

@@ -242,10 +242,7 @@ socket_disconnect (DBusServer *server)
         }
 
       if (_dbus_socket_is_valid (socket_server->fds[i]))
-        {
-          _dbus_close_socket (&socket_server->fds[i], NULL);
-          _dbus_socket_invalidate (&socket_server->fds[i]);
-        }
+        _dbus_close_socket (&socket_server->fds[i], NULL);
     }
 
   if (socket_server->socket_name != NULL)
