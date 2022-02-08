@@ -80,9 +80,9 @@ _dbus_transport_new_for_domain_socket (const char     *path,
       dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
       goto failed_0;
     }
-  
-  fd.fd = _dbus_connect_unix_socket (path, abstract, error);
-  if (fd.fd < 0)
+
+  fd = _dbus_connect_unix_socket (path, abstract, error);
+  if (!_dbus_socket_is_valid (fd))
     {
       _DBUS_ASSERT_ERROR_IS_SET (error);
       goto failed_0;
@@ -180,8 +180,8 @@ _dbus_transport_new_for_exec (const char     *path,
         }
     }
 
-  fd.fd = _dbus_connect_exec (path, argv, error);
-  if (fd.fd < 0)
+  fd = _dbus_connect_exec (path, argv, error);
+  if (!_dbus_socket_is_valid (fd))
     {
       _DBUS_ASSERT_ERROR_IS_SET (error);
       goto failed;
@@ -202,7 +202,7 @@ _dbus_transport_new_for_exec (const char     *path,
   return transport;
 
  failed:
-  if (fd.fd >= 0)
+  if (_dbus_socket_is_valid (fd))
     _dbus_close_socket (&fd, NULL);
 
   _dbus_string_free (&address);

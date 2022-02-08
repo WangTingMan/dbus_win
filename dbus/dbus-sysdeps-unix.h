@@ -66,16 +66,16 @@ _dbus_write_two (int               fd,
                  int               start2,
                  int               len2);
 
-int _dbus_connect_unix_socket (const char     *path,
-                               dbus_bool_t     abstract,
-                               DBusError      *error);
-int _dbus_listen_unix_socket  (const char     *path,
-                               dbus_bool_t     abstract,
-                               DBusError      *error);
+DBusSocket _dbus_connect_unix_socket (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
+DBusSocket _dbus_listen_unix_socket  (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
 
-int _dbus_connect_exec (const char     *path,
-                        char *const    argv[],
-                        DBusError      *error);
+DBusSocket _dbus_connect_exec (const char     *path,
+                               char *const    argv[],
+                               DBusError      *error);
 
 int _dbus_listen_systemd_sockets (DBusSocket  **fd,
                                   DBusError    *error);
