@@ -297,8 +297,12 @@ _dbus_open_unix_socket (int              *fd,
 }
 
 /**
- * Closes a socket. Should not be used on non-socket
- * file descriptors or handles.
+ * Closes a socket and invalidates it. Should not be used on non-socket file
+ * descriptors or handles.
+ *
+ * If an error is detected, this function returns #FALSE and sets the error, but
+ * the socket is still closed and invalidated. Callers can use the error in a
+ * diagnostic message, but should not retry closing the socket.
  *
  * @param fd the socket
  * @param error return location for an error
@@ -308,10 +312,15 @@ dbus_bool_t
 _dbus_close_socket (DBusSocket       *fd,
                     DBusError        *error)
 {
+  dbus_bool_t rv;
+
   _dbus_assert (fd != NULL);
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
-  return _dbus_close (fd->fd, error);
+  rv = _dbus_close (fd->fd, error);
+  _dbus_socket_invalidate (fd);
+
+  return rv;
 }
 
 /**

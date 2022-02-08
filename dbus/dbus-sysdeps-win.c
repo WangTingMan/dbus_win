@@ -483,7 +483,7 @@ _dbus_write_socket (DBusSocket        fd,
 
 
 /**
- * Closes a file descriptor.
+ * Closes a socket and invalidates it.
  *
  * @param fd the file descriptor
  * @param error error object
@@ -507,10 +507,12 @@ _dbus_close_socket (DBusSocket *fd,
       dbus_set_error (error, _dbus_error_from_errno (errno),
                       "Could not close socket: socket=%Iu, , %s",
                       fd->sock, _dbus_strerror_from_errno ());
+      _dbus_socket_invalidate (fd);
       return FALSE;
     }
   _dbus_verbose ("socket=%Iu, \n", fd->sock);
 
+  _dbus_socket_invalidate (fd);
   return TRUE;
 }
 
