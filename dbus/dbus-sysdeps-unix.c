@@ -935,21 +935,6 @@ _dbus_write_two (int               fd,
 #endif /* !HAVE_WRITEV */
 }
 
-#define _DBUS_MAX_SUN_PATH_LENGTH 99
-
-/**
- * @def _DBUS_MAX_SUN_PATH_LENGTH
- *
- * Maximum length of the path to a UNIX domain socket,
- * sockaddr_un::sun_path member. POSIX requires that all systems
- * support at least 100 bytes here, including the nul termination.
- * We use 99 for the max value to allow for the nul.
- *
- * We could probably also do sizeof (addr.sun_path)
- * but this way we are the same on all platforms
- * which is probably a good idea.
- */
-
 /**
  * Creates a socket and connects it to the UNIX domain socket at the
  * given path.  The connection fd is returned, and is set up as

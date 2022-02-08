@@ -730,6 +730,20 @@ void _dbus_combine_tcp_errors (DBusList **sources,
                                const char *port,
                                DBusError *dest);
 
+/**
+ * @def _DBUS_MAX_SUN_PATH_LENGTH
+ *
+ * Maximum length of the path to a UNIX domain socket,
+ * sockaddr_un::sun_path member. POSIX requires that all systems
+ * support at least 100 bytes here, including the nul termination.
+ * We use 99 for the max value to allow for the nul.
+ *
+ * We could probably also do sizeof (addr.sun_path)
+ * but this way we are the same on all platforms
+ * which is probably a good idea.
+ */
+#define _DBUS_MAX_SUN_PATH_LENGTH 99
+
 /** @} */
 
 DBUS_END_DECLS
