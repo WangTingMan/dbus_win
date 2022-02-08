@@ -48,6 +48,9 @@
 #include <windows.h>
 #include <wincrypt.h>
 #include <iphlpapi.h>
+#ifdef HAVE_AFUNIX_H
+#include <afunix.h>
+#endif
 
 /* Declarations missing in mingw's and windows sdk 7.0 headers */
 extern BOOL WINAPI ConvertStringSidToSidA (LPCSTR  StringSid, PSID *Sid);
@@ -4406,6 +4409,229 @@ _dbus_win_event_free (HANDLE handle, DBusError *error)
 
   _dbus_win_set_error_from_last_error (error, "Could not close event (handle %p)", handle);
   return FALSE;
+}
+
+#ifdef HAVE_AFUNIX_H
+static dbus_bool_t
+_dbus_open_socket (SOCKET           *socket_p,
+                   int               domain,
+                   int               type,
+                   int               protocol,
+                   DBusError        *error)
+{
+  if (!_dbus_win_startup_winsock ())
+    {
+      _DBUS_SET_OOM (error);
+      return FALSE;
+    }
+
+  *socket_p = socket (domain, type, protocol);
+  if (*socket_p == INVALID_SOCKET)
+    {
+      DBUS_SOCKET_SET_ERRNO ();
+      dbus_set_error (error, _dbus_error_from_errno (errno),
+                      "Failed to open socket: %s",
+                      _dbus_strerror_from_errno ());
+      return FALSE;
+    }
+
+  _dbus_win_handle_set_close_on_exec ((HANDLE) *socket_p);
+  return TRUE;
+}
+
+/**
+ * Opens a UNIX domain socket (as in the socket() call).
+ * Does not bind the socket.
+ *
+ * This will set CLOEXEC for the socket returned
+ *
+ * @param return location for socket descriptor
+ * @param error return location for an error
+ * @returns #FALSE if error is set
+ */
+static dbus_bool_t
+_dbus_open_unix_socket (SOCKET           *socket,
+                        DBusError        *error)
+{
+  return _dbus_open_socket (socket, AF_UNIX, SOCK_STREAM, 0, error);
+}
+#endif /* HAVE_AFUNIX_H */
+
+/**
+ * Creates a socket and connects it to the UNIX domain socket at the
+ * given path.  The socket is returned, and is set up as
+ * nonblocking.
+ *
+ * Abstract socket usage always fails.
+ *
+ * This will set FD_CLOEXEC for the socket returned.
+ *
+ * @param path the path to UNIX domain socket
+ * @param abstract #TRUE to use abstract namespace
+ * @param error return location for error code
+ * @returns a valid socket on success or an invalid socket on error
+ */
+DBusSocket
+_dbus_connect_unix_socket (const char     *path,
+                           dbus_bool_t     abstract,
+                           DBusError      *error)
+{
+  DBusSocket s = DBUS_SOCKET_INIT;
+
+#ifdef HAVE_AFUNIX_H
+  struct sockaddr_un addr;
+  size_t path_len;
+
+  _DBUS_STATIC_ASSERT (sizeof (addr.sun_path) > _DBUS_MAX_SUN_PATH_LENGTH);
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  _dbus_verbose ("connecting to unix socket %s abstract=%d\n",
+                 path, abstract);
+
+  if (abstract)
+    {
+      dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
+                      "Failed to connect: UNIX abstract socket is not supported on this system");
+      return s;
+    }
+
+  path_len = strlen (path);
+  if (path_len > _DBUS_MAX_SUN_PATH_LENGTH)
+    {
+      dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
+                      "Failed to connect: socket name too long");
+      return s;
+    }
+
+  if (!_dbus_open_unix_socket (&s.sock, error))
+    {
+      _DBUS_ASSERT_ERROR_IS_SET (error);
+      return s;
+    }
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  _DBUS_ZERO (addr);
+  addr.sun_family = AF_UNIX;
+  strncpy (addr.sun_path, path, sizeof (addr.sun_path) - 1);
+
+  if (connect (s.sock, (struct sockaddr *) &addr, _DBUS_STRUCT_OFFSET (struct sockaddr_un, sun_path) + path_len) < 0)
+    {
+      DBUS_SOCKET_SET_ERRNO ();
+      dbus_set_error (error,
+                      _dbus_error_from_errno (errno),
+                      "Failed to connect to socket %s: %s",
+                      path, _dbus_strerror (errno));
+
+      _dbus_close_socket (&s, NULL);
+      return s;
+    }
+
+  if (!_dbus_set_socket_nonblocking (s, error))
+    _dbus_close_socket (&s, NULL);
+
+#else
+  dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
+                  "Failed to connect: UNIX socket is not supported with this build");
+#endif
+
+  return s;
+}
+
+/**
+ * Creates a socket and binds it to the given path,
+ * then listens on the socket. The socket is
+ * set to be nonblocking.
+ *
+ * Abstract socket usage always fails.
+ *
+ * This will set CLOEXEC for the socket returned
+ *
+ * @param path the socket name
+ * @param abstract #TRUE to use abstract namespace
+ * @param error return location for errors
+ * @returns a valid socket on success or an invalid socket on error
+ */
+DBusSocket
+_dbus_listen_unix_socket (const char     *path,
+                          dbus_bool_t     abstract,
+                          DBusError      *error)
+{
+  DBusSocket s = DBUS_SOCKET_INIT;
+
+#ifdef HAVE_AFUNIX_H
+  struct sockaddr_un addr;
+  size_t path_len;
+  _DBUS_STATIC_ASSERT (sizeof (addr.sun_path) > _DBUS_MAX_SUN_PATH_LENGTH);
+
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  _dbus_verbose ("listening on unix socket %s abstract=%d\n",
+                 path, abstract);
+
+  if (abstract)
+    {
+      dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
+                      "Failed to listen: UNIX abstract socket is not supported on this system");
+      return s;
+    }
+
+  if (!_dbus_open_unix_socket (&s.sock, error))
+    {
+      _DBUS_ASSERT_ERROR_IS_SET (error);
+      return s;
+    }
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  _DBUS_ZERO (addr);
+  addr.sun_family = AF_UNIX;
+  path_len = strlen (path);
+
+  /* see related comment in dbus-sysdeps-unix.c */
+  /* there is no S_ISSOCK on windows yet, so just unlink the path */
+  unlink (path);
+
+  if (path_len > _DBUS_MAX_SUN_PATH_LENGTH)
+    {
+      dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
+                      "Failed to listen: socket name too long");
+      _dbus_close_socket (&s, NULL);
+      return s;
+    }
+
+  strncpy (addr.sun_path, path, sizeof (addr.sun_path) - 1);
+
+  if (bind (s.sock, (struct sockaddr *) &addr, _DBUS_STRUCT_OFFSET (struct sockaddr_un, sun_path) + path_len) < 0)
+    {
+      DBUS_SOCKET_SET_ERRNO ();
+      dbus_set_error (error, _dbus_error_from_errno (errno),
+                      "Failed to bind socket \"%s\": %s",
+                      path, _dbus_strerror (errno));
+      _dbus_close_socket (&s, NULL);
+      return s;
+    }
+
+  if (listen (s.sock, SOMAXCONN /* backlog */) < 0)
+    {
+      DBUS_SOCKET_SET_ERRNO ();
+      dbus_set_error (error, _dbus_error_from_errno (errno),
+                      "Failed to listen on socket \"%s\": %s",
+                      path, _dbus_strerror (errno));
+      _dbus_close_socket (&s, NULL);
+      return s;
+    }
+
+  if (!_dbus_set_socket_nonblocking (s, error))
+    {
+      _DBUS_ASSERT_ERROR_IS_SET (error);
+      _dbus_close_socket (&s, NULL);
+      return s;
+    }
+#else
+  dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
+                  "Failed to listen: UNIX socket is not supported with this build");
+#endif
+
+  return s;
 }
 
 /** @} end of sysdeps-win */
