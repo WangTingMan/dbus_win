@@ -6,6 +6,7 @@ include(CheckTypeSize)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 
+check_include_files("winsock2.h;afunix.h"   HAVE_AFUNIX_H)
 check_include_file(alloca.h     HAVE_ALLOCA_H)
 check_include_file(byteswap.h     HAVE_BYTESWAP_H)
 check_include_file(crt/externs.h     HAVE_CRT_EXTERNS_H)

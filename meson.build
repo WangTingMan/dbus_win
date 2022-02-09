@@ -607,6 +607,7 @@ foreach function : check_functions
 endforeach
 
 check_headers = [
+    'afunix.h',
     'alloca.h',
     'byteswap.h',
     'crt_externs.h',

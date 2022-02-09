@@ -430,6 +430,7 @@ sys/syscall.h
 sys/syslimits.h
 sys/time.h
 unistd.h
+winsock2.h
 ws2tcpip.h
 ])
 
@@ -1051,6 +1052,13 @@ if test x$dbus_win = xyes ; then
     NETWORK_libs="-lws2_32 -liphlpapi -ldbghelp"
   fi
 fi
+
+AC_CHECK_HEADERS([afunix.h], [], [],
+  [AC_INCLUDES_DEFAULT[
+   #ifdef HAVE_WINSOCK2_H
+   # include <winsock2.h>
+   #endif
+  ]])
 
 AC_SUBST([NETWORK_libs])
 
