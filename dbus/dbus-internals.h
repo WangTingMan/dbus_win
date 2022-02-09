@@ -493,8 +493,12 @@ dbus_bool_t _dbus_get_local_machine_uuid_encoded (DBusString *uuid_str,
  */
 #ifdef DBUS_WIN
 #define DBUS_IS_DIR_SEPARATOR(c) (c == '\\' || c == '/')
+#define DBUS_DIR_SEPARATOR '\\'
+#define DBUS_DIR_SEPARATOR_S "\\"
 #else
 #define DBUS_IS_DIR_SEPARATOR(c) (c == '/')
+#define DBUS_DIR_SEPARATOR '/'
+#define DBUS_DIR_SEPARATOR_S "/"
 #endif
 
 DBUS_END_DECLS
