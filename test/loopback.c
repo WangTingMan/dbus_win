@@ -141,8 +141,8 @@ setup_runtime (Fixture *f,
   g_test_message ("listening at %s", listening_at);
   g_assert (g_str_has_prefix (listening_at, "unix:path="));
   g_assert (strstr (listening_at, "dbus%3ddaemon%3dtest.") != NULL);
-  g_assert (strstr (listening_at, "/bus,") != NULL ||
-      g_str_has_suffix (listening_at, "/bus"));
+  g_assert (strstr (listening_at, DBUS_DIR_SEPARATOR_S "bus,") != NULL ||
+      g_str_has_suffix (listening_at, DBUS_DIR_SEPARATOR_S "bus"));
 
   dbus_free (listening_at);
 }
@@ -166,7 +166,7 @@ setup_no_runtime (Fixture *f,
   g_test_message ("listening at %s", listening_at);
   /* we have fallen back to something in /tmp, either abstract or not */
   g_assert (g_str_has_prefix (listening_at, "unix:"));
-  g_assert (strstr (listening_at, "=/tmp/") != NULL);
+  g_assert (strstr (listening_at, "=/tmp" DBUS_DIR_SEPARATOR_S) != NULL);
 
   dbus_free (listening_at);
 }
@@ -231,7 +231,7 @@ test_connect (Fixture *f,
           const char *abstract = dbus_address_entry_get_value (entries[0],
                                                                "abstract");
 
-          g_assert_true (g_str_has_prefix (abstract, "/tmp/dbus-"));
+          g_assert_true (g_str_has_prefix (abstract, "/tmp" DBUS_DIR_SEPARATOR_S "dbus-"));
           g_assert_cmpstr (dbus_address_entry_get_value (entries[0], "path"),
                                                          ==, NULL);
         }
@@ -241,7 +241,7 @@ test_connect (Fixture *f,
                                                            "path");
 
           g_assert_nonnull (path);
-          g_assert_true (g_str_has_prefix (path, "/tmp/dbus-"));
+          g_assert_true (g_str_has_prefix (path, "/tmp" DBUS_DIR_SEPARATOR_S "dbus-"));
         }
     }
   else if (g_strcmp0 (listening_address, "unix:dir=/tmp") == 0)
@@ -251,7 +251,7 @@ test_connect (Fixture *f,
 
       g_assert_cmpstr (dbus_address_entry_get_method (entries[0]), ==, "unix");
       g_assert_nonnull (path);
-      g_assert_true (g_str_has_prefix (path, "/tmp/dbus-"));
+      g_assert_true (g_str_has_prefix (path, "/tmp" DBUS_DIR_SEPARATOR_S "dbus-"));
     }
   else if (g_strcmp0 (listening_address,
                       "unix:runtime=yes;unix:tmpdir=/tmp") == 0)
