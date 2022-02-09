@@ -899,6 +899,25 @@ test_check_tcp_works (void)
 #endif
 }
 
+gboolean
+test_check_af_unix_works (void)
+{
+#if defined(G_OS_WIN32) && !defined(HAVE_AFUNIX_H)
+  /* AFUNIX support is compiled out, skip system check */
+  return FALSE;
+#else
+#ifdef G_OS_WIN32
+  SOCKET fd = socket (AF_UNIX, SOCK_STREAM, 0);
+  closesocket (fd);
+  return fd != INVALID_SOCKET;
+#else
+  int fd = socket (AF_UNIX, SOCK_STREAM, 0);
+  close (fd);
+  return fd >= 0;
+#endif
+#endif
+}
+
 /*
  * Store the result of an async operation. @user_data is a pointer to a
  * variable that can store @result, initialized to %NULL.
