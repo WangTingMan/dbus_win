@@ -99,9 +99,10 @@ setup (Fixture *f,
   dbus_error_init (&f->e);
   g_queue_init (&f->server_messages);
 
-  if ((g_str_has_prefix (addr, "tcp:") ||
-       g_str_has_prefix (addr, "nonce-tcp:")) &&
-      !test_check_tcp_works ())
+  if ((g_str_has_prefix (addr, "unix:") && !test_check_af_unix_works ()) ||
+      ((g_str_has_prefix (addr, "tcp:") ||
+        g_str_has_prefix (addr, "nonce-tcp:")) &&
+       !test_check_tcp_works ()))
     {
       f->skip = TRUE;
       return;
@@ -116,7 +117,6 @@ setup (Fixture *f,
   test_server_setup (f->ctx, f->server);
 }
 
-#ifdef DBUS_UNIX
 static void
 setup_runtime (Fixture *f,
     gconstpointer addr)
@@ -172,7 +172,6 @@ setup_no_runtime (Fixture *f,
 
   dbus_free (listening_at);
 }
-#endif
 
 static void
 test_connect (Fixture *f,
@@ -223,7 +222,6 @@ test_connect (Fixture *f,
       g_assert_cmpstr (dbus_address_entry_get_value (entries[0], "noncefile"),
                        !=, NULL);
     }
-#ifdef DBUS_UNIX
   else if (g_str_has_prefix (listening_address, "unix:tmpdir="))
     {
       g_assert_cmpstr (dbus_address_entry_get_method (entries[0]), ==, "unix");
@@ -266,7 +264,6 @@ test_connect (Fixture *f,
       /* No particular statement about the path here: for that see
        * setup_runtime() and setup_no_runtime() */
     }
-#endif
   else
     {
       g_assert_not_reached ();
@@ -447,7 +444,6 @@ teardown (Fixture *f,
   test_main_context_unref (f->ctx);
 }
 
-#ifdef DBUS_UNIX
 static void
 teardown_no_runtime (Fixture *f,
     gconstpointer addr)
@@ -485,7 +481,6 @@ teardown_runtime (Fixture *f,
   g_free (f->saved_runtime_dir);
   g_free (f->tmp_runtime_dir);
 }
-#endif
 
 int
 main (int argc,
@@ -516,7 +511,6 @@ main (int argc,
   g_test_add ("/message/bad-guid/tcp", Fixture, "tcp:host=127.0.0.1", setup,
       test_bad_guid, teardown);
 
-#ifdef DBUS_UNIX
   g_test_add ("/connect/unix/tmpdir", Fixture, unix_tmpdir, setup,
       test_connect, teardown);
   g_test_add ("/message/unix/tmpdir", Fixture, unix_tmpdir, setup,
@@ -535,7 +529,6 @@ main (int argc,
 
   g_test_add ("/message/bad-guid/unix", Fixture, unix_tmpdir, setup,
       test_bad_guid, teardown);
-#endif
 
   ret = g_test_run ();
   dbus_shutdown ();
