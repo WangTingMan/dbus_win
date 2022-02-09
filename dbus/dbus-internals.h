@@ -488,6 +488,15 @@ dbus_bool_t _dbus_get_local_machine_uuid_encoded (DBusString *uuid_str,
 # define _DBUS_END_IGNORE_LEAKS do { } while (0)
 #endif
 
+/** @def DBUS_IS_DIR_SEPARATOR(c)
+ * macro for checking if character c is a path separator
+ */
+#ifdef DBUS_WIN
+#define DBUS_IS_DIR_SEPARATOR(c) (c == '\\' || c == '/')
+#else
+#define DBUS_IS_DIR_SEPARATOR(c) (c == '/')
+#endif
+
 DBUS_END_DECLS
 
 #endif /* DBUS_INTERNALS_H */
