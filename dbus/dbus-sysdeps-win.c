@@ -2116,6 +2116,56 @@ again:
   return TRUE;
 }
 
+#ifdef HAVE_AFUNIX_H
+/*
+ * Returns false with no error set if the socket is non-AF_UNIX
+ * (contrary to our usual convention).
+ *
+ * Returns false with an error set on failure to identify it.
+ */
+static dbus_bool_t
+_dbus_socket_is_af_unix (DBusSocket s,
+                         DBusError *error)
+{
+  struct sockaddr_un saddr;
+  int len;
+
+  len = sizeof (saddr);
+  if (getsockname (s.sock, (struct sockaddr *)&saddr, &len) == SOCKET_ERROR)
+    {
+      DBUS_SOCKET_SET_ERRNO ();
+      dbus_set_error (error, _dbus_error_from_errno (errno),
+                      "Failed to getsockname: %s",
+                      _dbus_strerror_from_errno ());
+      return FALSE;
+    }
+
+  return saddr.sun_family == AF_UNIX;
+}
+
+/**
+ * @brief return peer process id from Unix domain socket handle
+ * @param handle AF_UNIX socket descriptor
+ * @return process id or 0 in case the process id could not be fetched
+ */
+static dbus_pid_t
+_dbus_get_peer_pid_from_uds_handle (int handle)
+{
+  DWORD pid, drc;
+
+  if (WSAIoctl (handle, SIO_AF_UNIX_GETPEERPID,
+                NULL, 0U,
+                &pid, sizeof (pid), &drc,
+                NULL, NULL) == SOCKET_ERROR)
+    {
+      _dbus_verbose ("failed to get peer's pid\n");
+      return 0;
+    }
+
+  return pid;
+}
+#endif
+
 /**
  * Reads a single byte which must be nul (an error occurs otherwise),
  * and reads unix credentials if available. Fills in pid/uid/gid with
@@ -2141,6 +2191,9 @@ _dbus_read_credentials_socket  (DBusSocket       handle,
 {
   int bytes_read = 0;
   DBusString buf;
+#ifdef HAVE_AFUNIX_H
+  dbus_bool_t uds = FALSE;
+#endif
 
   char *sid = NULL;
   dbus_pid_t pid;
@@ -2157,7 +2210,16 @@ _dbus_read_credentials_socket  (DBusSocket       handle,
       _dbus_string_free (&buf);
     }
 
-  pid = _dbus_get_peer_pid_from_tcp_handle (handle.sock);
+#ifdef HAVE_AFUNIX_H
+  uds = _dbus_socket_is_af_unix (handle, error);
+  if (dbus_error_is_set (error))
+    return FALSE;
+
+  if (uds)
+    pid = _dbus_get_peer_pid_from_uds_handle (handle.sock);
+  else
+#endif
+    pid = _dbus_get_peer_pid_from_tcp_handle (handle.sock);
   if (pid == 0)
     return TRUE;
 
