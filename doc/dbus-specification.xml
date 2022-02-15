@@ -6441,6 +6441,32 @@
         </para>
       </sect3>
 
+      <sect3 id="bus-messages-activatable-services-changed">
+        <title><literal>org.freedesktop.DBus.ActivatableServicesChanged</literal></title>
+        <para>
+          This is a signal:
+          <programlisting>
+            ActivatableServicesChanged ()
+          </programlisting>
+        </para>
+        <para>
+          This signal is sent when the list of activatable services,
+          as returned by ListActivatableNames(), might have changed
+          (see <xref linkend="bus-messages-list-activatable-names"/>).
+          Clients that have cached information about the activatable
+          services should call ListActivatableNames() again to update
+          their cache.
+        </para>
+        <para>
+          The presence of this signal is indicated by a
+          bus feature property (for details see
+          <xref linkend="message-bus-properties-features"/>).
+          In older implementations that do not have this feature,
+          there is no way to be informed when the list of activatable
+          names has changed.
+        </para>
+      </sect3>
+
       <sect3 id="bus-messages-start-service-by-name">
         <title><literal>org.freedesktop.DBus.StartServiceByName</literal></title>
         <para>
@@ -7252,6 +7278,17 @@
         <para>
           The features currently defined in this specification are as follows:
           <variablelist>
+
+            <varlistentry>
+              <term><literal>ActivatableServicesChanged</literal></term>
+              <listitem>
+                <para>
+                  This message bus emits the <literal>ActivatableServicesChanged</literal>
+                  signal whenever its list of activatable services might have changed
+                  (for details see <xref linkend="bus-messages-activatable-services-changed"/>).
+                </para>
+              </listitem>
+            </varlistentry>
 
             <varlistentry>
               <term><literal>AppArmor</literal></term>
