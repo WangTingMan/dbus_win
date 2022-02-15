@@ -2524,8 +2524,7 @@ _dbus_generate_random_bytes (DBusString *str,
 }
 
 /**
- * Gets the temporary files directory by inspecting the environment variables 
- * TMPDIR, TMP, and TEMP in that order. If none of those are set "/tmp" is returned
+ * Gets the temporary files directory, using GetTempPath()
  *
  * @returns location of temp directory, or #NULL if no memory for locking
  */
