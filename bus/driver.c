@@ -2737,6 +2737,8 @@ static InterfaceHandler interface_handlers[] = {
     "    </signal>\n"
     "    <signal name=\"NameAcquired\">\n"
     "      <arg type=\"s\"/>\n"
+    "    </signal>\n"
+    "    <signal name=\"ActivatableServicesChanged\">\n"
     "    </signal>\n",
     /* Not in the Interfaces property because if you can get the properties
      * of the o.fd.DBus interface, then you certainly have the o.fd.DBus
@@ -3157,6 +3159,12 @@ features_getter (BusContext      *context,
                                          DBUS_TYPE_STRING_AS_STRING,
                                          &arr_iter))
     return FALSE;
+
+  s = "ActivatableServicesChanged";
+
+  if (!dbus_message_iter_append_basic (&arr_iter, DBUS_TYPE_STRING, &s))
+    goto abandon;
+
 
   if (bus_apparmor_enabled ())
     {
