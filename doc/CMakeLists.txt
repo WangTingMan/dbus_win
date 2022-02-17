@@ -115,7 +115,7 @@ configure_file(${srcfile} ${_outfile})
         DEPENDS ${srcfile} ${CMAKE_BINARY_DIR}/CMakeCache.txt
         COMMENT "Generating ${outname}"
     )
-    add_custom_target(${outname} DEPENDS ${_outfile})
+    add_custom_target(xmldoc-${outname} DEPENDS ${_outfile})
 endmacro()
 
 #
@@ -149,8 +149,8 @@ macro(DOCBOOK _source)
             DEPENDS ${XSLTPROC_EXECUTABLE} ${_infile}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         )
-        add_custom_target(${_outname} DEPENDS ${_outfile})
-        add_dependencies(xmldoc ${_outname})
+        add_custom_target(xmldoc-${_outname} DEPENDS ${_outfile})
+        add_dependencies(xmldoc xmldoc-${_outname})
         install(FILES ${_outfile} DESTINATION ${INSTALL_DIR})
     endforeach()
 endmacro()
