@@ -116,7 +116,6 @@ configure_file(${srcfile} ${_outfile})
         COMMENT "Generating ${outname}"
     )
     add_custom_target(${outname} DEPENDS ${_outfile})
-    add_dependencies(doc ${outname})
 endmacro()
 
 #
