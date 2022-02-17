@@ -96,23 +96,26 @@ if(DBUS_ENABLE_XML_DOCS)
 #
 # generate docbook file from template
 #
-macro(generate_docbook_file a b)
-    get_filename_component(outname ${b} NAME)
-    set(srcfile ${CMAKE_CURRENT_SOURCE_DIR}/${a})
+# @param _infile docbook source template file
+# @param _outfile generated docbook source file
+#
+macro(generate_docbook_file _infile _outfile)
+    get_filename_component(outname ${_outfile} NAME)
+    set(srcfile ${CMAKE_CURRENT_SOURCE_DIR}/${_infile})
     set(tmpfile ${CMAKE_CURRENT_BINARY_DIR}/${outname}.tmp.cmake)
     file(WRITE ${tmpfile} "
 set(EXPANDED_SYSCONFDIR ${CMAKE_INSTALL_FULL_SYSCONFDIR})
 set(EXPANDED_DATADIR ${CMAKE_INSTALL_FULL_DATADIR})
 set(DBUS_VERSION ${DBUS_VERSION})
-configure_file(${srcfile} ${b})
+configure_file(${srcfile} ${_outfile})
     ")
-    add_custom_command(OUTPUT ${b}
-        COMMAND ${CMAKE_COMMAND} -E remove ${b}
+    add_custom_command(OUTPUT ${_outfile}
+        COMMAND ${CMAKE_COMMAND} -E remove ${_outfile}
         COMMAND ${CMAKE_COMMAND} -P ${tmpfile}
         DEPENDS ${srcfile} ${CMAKE_BINARY_DIR}/CMakeCache.txt
         COMMENT "Generating ${outname}"
     )
-    add_custom_target(${outname} DEPENDS ${b})
+    add_custom_target(${outname} DEPENDS ${_outfile})
     add_dependencies(doc ${outname})
 endmacro()
 
