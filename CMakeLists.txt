@@ -202,9 +202,6 @@ set(_GNU_SOURCE 1)
 # do config checks
 include(ConfigureChecks)
 
-# @TODO: how to remove last dir from ${CMAKE_SOURCE_DIR} ?
-set(DBUS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
-
 # make some more macros available
 include(MacroLibrary)
 
@@ -421,7 +418,7 @@ enable_testing()
 #macro_ensure_out_of_source_build("dbus requires an out of source build. Please create a separate build directory and run 'cmake path_to_dbus [options]' there.")
 
 # ... and warn in case of an earlier in-source build
-#set(generatedFileInSourceDir EXISTS ${dbus_SOURCE_DIR}/config.h)
+#set(generatedFileInSourceDir EXISTS ${CMAKE_SOURCE_DIR}/config.h)
 #if(${generatedFileInSourceDir})
 #   message(STATUS "config.h exists in your source directory.")
 #endif(${generatedFileInSourceDir})
@@ -726,7 +723,7 @@ message("        install libexecdir:       ${CMAKE_INSTALL_FULL_LIBEXECDIR}    "
 message("        install bindir:           ${CMAKE_INSTALL_FULL_BINDIR}        ")
 message("        install sysconfdir:       ${CMAKE_INSTALL_FULL_SYSCONFDIR}    ")
 message("        install datadir:          ${CMAKE_INSTALL_FULL_DATADIR}       ")
-message("        source code location:     ${DBUS_SOURCE_DIR}                  ")
+message("        source code location:     ${CMAKE_SOURCE_DIR}                 ")
 message("        build dir:                ${CMAKE_BINARY_DIR}                 ")
 message("        c compiler:               ${C_COMPILER}                       ")
 message("        cflags:                   ${CMAKE_C_FLAGS}                    ")
