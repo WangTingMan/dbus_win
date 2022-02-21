@@ -1627,29 +1627,68 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
   const char *error_str = NULL;
 
 #ifdef O_CLOEXEC
-  fd = open ("/proc/self/oom_score_adj", O_WRONLY | O_CLOEXEC);
+  fd = open ("/proc/self/oom_score_adj", O_RDWR | O_CLOEXEC);
 #endif
 
   if (fd < 0)
     {
-      fd = open ("/proc/self/oom_score_adj", O_WRONLY);
+      fd = open ("/proc/self/oom_score_adj", O_RDWR);
       _dbus_fd_set_close_on_exec (fd);
     }
 
   if (fd >= 0)
     {
-      if (write (fd, "0", sizeof (char)) < 0)
+      ssize_t read_result = -1;
+      /* It doesn't actually matter whether we read the whole file,
+       * as long as we get the presence or absence of the minus sign */
+      char first_char = '\0';
+
+      read_result = read (fd, &first_char, 1);
+
+      if (read_result < 0)
+        {
+          /* This probably can't actually happen in practice: if we can
+           * open it, then we can hopefully read from it */
+          ret = FALSE;
+          error_str = "failed to read from /proc/self/oom_score_adj";
+          saved_errno = errno;
+          goto out;
+        }
+
+      /* If we are running with protection from the OOM killer
+       * (typical for the system dbus-daemon under systemd), then
+       * oom_score_adj will be negative. Drop that protection,
+       * returning to oom_score_adj = 0.
+       *
+       * Conversely, if we are running with increased susceptibility
+       * to the OOM killer (as user sessions typically do in
+       * systemd >= 250), oom_score_adj will be strictly positive,
+       * and we are not allowed to decrease it to 0 without privileges.
+       *
+       * If it's exactly 0 (typical for non-systemd systems, and
+       * user processes on older systemd) then there's no need to
+       * alter it.
+       *
+       * We shouldn't get an empty result, but if we do, assume it
+       * means zero and don't try to change it. */
+      if (read_result == 0 || first_char != '-')
+        {
+          /* Nothing needs to be done: the OOM score adjustment is
+           * non-negative */
+          ret = TRUE;
+          goto out;
+        }
+
+      if (pwrite (fd, "0", sizeof (char), 0) < 0)
         {
           ret = FALSE;
           error_str = "writing oom_score_adj error";
           saved_errno = errno;
-        }
-      else
-        {
-          ret = TRUE;
+          goto out;
         }
 
-      _dbus_close (fd, NULL);
+      /* Success */
+      ret = TRUE;
     }
   else
     {
@@ -1657,6 +1696,10 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
        * would diagnose it */
       ret = TRUE;
     }
+
+out:
+  if (fd >= 0)
+    _dbus_close (fd, NULL);
 
   if (error_str_p != NULL)
     *error_str_p = error_str;
