@@ -1443,7 +1443,7 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter          **sitter_p,
           _dbus_assert_not_reached ("Got to code after write_err_and_exit()");
 	}
       else if (grandchild_pid == 0)
-      {
+        {
 #ifdef __linux__
           int fd = -1;
 
