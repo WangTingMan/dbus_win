@@ -1444,13 +1444,11 @@ _dbus_spawn_async_with_babysitter (DBusBabysitter          **sitter_p,
 	}
       else if (grandchild_pid == 0)
         {
-          const char *error_str = NULL;
-
-          if (!_dbus_reset_oom_score_adj (&error_str))
-            {
-              /* TODO: Strictly speaking, this is not async-signal-safe. */
-              _dbus_warn ("%s: %s", error_str, strerror (errno));
-            }
+          /* This might not succeed in a dbus-daemon that started as root
+           * and dropped privileges, so don't log an error on failure.
+           * (Also, we can't safely log errors here anyway, because logging
+           * is not async-signal safe). */
+          _dbus_reset_oom_score_adj (NULL);
 
           /* Go back to ignoring SIGPIPE, since it's evil
            */
