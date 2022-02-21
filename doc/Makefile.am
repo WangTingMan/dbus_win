@@ -25,6 +25,14 @@ dist_dtd_DATA = \
 	busconfig.dtd \
 	introspect.dtd
 
+xmlcatalogdir = $(dtddir)
+
+catalog.xml: catalog.xml.in
+	$(SED) "s|@DBUS_DTD_DIR@|$(dtddir)|" $< >$@
+
+dist_xmlcatalog_DATA = \
+	catalog.xml
+
 dist_doc_DATA = system-activation.txt
 
 # uploaded and distributed, but not installed
@@ -38,6 +46,7 @@ STATIC_DOCS = \
 	introspect.xsl
 
 EXTRA_DIST = \
+	catalog.xml.in \
 	file-boilerplate.c \
 	doxygen_to_devhelp.xsl \
 	$(STATIC_DOCS)
