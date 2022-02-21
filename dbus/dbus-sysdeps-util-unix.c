@@ -1603,3 +1603,68 @@ _dbus_daemon_report_stopping (void)
   sd_notify (0, "STOPPING=1");
 #endif
 }
+
+/**
+ * If the current process has been protected from the Linux OOM killer
+ * (the oom_score_adj process parameter is negative), reset it to the
+ * default level of protection from the OOM killer (set oom_score_adj
+ * to zero).
+ *
+ * This function does not use DBusError, to avoid calling malloc(), so
+ * that it can be used in contexts where an async-signal-safe function
+ * is required (for example after fork()). Instead, on failure it sets
+ * errno and returns something like "Failed to open /dev/null" in
+ * *error_str_p. Callers are expected to combine *error_str_p
+ * with _dbus_strerror (errno) to get a full error report.
+ */
+dbus_bool_t
+_dbus_reset_oom_score_adj (const char **error_str_p)
+{
+#ifdef __linux__
+  int fd = -1;
+  dbus_bool_t ret = FALSE;
+  int saved_errno = 0;
+  const char *error_str = NULL;
+
+#ifdef O_CLOEXEC
+  fd = open ("/proc/self/oom_score_adj", O_WRONLY | O_CLOEXEC);
+#endif
+
+  if (fd < 0)
+    {
+      fd = open ("/proc/self/oom_score_adj", O_WRONLY);
+      _dbus_fd_set_close_on_exec (fd);
+    }
+
+  if (fd >= 0)
+    {
+      if (write (fd, "0", sizeof (char)) < 0)
+        {
+          ret = FALSE;
+          error_str = "writing oom_score_adj error";
+          saved_errno = errno;
+        }
+      else
+        {
+          ret = TRUE;
+        }
+
+      _dbus_close (fd, NULL);
+    }
+  else
+    {
+      /* TODO: Historically we ignored this error, although ideally we
+       * would diagnose it */
+      ret = TRUE;
+    }
+
+  if (error_str_p != NULL)
+    *error_str_p = error_str;
+
+  errno = saved_errno;
+  return ret;
+#else
+  /* nothing to do on this platform */
+  return TRUE;
+#endif
+}
