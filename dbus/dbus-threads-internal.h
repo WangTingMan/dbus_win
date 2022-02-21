@@ -73,11 +73,24 @@ void         _dbus_condvar_free_at_location  (DBusCondVar      **location_p);
 
 /* Private to threading implementations and dbus-threads.c */
 
+/**
+ * Creates a new mutex which is recursive if possible
+ *
+ * This mutex is used to avoid deadlocking if we hold them while
+ * calling user code.
+ *
+ * @return  mutex instance or #NULL on OOM
+ */
 DBusRMutex  *_dbus_platform_rmutex_new       (void);
 void         _dbus_platform_rmutex_free      (DBusRMutex       *mutex);
 void         _dbus_platform_rmutex_lock      (DBusRMutex       *mutex);
 void         _dbus_platform_rmutex_unlock    (DBusRMutex       *mutex);
 
+/**
+ * Creates a new mutex suitable for use with condition variables
+ *
+ * @return  mutex instance or #NULL on OOM
+ */
 DBusCMutex  *_dbus_platform_cmutex_new       (void);
 void         _dbus_platform_cmutex_free      (DBusCMutex       *mutex);
 void         _dbus_platform_cmutex_lock      (DBusCMutex       *mutex);
