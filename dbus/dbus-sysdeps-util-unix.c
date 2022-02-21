@@ -1690,11 +1690,18 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
       /* Success */
       ret = TRUE;
     }
+  else if (errno == ENOENT)
+    {
+      /* If /proc/self/oom_score_adj doesn't exist, assume the kernel
+       * doesn't support this feature and ignore it. */
+      ret = TRUE;
+    }
   else
     {
-      /* TODO: Historically we ignored this error, although ideally we
-       * would diagnose it */
-      ret = TRUE;
+      ret = FALSE;
+      error_str = "open(/proc/self/oom_score_adj)";
+      saved_errno = errno;
+      goto out;
     }
 
 out:
