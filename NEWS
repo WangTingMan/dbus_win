@@ -93,6 +93,10 @@ New features:
   a suitable message bus implementation, for example by querying its
   Features property.
 
+• The dbus-daemon now emits a signal, ActivatableServicesChanged, when
+  the list of activatable services may have changed. Support for this
+  signal can be discovered by querying the Features property.
+
 • It is now possible to disable traditional (non-systemd) service
   activation at build-time (Autotools: --disable-traditional-activation,
   CMake: -DENABLE_TRADITIONAL_ACTIVATION=OFF). See 1.13.10 release notes
@@ -114,12 +118,53 @@ Miscellaneous behaviour changes:
   mechanism
 
 • Tarball releases no longer contain pre-2007 changelogs and are now
-  compressed with xz, so they should be somewhat smaller
+  compressed with xz, making them around 35% smaller.
 
 dbus 1.13.22 (UNRELEASED)
 =========================
 
-...
+This is a release candidate for a new dbus 1.14.0 stable branch.
+
+Enhancements:
+
+• D-Bus Specification 0.38:
+  · Add ActivatableServicesChanged signal and feature flag
+    (dbus#376, Ralf Habacker)
+  · Document * as optionally-escaped (dbus!248, Kir Kolyshkin)
+
+• Emit the new ActivatableServicesChanged signal when configuration
+  and/or activatable services are reloaded (dbus#376, Ralf Habacker)
+
+• Add an XML catalog file for the DTDs we install
+  (dbus!202, Jan Tojnar)
+
+Bug fixes:
+
+• On Linux, when using traditional (non-systemd) service activation,
+  don't log warnings about failing to reset OOM score adjustment if the
+  process is already more susceptible to the OOM killer, as user processes
+  usually are with systemd ≥ 250. (dbus#374, Simon McVittie)
+
+• On Linux, when using traditional (non-systemd) system bus activation,
+  reset the OOM score adjustment to 0 as intended.
+  If the system dbus-daemon is protected from the OOM killer, this
+  avoids that protection unintentionally being inherited by every
+  system service. (dbus#378, Simon McVittie)
+
+• Fix a code path that could result in a crash on out-of-memory
+  (dbus#246, Marc-André Lureau)
+
+• Fix compilation if embedded tests are enabled but verbose mode and
+  stats are both disabled (Marc-André Lureau)
+
+• CMake: Improve support for Windows with MSVC and add CI coverage
+  (dbus!218, Marc-André Lureau)
+
+• CMake: Improve Docbook documentation-generation
+  (dbus#377, Ralf Habacker)
+
+• On Linux, fix a race condition in the integration test for transient
+  services (Debian#1005889, dbus!256; Simon McVittie)
 
 dbus 1.13.20 (2021-12-17)
 =========================
