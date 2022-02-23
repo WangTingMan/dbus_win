@@ -120,17 +120,18 @@ Miscellaneous behaviour changes:
 • Tarball releases no longer contain pre-2007 changelogs and are now
   compressed with xz, making them around 35% smaller.
 
-dbus 1.13.22 (UNRELEASED)
+dbus 1.13.22 (2022-02-23)
 =========================
 
-This is a release candidate for a new dbus 1.14.0 stable branch.
+This is a release candidate for a new dbus 1.14.x stable branch.
 
 Enhancements:
 
 • D-Bus Specification 0.38:
   · Add ActivatableServicesChanged signal and feature flag
     (dbus#376, Ralf Habacker)
-  · Document * as optionally-escaped (dbus!248, Kir Kolyshkin)
+  · Document * as optionally-escaped in D-Bus addresses, matching
+    the implementation (dbus!248, Kir Kolyshkin)
 
 • Emit the new ActivatableServicesChanged signal when configuration
   and/or activatable services are reloaded (dbus#376, Ralf Habacker)
