@@ -20,7 +20,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-image: debian:buster-slim
+image: debian:bullseye-slim
 
 stages:
   - 'build docker'
@@ -32,7 +32,7 @@ variables:
   ci_parallel: "2"
   ci_sudo: "yes"
   ci_distro: "debian"
-  ci_suite: "buster"
+  ci_suite: "bullseye"
   ###
   # IMPORTANT
   # These are the version tags for the docker images the CI runs against.
@@ -50,6 +50,7 @@ variables:
 
 windows amd64 docker:
   stage: "build docker"
+  when: manual
   variables:
     # this file needs to be relative to docker/windows/ subdir
     # as it makes life easier in the powershell script
@@ -72,7 +73,7 @@ windows amd64 docker:
 
 .debian-build:
   stage: build
-  image: "debian:buster-slim"
+  image: "debian:bullseye-slim"
   cache:
     key: ${CI_JOB_NAME}
     paths:
@@ -118,46 +119,47 @@ cmake:
 
 i686-w64-mingw32-debug:
   extends: .debian-build
+  image: "debian:buster-slim"
   variables:
     ci_host: "i686-w64-mingw32"
+    ci_suite: "buster"
     ci_variant: "debug"
 
 i686-w64-mingw32-cmake:
   extends: .debian-build
+  image: "debian:buster-slim"
   when: manual
   variables:
     ci_buildsys: "cmake"
     ci_host: "i686-w64-mingw32"
+    ci_suite: "buster"
 
 x86_64-w64-mingw32:
   extends: .debian-build
+  image: "debian:buster-slim"
   variables:
     ci_host: "x86_64-w64-mingw32"
+    ci_suite: "buster"
 
 x86_64-w64-mingw32-cmake-debug:
   extends: .debian-build
+  image: "debian:buster-slim"
   variables:
     ci_buildsys: "cmake"
     ci_host: "x86_64-w64-mingw32"
+    ci_suite: "buster"
     ci_variant: "debug"
 
-stretch:
+buster:
   extends: .debian-build
   when: manual
-  image: "debian:stretch-slim"
+  image: "debian:buster-slim"
   variables:
-    ci_suite: "stretch"
-
-xenial:
-  extends: .debian-build
-  when: manual
-  image: "ubuntu:xenial"
-  variables:
-    ci_distro: "ubuntu"
-    ci_suite: "xenial"
+    ci_suite: "buster"
 
 .win-build:
   image: $WINDOWS_IMAGE
+  when: manual
   stage: build
   tags:
     - 'docker'
