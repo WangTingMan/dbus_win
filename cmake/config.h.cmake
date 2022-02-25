@@ -6,6 +6,14 @@
 /* indicate that we are building with cmake */
 #define DBUS_CMAKE 1
 
+/* On Windows, we expect to be using msvcrt.dll-compatible printf
+ * (%I64u instead of %llu) unless otherwise specified. This must be
+ * done near the beginning of config.h, before we have included any
+ * system headers that might check the value of this macro. */
+#ifndef __USE_MINGW_ANSI_STDIO
+#   define __USE_MINGW_ANSI_STDIO 0
+#endif
+
 @AUTOPACKAGE_CONFIG_H_TEMPLATE@
 
 /*
@@ -317,4 +325,5 @@
 #cmakedefine01 HAVE_DECL_ENVIRON
 #cmakedefine01 HAVE_DECL_LOG_PERROR
 #cmakedefine01 HAVE_DECL_MSG_NOSIGNAL
+
 #endif  // _DBUS_CONFIG_H
