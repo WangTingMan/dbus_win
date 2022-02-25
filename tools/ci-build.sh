@@ -327,18 +327,9 @@ case "$ci_buildsys" in
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls )
 
-        case "$ci_suite" in
-            (jessie|xenial|stretch)
-                # these are too old for maintainer-upload-docs
-                ;;
-
-            (*)
-                # assume Ubuntu 18.04 'bionic', Debian 10 'buster' or newer
-                ${make} -C doc dbus-docs.tar.xz
-                tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
-                ( cd DESTDIR/dbus-docs && find . -ls )
-                ;;
-        esac
+        ${make} -C doc dbus-docs.tar.xz
+        tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
+        ( cd DESTDIR/dbus-docs && find . -ls )
 
         if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
             sudo ${make} install

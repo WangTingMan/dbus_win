@@ -142,21 +142,6 @@ x86_64-w64-mingw32-cmake-debug:
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
 
-stretch:
-  extends: .debian-build
-  when: manual
-  image: "debian:stretch-slim"
-  variables:
-    ci_suite: "stretch"
-
-xenial:
-  extends: .debian-build
-  when: manual
-  image: "ubuntu:xenial"
-  variables:
-    ci_distro: "ubuntu"
-    ci_suite: "xenial"
-
 .win-build:
   image: $WINDOWS_IMAGE
   when: manual
