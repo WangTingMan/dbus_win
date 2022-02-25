@@ -192,7 +192,7 @@ esac
 if [ "$ci_local_packages" = yes ]; then
     case "$ci_host" in
         (*-w64-mingw32)
-            mirror=http://repo.msys2.org/mingw/${ci_host%%-*}
+            mirror=https://repo.msys2.org/mingw/${ci_host%%-*}
             dep_prefix=$(pwd)/${ci_host}-prefix
             install -d "${dep_prefix}"
             packages=(
