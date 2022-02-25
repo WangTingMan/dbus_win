@@ -134,6 +134,7 @@ case "$ci_distro" in
             autoconf-archive
             automake
             autotools-dev
+            ca-certificates
             ccache
             cmake
             debhelper
