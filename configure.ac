@@ -1694,6 +1694,15 @@ AH_VERBATIM(_DARWIN_ENVIRON,
 #endif
 ])
 
+AH_VERBATIM([USE_MINGW_ANSI_STDIO],
+[
+/* On Windows, we expect to be using msvcrt.dll-compatible printf
+ * (%I64u instead of %llu) unless otherwise specified */
+#ifndef __USE_MINGW_ANSI_STDIO
+#   define __USE_MINGW_ANSI_STDIO 0
+#endif
+])
+
 AC_ARG_ENABLE([stats],
   [AS_HELP_STRING([--disable-stats],
     [disable bus daemon usage statistics])],

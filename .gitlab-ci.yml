@@ -119,35 +119,27 @@ cmake:
 
 i686-w64-mingw32-debug:
   extends: .debian-build
-  image: "debian:buster-slim"
   variables:
     ci_host: "i686-w64-mingw32"
-    ci_suite: "buster"
     ci_variant: "debug"
 
 i686-w64-mingw32-cmake:
   extends: .debian-build
-  image: "debian:buster-slim"
   when: manual
   variables:
     ci_buildsys: "cmake"
     ci_host: "i686-w64-mingw32"
-    ci_suite: "buster"
 
 x86_64-w64-mingw32:
   extends: .debian-build
-  image: "debian:buster-slim"
   variables:
     ci_host: "x86_64-w64-mingw32"
-    ci_suite: "buster"
 
 x86_64-w64-mingw32-cmake-debug:
   extends: .debian-build
-  image: "debian:buster-slim"
   variables:
     ci_buildsys: "cmake"
     ci_host: "x86_64-w64-mingw32"
-    ci_suite: "buster"
     ci_variant: "debug"
 
 buster:
