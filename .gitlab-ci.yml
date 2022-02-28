@@ -50,7 +50,6 @@ variables:
 
 windows amd64 docker:
   stage: "build docker"
-  when: manual
   variables:
     # this file needs to be relative to docker/windows/ subdir
     # as it makes life easier in the powershell script
@@ -151,7 +150,6 @@ buster:
 
 .win-build:
   image: $WINDOWS_IMAGE
-  when: manual
   stage: build
   tags:
     - 'docker'
