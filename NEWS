@@ -1,7 +1,7 @@
-dbus 1.14.0 (UNRELEASED)
+dbus 1.14.0 (2022-02-28)
 ========================
 
-1.14.x will be a new stable branch.
+1.14.x is a new stable branch, superseding 1.12.x.
 
 Summary of major changes between 1.12.x and 1.14.0
 --------------------------------------------------
@@ -120,10 +120,24 @@ Miscellaneous behaviour changes:
 • Tarball releases no longer contain pre-2007 changelogs and are now
   compressed with xz, making them around 35% smaller.
 
-dbus 1.13.24 (UNRELEASED)
-=========================
+Changes since 1.13.22
+---------------------
 
-...
+• On Windows, consistently use msvcrt.dll-style printf formats, fixing
+  builds with mingw-w64 8.0.0 (dbus#380, Simon McVittie)
+
+• Fix some broken links in the API design document
+  (dbus!257, Michael Nosthoff)
+
+• CI updates
+  · Enable -Werror for the CMake builds
+  · Use https to download MSYS packages
+  · Use Debian 11 for most builds
+  · Stop testing on Debian 9, which is EOL
+  · Stop testing on Ubuntu 16.04, which is EOL
+  · Remove workarounds for missing/outdated packages in Debian 8, Debian 9
+    and Ubuntu 16.04
+  (dbus#380, dbus!260; Simon McVittie)
 
 dbus 1.13.22 (2022-02-23)
 =========================
