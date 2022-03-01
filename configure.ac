@@ -1108,14 +1108,14 @@ AC_ARG_ENABLE([x11-autolaunch],
   AS_HELP_STRING([--enable-x11-autolaunch], [build with X11 auto-launch support]),
   [], [enable_x11_autolaunch=auto])
 
-if test "x$dbus_win" = xyes; then
-    if test "x$enable_x11_autolaunch" = xyes; then
+AS_IF([test "x$dbus_win" = xyes], [
+    AS_IF([test "x$enable_x11_autolaunch" = xyes], [
         AC_MSG_ERROR([X11 auto-launch is not supported on Windows])
-    fi
+    ])
 
     enable_x11_autolaunch=no
     have_x11=no
-else if test "x$with_x" != xno; then
+], [test "x$with_x" != xno], [
     PKG_CHECK_MODULES([X], [x11],
             [AC_DEFINE([HAVE_X11], [1], [Define to 1 if you have X11 library])
 	     have_x11=yes
@@ -1128,13 +1128,12 @@ else if test "x$with_x" != xno; then
              )
              have_x11=no
             ])
-else
+], [
     have_x11=no
     AS_IF([test "x$enable_x11_autolaunch" = "xyes"], [
       AC_MSG_ERROR([--enable-x11-autolaunch and --without-x are not compatible])
     ])
-fi
-fi
+])
 
 if test "x$enable_x11_autolaunch,$have_x11" = xyes,no; then
     AC_MSG_ERROR([X11 auto-launch requires X headers/libraries])
