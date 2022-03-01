@@ -37,6 +37,7 @@
 #include "dbus-credentials.h"
 #include "dbus-nonce.h"
 
+#include <limits.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
@@ -4796,6 +4797,11 @@ act_on_fds_3_and_up (void (*func) (int fd))
 void
 _dbus_close_all (void)
 {
+#ifdef HAVE_CLOSE_RANGE
+  if (close_range (3, INT_MAX, 0) == 0)
+    return;
+#endif
+
   /* Some library implementations of closefrom() are not async-signal-safe,
    * and we call _dbus_close_all() after forking, so we only do this on
    * operating systems where we know that closefrom() is a system call */
@@ -4818,6 +4824,11 @@ _dbus_close_all (void)
 void
 _dbus_fd_set_all_close_on_exec (void)
 {
+#if defined(HAVE_CLOSE_RANGE) && defined(CLOSE_RANGE_CLOEXEC)
+  if (close_range (3, INT_MAX, CLOSE_RANGE_CLOEXEC) == 0)
+    return;
+#endif
+
   act_on_fds_3_and_up (_dbus_fd_set_close_on_exec);
 }
 

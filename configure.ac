@@ -382,6 +382,7 @@ AS_IF([test x$enable_code_coverage = xyes],[
 AC_CHECK_FUNCS_ONCE([
 accept4
 clearenv
+close_range
 closefrom
 fpathconf
 getgrouplist
