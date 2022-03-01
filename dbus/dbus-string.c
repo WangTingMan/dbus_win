@@ -466,6 +466,20 @@ open_gap (int             len,
   return TRUE;
 }
 
+/**
+ * Returns the allocated size of the string
+ *
+ * @param str the string
+ * @returns the allocated size
+ */
+int
+_dbus_string_get_allocated_size (const DBusString *str)
+{
+  DBUS_CONST_STRING_PREAMBLE (str);
+
+  return real->allocated;
+}
+
 #ifndef _dbus_string_get_data
 /**
  * Gets the raw character buffer from the string.  The returned buffer

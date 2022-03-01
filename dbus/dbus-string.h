@@ -105,6 +105,8 @@ void          _dbus_string_lock                  (DBusString        *str);
 DBUS_PRIVATE_EXPORT
 dbus_bool_t   _dbus_string_compact               (DBusString        *str,
                                                   int                max_waste);
+DBUS_PRIVATE_EXPORT
+int           _dbus_string_get_allocated_size    (const DBusString *str);
 #ifndef _dbus_string_get_data
 DBUS_PRIVATE_EXPORT
 char*         _dbus_string_get_data              (DBusString        *str);
