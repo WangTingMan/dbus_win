@@ -4796,7 +4796,15 @@ act_on_fds_3_and_up (void (*func) (int fd))
 void
 _dbus_close_all (void)
 {
-#ifdef HAVE_CLOSEFROM
+  /* Some library implementations of closefrom() are not async-signal-safe,
+   * and we call _dbus_close_all() after forking, so we only do this on
+   * operating systems where we know that closefrom() is a system call */
+#if defined(HAVE_CLOSEFROM) && ( \
+    defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__) || \
+    defined(__sun__) && defined(F_CLOSEFROM) \
+)
   closefrom (3);
 #else
   act_on_fds_3_and_up (close_ignore_error);
