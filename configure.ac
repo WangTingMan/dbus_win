@@ -1129,6 +1129,7 @@ else if test "x$with_x" != xno; then
              have_x11=no
             ])
 else
+    have_x11=no
     AS_IF([test "x$enable_x11_autolaunch" = "xyes"], [
       AC_MSG_ERROR([--enable-x11-autolaunch and --without-x are not compatible])
     ])
