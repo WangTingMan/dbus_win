@@ -1121,12 +1121,13 @@ else if test "x$with_x" != xno; then
 	     have_x11=yes
 	     DBUS_X_LIBS="$X_LIBS"
 	     DBUS_X_CFLAGS="$X_CFLAGS"
-            ],
-            [ have_x11=no ])
-
-    if test "x$have_x11" = xno; then
-        AC_MSG_WARN([Couldn't found X11, tried with pkg-config.])
-    fi
+            ], [
+             AS_IF([test "x$with_x" = xyes],
+                [AC_MSG_ERROR([Couldn't find X11, tried with pkg-config.])],
+                [AC_MSG_WARN([Couldn't find X11, tried with pkg-config.])]
+             )
+             have_x11=no
+            ])
 else
     AS_IF([test "x$enable_x11_autolaunch" = "xyes"], [
       AC_MSG_ERROR([--enable-x11-autolaunch and --without-x are not compatible])
