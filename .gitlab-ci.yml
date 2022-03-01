@@ -89,59 +89,59 @@ windows amd64 docker:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
 
-production:
+debian autotools production:
   extends: .debian-build
   variables:
     ci_variant: "production"
 
-debug:
+debian autotools debug:
   extends: .debian-build
   variables:
     ci_variant: "debug"
 
-reduced:
+debian autotools reduced:
   extends: .debian-build
   when: manual
   variables:
     ci_variant: "reduced"
 
-legacy:
+debian autotools legacy:
   extends: .debian-build
   when: manual
   variables:
     ci_variant: "legacy"
 
-cmake:
+debian cmake:
   extends: .debian-build
   variables:
     ci_buildsys: "cmake-dist"
 
-i686-w64-mingw32-debug:
+debian mingw32 autotools debug:
   extends: .debian-build
   variables:
     ci_host: "i686-w64-mingw32"
     ci_variant: "debug"
 
-i686-w64-mingw32-cmake:
+debian mingw32 cmake:
   extends: .debian-build
   when: manual
   variables:
     ci_buildsys: "cmake"
     ci_host: "i686-w64-mingw32"
 
-x86_64-w64-mingw32:
+debian mingw64 autotools:
   extends: .debian-build
   variables:
     ci_host: "x86_64-w64-mingw32"
 
-x86_64-w64-mingw32-cmake-debug:
+debian mingw64 cmake debug:
   extends: .debian-build
   variables:
     ci_buildsys: "cmake"
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
 
-buster:
+debian buster autotools:
   extends: .debian-build
   when: manual
   image: "debian:buster-slim"
@@ -164,7 +164,7 @@ buster:
     - $env:DBUS_TEST_MALLOC_FAILURES = 0
     - $env:PATH += ";C:\bin"
 
-windows-cmake-mingw-ucrt64:
+windows msys64 ucrt64 cmake:
   extends: .win-build
   script:
     - $env:MSYSTEM = "UCRT64"
@@ -174,7 +174,7 @@ windows-cmake-mingw-ucrt64:
     # FIXME: glib from msys2 has issues, disable it for now
     - C:\msys64\usr\bin\bash -lc 'cmake -G \"MinGW Makefiles\" -S . -B build -DDBUS_WITH_GLIB=OFF && cmake --build build --config Release'
 
-windows-cmake-vs15:
+windows vs15-64 cmake:
   extends: .win-build
   script:
     - cmake -DCMAKE_PREFIX_PATH=C:/ -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Debug -DDBUS_ENABLE_VERBOSE_MODE=OFF -S . -B build
