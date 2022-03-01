@@ -1115,7 +1115,7 @@ if test "x$dbus_win" = xyes; then
 
     enable_x11_autolaunch=no
     have_x11=no
-else if test "x$with_x" = xauto; then
+else if test "x$with_x" != xno; then
     PKG_CHECK_MODULES([X], [x11],
             [AC_DEFINE([HAVE_X11], [1], [Define to 1 if you have X11 library])],
             [ have_x11=no ])
