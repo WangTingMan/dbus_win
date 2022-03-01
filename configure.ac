@@ -1117,15 +1117,15 @@ if test "x$dbus_win" = xyes; then
     have_x11=no
 else if test "x$with_x" != xno; then
     PKG_CHECK_MODULES([X], [x11],
-            [AC_DEFINE([HAVE_X11], [1], [Define to 1 if you have X11 library])],
+            [AC_DEFINE([HAVE_X11], [1], [Define to 1 if you have X11 library])
+	     have_x11=yes
+	     DBUS_X_LIBS="$X_LIBS"
+	     DBUS_X_CFLAGS="$X_CFLAGS"
+            ],
             [ have_x11=no ])
 
     if test "x$have_x11" = xno; then
         AC_MSG_WARN([Couldn't found X11, tried with pkg-config.])
-    else
-        have_x11=yes
-        DBUS_X_LIBS="$X_LIBS"
-        DBUS_X_CFLAGS="$X_CFLAGS"
     fi
 else
     AS_IF([test "x$enable_x11_autolaunch" = "xyes"], [
