@@ -1,7 +1,12 @@
 dbus 1.14.2 (UNRELEASED)
 ========================
 
-...
+Fixes:
+
+• When building with Autotools, don't treat --with-x or --with-x=yes
+  as a request to disable X11, fixing a regression in 1.13.20.
+  Instead, require X11 libraries and fail if they cannot be detected.
+  (dbus!263, Lars Wendler)
 
 dbus 1.14.0 (2022-02-28)
 ========================
