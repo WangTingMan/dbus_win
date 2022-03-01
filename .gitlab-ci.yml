@@ -116,6 +116,7 @@ debian autotools legacy:
 
 debian cmake:
   extends: .debian-build
+  when: manual
   variables:
     ci_buildsys: "cmake-dist"
 
@@ -139,6 +140,7 @@ debian mingw64 autotools:
 
 debian mingw64 cmake debug:
   extends: .debian-build
+  when: manual
   variables:
     ci_buildsys: "cmake"
     ci_host: "x86_64-w64-mingw32"
