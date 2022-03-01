@@ -176,11 +176,127 @@ case "$ci_distro" in
             echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
+        ;;
+
+    (opensuse)
+        zypper="/usr/bin/zypper --non-interactive"
+        # system
+        packages=(
+            sudo
+        )
+
+        # build system
+        packages=(
+            "${packages[@]}"
+            autoconf
+            autoconf-archive
+            automake
+            cmake
+            libtool
+        )
+
+        # docs
+        packages=(
+            "${packages[@]}"
+            docbook_4
+            docbook-xsl-stylesheets
+            doxygen
+            libqt5-qttools
+            libxslt-tools
+            yelp-tools
+        )
+
+        # dbus (autogen.sh)
+        packages=(
+            "${packages[@]}"
+            which
+        )
+
+        case "$ci_host" in
+            (*-w64-mingw32)
+                # cross
+                packages=(
+                    "${packages[@]}"
+                    wine
+                    xvfb-run
+                )
+
+                # choose distribution
+                id=$(. /etc/os-release; echo ${ID} | sed 's, ,_,g')
+                case "$id" in
+                    (opensuse-leap)
+                        version=$(. /etc/os-release; echo ${VERSION_ID} | sed 's, ,_,g')
+                        repo="openSUSE_Leap_$version"
+                        ;;
+                    (opensuse-tumbleweed)
+                        repo="openSUSE_Tumbleweed"
+                        ;;
+                    (*)
+                        echo "ci_suite not specified, please choose one from 'leap' or 'tumbleweed'"
+                        exit 1
+                        ;;
+                esac
+
+                # add required repos
+                if [ "${ci_host%%-*}" = x86_64 ]; then
+                    bits="64"
+                else
+                    bits="32"
+                fi
+                (
+                    p=$(zypper lr | grep "windows_mingw_win${bits}" || true)
+                    if [ -z "$p" ]; then
+                        $zypper ar --refresh --no-gpgcheck \
+                            "https://download.opensuse.org/repositories/windows:/mingw:/win${bits}/$repo/windows:mingw:win${bits}.repo"
+                    fi
+                )
+                packages=(
+                    "${packages[@]}"
+                    mingw${bits}-cross-gcc-c++
+                    mingw${bits}-libexpat-devel
+                    mingw${bits}-glib2-devel
+                )
+                ;;
+
+            (*)
+                packages=(
+                    "${packages[@]}"
+                    gcc-c++
+                    libexpat-devel
+                    glib2-devel
+                    libX11-devel
+                    systemd-devel
+                )
+                ;;
+        esac
+        $zypper install "${packages[@]}"
+
+        if [ "$ci_in_docker" = yes ]; then
+            # Add the user that we will use to do the build inside the
+            # Docker container, and let them use sudo
+            useradd -m user
+            passwd -ud user
+            echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
+            chmod 0440 /etc/sudoers.d/nopasswd
+        fi
+        ;;
+esac
+
+#
+# manual package setup
+#
+case "$ci_distro" in
+    (debian|ubuntu)
 
         # Make sure we have a messagebus user, even if the dbus package
         # isn't installed
         $sudo adduser --system --quiet --home /nonexistent --no-create-home \
             --disabled-password --group messagebus
+        ;;
+
+    (opensuse)
+        # test-bus depends on group 'bin'
+        $sudo getent group bin >/dev/null || /usr/sbin/groupadd -r bin
         ;;
 
     (*)

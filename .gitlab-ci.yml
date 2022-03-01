@@ -70,9 +70,8 @@ windows amd64 docker:
         Exit 1
       }
 
-.debian-build:
+.unix-host-build:
   stage: build
-  image: "debian:bullseye-slim"
   cache:
     key: ${CI_JOB_NAME}
     paths:
@@ -88,6 +87,10 @@ windows amd64 docker:
   script:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
+
+.debian-build:
+  extends: .unix-host-build
+  image: "debian:bullseye-slim"
 
 debian autotools production:
   extends: .debian-build
@@ -147,6 +150,34 @@ debian buster autotools:
   image: "debian:buster-slim"
   variables:
     ci_suite: "buster"
+
+.suse-build:
+  extends: .unix-host-build
+  image: "opensuse/leap:15"
+  variables:
+    ci_distro: "opensuse"
+
+opensuse cmake:
+  extends: .suse-build
+  variables:
+    ci_buildsys: "cmake"
+    ci_local_packages: "no"
+
+opensuse mingw32 cmake:
+  extends: .suse-build
+  when: manual
+  variables:
+    ci_buildsys: "cmake"
+    ci_host: "i686-w64-mingw32"
+    ci_local_packages: "no"
+
+opensuse mingw64 cmake debug:
+  extends: .suse-build
+  variables:
+    ci_buildsys: "cmake"
+    ci_host: "x86_64-w64-mingw32"
+    ci_local_packages: "no"
+    ci_variant: "debug"
 
 .win-build:
   image: $WINDOWS_IMAGE
