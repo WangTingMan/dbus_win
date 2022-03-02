@@ -28,6 +28,10 @@ include(MacrosAutotools)
 autoinit(configure.ac)
 autoversion(dbus)
 
+# replacement for AC_C_BIGENDIAN
+include (TestBigEndian)
+test_big_endian(WORDS_BIGENDIAN)
+
 if(EXISTS ${CMAKE_SOURCE_DIR}/config.h.in)
     autoheaderchecks(${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/cmake/ConfigureChecks.cmake ${CMAKE_SOURCE_DIR}/cmake/config.h.cmake)
 else()

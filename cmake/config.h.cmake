@@ -21,6 +21,9 @@
  * should be placed in this file
 */
 
+/* AC_C_BIGENDIAN */
+#cmakedefine WORDS_BIGENDIAN
+
 /* Opt-in to modern APIs and thread-safety for Solaris. In the Autotools
  * build system we do the equivalent of this by appending to CFLAGS
  * in configure.ac */
