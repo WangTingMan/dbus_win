@@ -49,6 +49,9 @@ void _dbus_warn_return_if_fail (const char *function,
                                 const char *file,
                                 int line);
 
+DBUS_EMBEDDED_TESTS_EXPORT
+int _dbus_get_check_failed_count (void);
+
 #if defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 #define _DBUS_FUNCTION_NAME __func__
 #elif defined(__GNUC__) || defined(_MSC_VER)

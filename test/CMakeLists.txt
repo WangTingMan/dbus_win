@@ -144,6 +144,8 @@ if(DBUS_ENABLE_EMBEDDED_TESTS)
     add_test_executable(test-misc-internals "${SOURCES}" dbus-testutils)
     set_target_properties(test-misc-internals PROPERTIES COMPILE_FLAGS ${DBUS_INTERNAL_CLIENT_DEFINITIONS})
 
+    add_test_executable(test-platform-mutex test-platform-mutex.c ${DBUS_INTERNAL_LIBRARIES} dbus-testutils)
+
     set(SOURCES bus/main.c)
     add_test_executable(test-bus "${SOURCES}" dbus-daemon-internal dbus-testutils ${EXPAT_LIBRARIES})
     set_target_properties(test-bus PROPERTIES COMPILE_FLAGS ${DBUS_INTERNAL_CLIENT_DEFINITIONS})

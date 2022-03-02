@@ -195,6 +195,13 @@ static dbus_bool_t warn_initted = FALSE;
 static dbus_bool_t fatal_warnings = FALSE;
 static dbus_bool_t fatal_warnings_on_check_failed = TRUE;
 
+static int check_failed_count = 0;
+
+int _dbus_get_check_failed_count (void)
+{
+  return check_failed_count;
+}
+
 static void
 init_warnings(void)
 {
@@ -220,6 +227,8 @@ init_warnings(void)
                       s);
             }
         }
+
+      check_failed_count = 0;
 
       warn_initted = TRUE;
     }
@@ -288,6 +297,8 @@ _dbus_warn_check_failed(const char *format,
       fflush (stderr);
       _dbus_abort ();
     }
+  else
+    check_failed_count++;
 }
 
 #ifdef DBUS_ENABLE_VERBOSE_MODE

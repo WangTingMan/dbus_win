@@ -81,9 +81,13 @@ void         _dbus_condvar_free_at_location  (DBusCondVar      **location_p);
  *
  * @return  mutex instance or #NULL on OOM
  */
+DBUS_EMBEDDED_TESTS_EXPORT
 DBusRMutex  *_dbus_platform_rmutex_new       (void);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_free      (DBusRMutex       *mutex);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_lock      (DBusRMutex       *mutex);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_unlock    (DBusRMutex       *mutex);
 
 /**
@@ -91,9 +95,13 @@ void         _dbus_platform_rmutex_unlock    (DBusRMutex       *mutex);
  *
  * @return  mutex instance or #NULL on OOM
  */
+DBUS_EMBEDDED_TESTS_EXPORT
 DBusCMutex  *_dbus_platform_cmutex_new       (void);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_free      (DBusCMutex       *mutex);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_lock      (DBusCMutex       *mutex);
+DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_unlock    (DBusCMutex       *mutex);
 
 DBusCondVar* _dbus_platform_condvar_new      (void);
