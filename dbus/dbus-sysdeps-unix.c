@@ -84,6 +84,9 @@
 #ifdef HAVE_SYS_RANDOM_H
 #include <sys/random.h>
 #endif
+#ifdef HAVE_SYS_SYSCALL_H
+#include <sys/syscall.h>
+#endif
 
 #ifdef HAVE_ADT
 #include <bsm/adt.h>
@@ -140,6 +143,21 @@
 # endif
 
 #endif /* Solaris */
+
+#if defined(__linux__) && defined(__NR_close_range) && !defined(HAVE_CLOSE_RANGE)
+/* The kernel headers are new enough to have the close_range syscall,
+ * but glibc isn't new enough to have the syscall wrapper, so call the
+ * syscall directly. */
+static inline int
+close_range (unsigned int first,
+             unsigned int last,
+             unsigned int flags)
+{
+  return syscall (__NR_close_range, first, last, flags);
+}
+/* Now we can call that inline wrapper as though it was provided by glibc. */
+#define HAVE_CLOSE_RANGE
+#endif
 
 /**
  * Ensure that the standard file descriptors stdin, stdout and stderr
