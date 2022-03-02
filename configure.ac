@@ -420,6 +420,7 @@ byteswap.h
 crt_externs.h
 dirent.h
 errno.h
+linux/close_range.h
 locale.h
 signal.h
 stdint.h
