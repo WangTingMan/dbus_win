@@ -126,6 +126,18 @@ backported_g_steal_pointer (gpointer pointer_to_pointer)
 }
 #endif
 
+#ifndef g_assert_true
+#define g_assert_true(a) g_assert (a)
+#endif
+
+#ifndef g_assert_false
+#define g_assert_false(a) g_assert (!(a))
+#endif
+
+#ifndef g_assert_null
+#define g_assert_null(a) g_assert ((a) == NULL)
+#endif
+
 #ifndef g_assert_nonnull
 #define g_assert_nonnull(a) g_assert ((a) != NULL)
 #endif
