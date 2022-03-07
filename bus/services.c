@@ -1148,6 +1148,10 @@ bus_service_remove_owner (BusService     *service,
       BusOwner *temp_owner;
 
       link = _bus_service_find_owner_link (service, connection);
+      /* This function is only valid to call if connection owns service.
+       * If that's the case, we should always find connection in the
+       * list of owners. */
+      _dbus_assert (link != NULL);
       _dbus_list_unlink (&service->owners, link);
       temp_owner = (BusOwner *)link->data;
       bus_owner_unref (temp_owner); 
