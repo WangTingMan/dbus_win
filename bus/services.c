@@ -1082,6 +1082,7 @@ bus_service_swap_owner (BusService     *service,
       _dbus_assert (link != NULL);
       link = _dbus_list_get_next_link (&service->owners, link);
       _dbus_assert (link != NULL);
+      _dbus_assert (link->data != NULL);
 
       new_owner = (BusOwner *)link->data;
       new_owner_conn = new_owner->conn;
@@ -1176,6 +1177,7 @@ bus_service_remove_owner (BusService     *service,
       _dbus_assert (link != NULL);
       link = _dbus_list_get_next_link (&service->owners, link);
       _dbus_assert (link != NULL);
+      _dbus_assert (link->data != NULL);
 
       new_owner = (BusOwner *)link->data;
       new_owner_conn = new_owner->conn;
