@@ -1009,19 +1009,6 @@ main (int argc, char **argv)
 
   if (autolaunch)
     {      
-#ifndef DBUS_BUILD_X11
-      fprintf (stderr, "Autolaunch requested, but X11 support not compiled in.\n"
-	       "Cannot continue.\n");
-      exit (1);
-#else /* DBUS_BUILD_X11 */
-#ifndef DBUS_ENABLE_X11_AUTOLAUNCH
-      fprintf (stderr, "X11 autolaunch support disabled at compile time.\n");
-      exit (1);
-#else /* DBUS_ENABLE_X11_AUTOLAUNCH */
-      char *address;
-      pid_t pid;
-      long wid;
-      
       if (get_machine_uuid () == NULL)
         {
           fprintf (stderr, "Machine UUID not provided as arg to --autolaunch\n");
@@ -1062,6 +1049,7 @@ main (int argc, char **argv)
           _dbus_string_free (&existing_bus);
         }
 
+#if defined(DBUS_BUILD_X11) && defined(DBUS_ENABLE_X11_AUTOLAUNCH)
       verbose ("Autolaunch enabled (using X11).\n");
       if (!exit_with_x11)
 	{
@@ -1069,27 +1057,38 @@ main (int argc, char **argv)
           exit_with_x11 = TRUE;
 	}
 
-      if (!x11_init ())
-	{
-	  fprintf (stderr, "Autolaunch error: X11 initialization failed.\n");
-	  exit (1);
-	}
+      if (x11_init ())
+        {
+          char *address;
+          pid_t pid;
+          long wid;
 
-      if (!x11_get_address (&address, &pid, &wid))
-	{
-	  fprintf (stderr, "Autolaunch error: X11 communication error.\n");
-	  exit (1);
-	}
+          _dbus_assert (xdisplay != NULL);
+          verbose ("Connected to X11 display\n");
 
-      if (address != NULL)
-	{
-	  verbose ("dbus-daemon is already running. Returning existing parameters.\n");
-	  pass_info (runprog, address, pid, wid, c_shell_syntax,
-			   bourne_shell_syntax, binary_syntax, argc, argv, remaining_args);
-	  exit (0);
-	}
-#endif /* DBUS_ENABLE_X11_AUTOLAUNCH */
-#endif /* DBUS_BUILD_X11 */
+          if (!x11_get_address (&address, &pid, &wid))
+            {
+              fprintf (stderr, "dbus-launch: Autolaunch error: X11 communication error.\n");
+              exit (1);
+            }
+
+          if (address != NULL)
+            {
+              verbose ("dbus-daemon is already running. Returning existing parameters.\n");
+              pass_info (runprog, address, pid, wid, c_shell_syntax,
+                         bourne_shell_syntax, binary_syntax, argc, argv,
+                         remaining_args);
+              exit (0);
+            }
+        }
+      else
+        {
+          verbose ("Failed to connect to X11 display\n");
+          _dbus_assert (xdisplay == NULL);
+        }
+#else
+      verbose ("X11 autolaunch disabled at compile time, skipping that.\n");
+#endif /* DBUS_BUILD_X11 && DBUS_ENABLE_X11_AUTOLAUNCH */
     }
   else if (exit_with_x11)
     {
@@ -1124,6 +1123,23 @@ main (int argc, char **argv)
     }
 #endif /* DBUS_BUILD_X11 */
 
+  if (autolaunch && !existing_bus_supported)
+    {
+#if defined(DBUS_BUILD_X11) && defined(DBUS_ENABLE_X11_AUTOLAUNCH)
+      if (xdisplay == NULL)
+        {
+          fprintf (stderr,
+                   "dbus-launch: No existing session bus was found, and "
+                   "failed to connect to X11 display.\n");
+          exit (1);
+        }
+#else
+      fprintf (stderr,
+               "dbus-launch: No existing session bus was found, and X11 "
+               "autolaunch support was disabled at compile time.\n");
+      exit (1);
+#endif
+    }
 
   if (pipe (bus_pid_to_launcher_pipe) < 0 ||
       pipe (bus_address_to_launcher_pipe) < 0 ||
