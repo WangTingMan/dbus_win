@@ -4424,7 +4424,7 @@ _dbus_lookup_session_address_launchd (DBusString *address, DBusError  *error)
 }
 #endif
 
-dbus_bool_t
+static dbus_bool_t
 _dbus_lookup_user_bus (dbus_bool_t *supported,
                        DBusString  *address,
                        DBusError   *error)

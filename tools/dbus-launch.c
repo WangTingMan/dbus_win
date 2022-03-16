@@ -843,8 +843,8 @@ main (int argc, char **argv)
   int bus_pid_to_babysitter_pipe[2];
   int bus_address_to_launcher_pipe[2];
   char *config_file;
-  dbus_bool_t user_bus_supported = FALSE;
-  DBusString user_bus;
+  dbus_bool_t existing_bus_supported = FALSE;
+  DBusString existing_bus;
   const char *error_str;
 #ifdef DBUS_BUILD_X11
   DBusError error = DBUS_ERROR_INIT;
@@ -1028,12 +1028,14 @@ main (int argc, char **argv)
           exit (1);
         }
 
-      if (!_dbus_string_init (&user_bus))
+      if (!_dbus_string_init (&existing_bus))
         tool_oom ("initializing");
 
       /* If we have an XDG_RUNTIME_DIR and it contains a suitable socket,
        * dbus-launch --autolaunch can use it, since --autolaunch implies
        * "I'm OK with getting a bus that is already active".
+       * Similarly, if we're on macOS with launchd enabled, we can reuse
+       * that here.
        *
        * (However, plain dbus-launch without --autolaunch must not do so,
        * because that would break lots of regression tests, which often
@@ -1044,19 +1046,20 @@ main (int argc, char **argv)
        * on the X11 display and in ~/.dbus/session-bus, for full
        * backwards compatibility.
        */
-      if (!_dbus_lookup_user_bus (&user_bus_supported, &user_bus, &error))
+      if (!_dbus_lookup_session_address (&existing_bus_supported,
+                                         &existing_bus, &error))
         {
           fprintf (stderr, "%s\n", error.message);
           exit (1);
         }
-      else if (user_bus_supported)
+      else if (existing_bus_supported)
         {
-          verbose ("=== Using existing user bus \"%s\"\n",
-                   _dbus_string_get_const_data (&user_bus));
+          verbose ("=== Using existing session bus \"%s\"\n",
+                   _dbus_string_get_const_data (&existing_bus));
         }
       else
         {
-          _dbus_string_free (&user_bus);
+          _dbus_string_free (&existing_bus);
         }
 
       verbose ("Autolaunch enabled (using X11).\n");
@@ -1203,16 +1206,16 @@ main (int argc, char **argv)
       close (bus_pid_to_babysitter_pipe[READ_END]);
       close (bus_pid_to_babysitter_pipe[WRITE_END]);
 
-      /* If we have a user bus and want to use it, do so instead of
+      /* If we have an existing bus and want to use it, do so instead of
        * exec'ing a new dbus-daemon. */
-      if (autolaunch && user_bus_supported)
+      if (autolaunch && existing_bus_supported)
         {
           do_write (bus_pid_to_launcher_pipe[WRITE_END], "0\n", 2);
           close (bus_pid_to_launcher_pipe[WRITE_END]);
 
           do_write (bus_address_to_launcher_pipe[WRITE_END],
-                    _dbus_string_get_const_data (&user_bus),
-                    _dbus_string_get_length (&user_bus));
+                    _dbus_string_get_const_data (&existing_bus),
+                    _dbus_string_get_length (&existing_bus));
           do_write (bus_address_to_launcher_pipe[WRITE_END], "\n", 1);
           close (bus_address_to_launcher_pipe[WRITE_END]);
 
