@@ -617,26 +617,12 @@ void _dbus_logv (DBusSystemLogSeverity  severity,
                  const char            *msg,
                  va_list args) _DBUS_GNUC_PRINTF (2, 0);
 
-/**
- * Casts a primitive C type to a byte array and then indexes
- * a particular byte of the array.
- */
-#define _DBUS_BYTE_OF_PRIMITIVE(p, i) \
-    (((const char*)&(p))[(i)])
 /** On x86 there is an 80-bit FPU, and if you do "a == b" it may have a
  * or b in an 80-bit register, thus failing to compare the two 64-bit
  * doubles for bitwise equality. So this macro compares the two doubles
  * bitwise.
  */
-#define _DBUS_DOUBLES_BITWISE_EQUAL(a, b)                                       \
-     (_DBUS_BYTE_OF_PRIMITIVE (a, 0) == _DBUS_BYTE_OF_PRIMITIVE (b, 0) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 1) == _DBUS_BYTE_OF_PRIMITIVE (b, 1) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 2) == _DBUS_BYTE_OF_PRIMITIVE (b, 2) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 3) == _DBUS_BYTE_OF_PRIMITIVE (b, 3) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 4) == _DBUS_BYTE_OF_PRIMITIVE (b, 4) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 5) == _DBUS_BYTE_OF_PRIMITIVE (b, 5) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 6) == _DBUS_BYTE_OF_PRIMITIVE (b, 6) &&       \
-      _DBUS_BYTE_OF_PRIMITIVE (a, 7) == _DBUS_BYTE_OF_PRIMITIVE (b, 7))
+#define _DBUS_DOUBLES_BITWISE_EQUAL(a, b) (memcmp (&(a), &(b), sizeof (double)) == 0)
 
 dbus_bool_t _dbus_get_autolaunch_address (const char *scope,
                                           DBusString *address,
