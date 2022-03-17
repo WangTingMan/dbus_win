@@ -102,8 +102,7 @@ endif
 DBUS_LIB_arch_sources = 			\
 	dbus-uuidgen.c				\
 	dbus-uuidgen.h				\
-	dbus-server-unix.c 			\
-	dbus-server-unix.h
+	dbus-server-unix.c
 
 DBUS_SHARED_arch_sources = 			\
 	$(launchd_source)			\
