@@ -166,7 +166,9 @@ setup_no_runtime (Fixture *f,
   g_test_message ("listening at %s", listening_at);
   /* we have fallen back to something in /tmp, either abstract or not */
   g_assert (g_str_has_prefix (listening_at, "unix:"));
+#ifdef DBUS_UNIX
   g_assert (strstr (listening_at, "=/tmp" DBUS_DIR_SEPARATOR_S) != NULL);
+#endif
 
   dbus_free (listening_at);
 }
@@ -222,7 +224,7 @@ test_connect (Fixture *f,
                        !=, NULL);
     }
 #ifdef DBUS_UNIX
-  else if (g_strcmp0 (listening_address, "unix:tmpdir=/tmp") == 0)
+  else if (g_str_has_prefix (listening_address, "unix:tmpdir="))
     {
       g_assert_cmpstr (dbus_address_entry_get_method (entries[0]), ==, "unix");
 
@@ -241,20 +243,24 @@ test_connect (Fixture *f,
                                                            "path");
 
           g_assert_nonnull (path);
+#ifdef DBUS_UNIX
           g_assert_true (g_str_has_prefix (path, "/tmp" DBUS_DIR_SEPARATOR_S "dbus-"));
+#endif
         }
     }
-  else if (g_strcmp0 (listening_address, "unix:dir=/tmp") == 0)
+  else if (g_str_has_prefix (listening_address, "unix:dir="))
     {
       const char *path = dbus_address_entry_get_value (entries[0],
                                                        "path");
 
       g_assert_cmpstr (dbus_address_entry_get_method (entries[0]), ==, "unix");
       g_assert_nonnull (path);
+#ifdef DBUS_UNIX
       g_assert_true (g_str_has_prefix (path, "/tmp" DBUS_DIR_SEPARATOR_S "dbus-"));
+#endif
     }
-  else if (g_strcmp0 (listening_address,
-                      "unix:runtime=yes;unix:tmpdir=/tmp") == 0)
+  else if (g_str_has_prefix (listening_address,
+                             "unix:runtime=yes;unix:tmpdir="))
     {
       g_assert_cmpstr (dbus_address_entry_get_method (entries[0]), ==, "unix");
       /* No particular statement about the path here: for that see
@@ -486,6 +492,14 @@ main (int argc,
     char **argv)
 {
   int ret;
+#ifdef DBUS_UNIX
+  char *tmp = _dbus_strdup ("/tmp");
+#else
+  char *tmp = dbus_address_escape_value (g_get_tmp_dir ());
+#endif
+  gchar *unix_tmpdir = g_strdup_printf ("unix:tmpdir=%s", tmp);
+  gchar *unix_dir = g_strdup_printf ("unix:dir=%s", tmp);
+  gchar *unix_runtime_or_fallback = g_strdup_printf ("unix:runtime=yes;%s", unix_tmpdir);
 
   test_init (&argc, &argv);
 
@@ -503,27 +517,32 @@ main (int argc,
       test_bad_guid, teardown);
 
 #ifdef DBUS_UNIX
-  g_test_add ("/connect/unix/tmpdir", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/connect/unix/tmpdir", Fixture, unix_tmpdir, setup,
       test_connect, teardown);
-  g_test_add ("/message/unix/tmpdir", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/message/unix/tmpdir", Fixture, unix_tmpdir, setup,
       test_message, teardown);
-  g_test_add ("/connect/unix/dir", Fixture, "unix:dir=/tmp", setup,
+  g_test_add ("/connect/unix/dir", Fixture, unix_dir, setup,
       test_connect, teardown);
-  g_test_add ("/message/unix/dir", Fixture, "unix:dir=/tmp", setup,
+  g_test_add ("/message/unix/dir", Fixture, unix_dir, setup,
       test_message, teardown);
 
   g_test_add ("/connect/unix/runtime", Fixture,
-      "unix:runtime=yes;unix:tmpdir=/tmp", setup_runtime, test_connect,
+      unix_runtime_or_fallback, setup_runtime, test_connect,
       teardown_runtime);
   g_test_add ("/connect/unix/no-runtime", Fixture,
-      "unix:runtime=yes;unix:tmpdir=/tmp", setup_no_runtime, test_connect,
+      unix_runtime_or_fallback, setup_no_runtime, test_connect,
       teardown_no_runtime);
 
-  g_test_add ("/message/bad-guid/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/message/bad-guid/unix", Fixture, unix_tmpdir, setup,
       test_bad_guid, teardown);
 #endif
 
   ret = g_test_run ();
   dbus_shutdown ();
+
+  g_free (unix_tmpdir);
+  g_free (unix_dir);
+  g_free (unix_runtime_or_fallback);
+  dbus_free (tmp);
   return ret;
 }
