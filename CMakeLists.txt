@@ -332,8 +332,11 @@ else()
         pointer-sign
     )
     set(WARNINGS_DISABLED
+        error=inline
         error=overloaded-virtual
         error=missing-field-initializers
+        error=null-dereference
+        error=strict-aliasing
         error=unused-parameter
         unused-parameter
     )
