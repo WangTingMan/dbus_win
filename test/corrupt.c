@@ -406,6 +406,12 @@ main (int argc,
     char **argv)
 {
   int ret;
+#ifdef DBUS_UNIX
+  char *tmp = _dbus_strdup ("/tmp");
+#else
+  char *tmp = dbus_address_escape_value (g_get_tmp_dir ());
+#endif
+  gchar *unix_tmpdir = g_strdup_printf ("unix:tmpdir=%s", tmp);
 
   test_init (&argc, &argv);
 
@@ -413,7 +419,7 @@ main (int argc,
       test_corrupt, teardown);
 
 #ifdef DBUS_UNIX
-  g_test_add ("/corrupt/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/corrupt/unix", Fixture, unix_tmpdir, setup,
       test_corrupt, teardown);
 #endif
 
@@ -421,11 +427,14 @@ main (int argc,
       test_byte_order, teardown);
 
 #ifdef DBUS_UNIX
-  g_test_add ("/corrupt/byte-order/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/corrupt/byte-order/unix", Fixture, unix_tmpdir, setup,
       test_byte_order, teardown);
 #endif
 
   ret = g_test_run ();
   dbus_shutdown ();
+
+  g_free (unix_tmpdir);
+  dbus_free (tmp);
   return ret;
 }
