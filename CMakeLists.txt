@@ -377,8 +377,13 @@ endif()
 
 if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic")
-    string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--export-dynamic")
+    if (APPLE)
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-export_dynamic")
+        string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-export_dynamic")
+    else()
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic")
+        string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--export-dynamic")
+    endif()
     set(DBUS_BUILT_R_DYNAMIC 1)
 endif()
 
