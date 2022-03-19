@@ -179,6 +179,9 @@ DBUS_SESSION_BUS_LISTEN_ADDRESS:STRING=autolaunch:
 // session bus fallback address for clients
 DBUS_SESSION_BUS_CONNECT_ADDRESS:STRING=autolaunch:
 
+//Default directory for session socket
+DBUS_SESSION_SOCKET_DIR:STRING=/tmp
+
 // system bus default address (only useful on Unix)
 DBUS_SYSTEM_BUS_DEFAULT_ADDRESS:STRING=unix:path=/var/run/dbus/system_bus_socket
 
