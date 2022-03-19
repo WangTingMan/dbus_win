@@ -356,6 +356,7 @@ generate_compiler_warning_flags(
         ${WARNINGS_ERRORS}
 )
 generate_compiler_warning_flags(
+    CXX
     RESULTVAR
         WARNINGS_CXXFLAGS
     WARNINGS
