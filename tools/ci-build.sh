@@ -117,6 +117,11 @@ init_wine() {
 # If yes, run tests; if no, just build
 : "${ci_test:=yes}"
 
+# ci_cmake_junit_output:
+# If non-empty, emit JUnit XML output from CTest tests to that file
+# Note: requires CMake 3.21 or newer.
+: "${ci_cmake_junit_output:=}"
+
 # ci_test_fatal:
 # If yes, test failures break the build; if no, they are reported but ignored
 : "${ci_test_fatal:=yes}"
@@ -418,7 +423,12 @@ case "$ci_buildsys" in
         # The test coverage for OOM-safety is too verbose to be useful on
         # travis-ci.
         export DBUS_TEST_MALLOC_FAILURES=0
-        [ "$ci_test" = no ] || $cmdwrapper ctest -VV --timeout 180 || maybe_fail_tests
+        ctest_args="-VV --timeout 180"
+        if [ -n "$ci_cmake_junit_output" ]; then
+            ctest_args="--output-junit $ci_cmake_junit_output $ctest_args"
+        fi
+
+        [ "$ci_test" = no ] || $cmdwrapper ctest $ctest_args || maybe_fail_tests
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls)
         ;;
