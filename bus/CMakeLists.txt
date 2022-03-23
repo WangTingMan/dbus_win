@@ -85,7 +85,6 @@ endif()
 
 include_directories(
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_SOURCE_DIR}/..
     ${EXPAT_INCLUDE_DIR}
 )
 
