@@ -338,6 +338,12 @@ main (int argc,
     char **argv)
 {
   int ret;
+#ifdef DBUS_UNIX
+  char *tmp = _dbus_strdup ("/tmp");
+#else
+  char *tmp = dbus_address_escape_value (g_get_tmp_dir ());
+#endif
+  gchar *unix_tmpdir = g_strdup_printf ("unix:tmpdir=%s", tmp);
 
   test_init (&argc, &argv);
 
@@ -349,15 +355,17 @@ main (int argc,
       test_limit, teardown);
 
 #ifdef DBUS_UNIX
-  g_test_add ("/connect/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/connect/unix", Fixture, unix_tmpdir, setup,
       test_connect, teardown);
-  g_test_add ("/relay/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/relay/unix", Fixture, unix_tmpdir, setup,
       test_relay, teardown);
-  g_test_add ("/limit/unix", Fixture, "unix:tmpdir=/tmp", setup,
+  g_test_add ("/limit/unix", Fixture, unix_tmpdir, setup,
       test_limit, teardown);
 #endif
 
   ret = g_test_run ();
   dbus_shutdown ();
+  g_free (unix_tmpdir);
+  dbus_free (tmp);
   return ret;
 }
