@@ -131,6 +131,12 @@ main (int argc,
       char **argv)
 {
   int ret;
+#ifdef DBUS_UNIX
+  char *tmp = _dbus_strdup ("/tmp");
+#else
+  char *tmp = dbus_address_escape_value (g_get_tmp_dir ());
+#endif
+  gchar *unix_tmpdir = g_strdup_printf ("unix:tmpdir=%s", tmp);
 
   test_init (&argc, &argv);
 
@@ -140,12 +146,14 @@ main (int argc,
   add_oom_test ("/server/new-tcp-star", test_new_server, "tcp:host=127.0.0.1,bind=*");
   add_oom_test ("/server/new-tcp-v4", test_new_server, "tcp:host=127.0.0.1,bind=127.0.0.1,family=ipv4");
 #ifdef DBUS_UNIX
-  add_oom_test ("/server/unix", test_new_server, "unix:tmpdir=/tmp");
+  add_oom_test ("/server/unix", test_new_server, unix_tmpdir);
 #endif
 
   ret = g_test_run ();
 
   g_queue_free_full (test_cases_to_free, g_free);
   dbus_shutdown ();
+  g_free (unix_tmpdir);
+  dbus_free (tmp);
   return ret;
 }
