@@ -3655,12 +3655,10 @@
       </para>
 
       <para>
-        When a socket is opened by the D-Bus library it truncates the path
-        name right before the first trailing Nul byte.  This is true for both
-        normal paths and abstract paths.  Note that this is a departure from
-        previous versions of D-Bus that would create sockets with a fixed
-        length path name.  Names which were shorter than the fixed length
-        would be padded by Nul bytes.
+        When a Unix socket is opened by the D-Bus library, the socket address
+        length does not include the whole <literal>struct sockaddr_un</literal>,
+        but only the length of the pathname or abstract string (beside other
+        fields).
       </para>
       <para>
         Unix domain sockets are not available on Windows.
