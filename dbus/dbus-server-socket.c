@@ -677,6 +677,72 @@ _dbus_server_new_for_domain_socket (const char     *path,
 }
 
 /**
+ * Creates a new Unix domain socket server listening under the given directory.
+ * This function is used for "unix:dir/tmpdir" kind of addresses.
+ *
+ * @param dir the path to a directory.
+ * @param abstract #TRUE to use abstract socket namespace
+ * @param error location to store reason for failure.
+ * @returns the new server, or #NULL on failure.
+ */
+DBusServer *
+_dbus_server_new_for_dir (const char       *dir,
+                          dbus_bool_t       use_abstract,
+                          DBusError        *error)
+{
+  DBusServer *server;
+  DBusString full_path;
+  DBusString filename;
+
+  if (!_dbus_string_init (&full_path))
+    {
+      dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
+      return NULL;
+    }
+
+  if (!_dbus_string_init (&filename))
+    {
+      _dbus_string_free (&full_path);
+      dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
+      return NULL;
+    }
+
+  if (!_dbus_string_append (&filename, "dbus-"))
+    {
+      _dbus_string_free (&full_path);
+      _dbus_string_free (&filename);
+      dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
+      return NULL;
+    }
+
+  if (!_dbus_generate_random_ascii (&filename, 10, error))
+    {
+      _dbus_string_free (&full_path);
+      _dbus_string_free (&filename);
+      return NULL;
+    }
+
+  if (!_dbus_string_append (&full_path, dir) ||
+      !_dbus_concat_dir_and_file (&full_path, &filename))
+    {
+      _dbus_string_free (&full_path);
+      _dbus_string_free (&filename);
+      dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
+      return NULL;
+    }
+
+  server =
+    _dbus_server_new_for_domain_socket (_dbus_string_get_const_data (&full_path),
+                                        use_abstract,
+                                        error);
+
+  _dbus_string_free (&full_path);
+  _dbus_string_free (&filename);
+
+  return server;
+}
+
+/**
  * Tries to interpret the address entry for UNIX socket
  * addresses.
  *
@@ -775,8 +841,6 @@ _dbus_server_listen_unix_socket (DBusAddressEntry *entry,
         }
       else if (tmpdir != NULL || dir != NULL)
         {
-          DBusString full_path;
-          DBusString filename;
           dbus_bool_t use_abstract = FALSE;
 
           if (tmpdir != NULL)
@@ -791,50 +855,7 @@ _dbus_server_listen_unix_socket (DBusAddressEntry *entry,
 #endif
             }
 
-          if (!_dbus_string_init (&full_path))
-            {
-              dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
-              return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
-            }
-
-          if (!_dbus_string_init (&filename))
-            {
-              _dbus_string_free (&full_path);
-              dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
-              return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
-            }
-
-          if (!_dbus_string_append (&filename, "dbus-"))
-            {
-              _dbus_string_free (&full_path);
-              _dbus_string_free (&filename);
-              dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
-              return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
-            }
-
-          if (!_dbus_generate_random_ascii (&filename, 10, error))
-            {
-              _dbus_string_free (&full_path);
-              _dbus_string_free (&filename);
-              return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
-            }
-
-          if (!_dbus_string_append (&full_path, dir) ||
-              !_dbus_concat_dir_and_file (&full_path, &filename))
-            {
-              _dbus_string_free (&full_path);
-              _dbus_string_free (&filename);
-              dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
-              return DBUS_SERVER_LISTEN_DID_NOT_CONNECT;
-            }
-
-          *server_p =
-            _dbus_server_new_for_domain_socket (_dbus_string_get_const_data (&full_path),
-                                                use_abstract,
-                                                error);
-
-          _dbus_string_free (&full_path);
-          _dbus_string_free (&filename);
+          *server_p = _dbus_server_new_for_dir (dir, use_abstract, error);
         }
       else
         {
