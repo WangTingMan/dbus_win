@@ -194,6 +194,8 @@ if [ "$ci_local_packages" = yes ]; then
         (*-w64-mingw32)
             mirror=https://repo.msys2.org/mingw/${ci_host%%-*}
             dep_prefix=$(pwd)/${ci_host}-prefix
+            # clean install dir, if present
+            rm -rf ${dep_prefix}
             install -d "${dep_prefix}"
             wget -O files.lst ${mirror}
             sed 's,^<a href=",,g;s,">.*$,,g' files.lst | grep -v "\.db" | grep -v "\.files" | grep ".*zst$" | sort > filenames.lst
@@ -215,6 +217,11 @@ if [ "$ci_local_packages" = yes ]; then
                 if [ -z ${filename} ]; then
                     echo "could not find filename for package '${pkg}'"
                     exit 1
+                fi
+                # Remove previously downloaded file, which can happen
+                # when run locally
+                if [ -f ${filename} ]; then
+                    rm -rf ${filename}
                 fi
                 wget ${mirror}/${filename}
                 tar -C ${dep_prefix} --strip-components=1 -xvf ${filename}
