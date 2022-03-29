@@ -1633,7 +1633,8 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
   if (fd < 0)
     {
       fd = open ("/proc/self/oom_score_adj", O_RDWR);
-      _dbus_fd_set_close_on_exec (fd);
+      if (fd >= 0)
+        _dbus_fd_set_close_on_exec (fd);
     }
 
   if (fd >= 0)
