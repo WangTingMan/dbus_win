@@ -198,17 +198,17 @@ if [ "$ci_local_packages" = yes ]; then
             wget -O files.lst ${mirror}
             sed 's,^<a href=",,g;s,">.*$,,g' files.lst | grep -v "\.db" | grep -v "\.files" | grep ".*zst$" | sort > filenames.lst
             packages=(
-                bzip2-1.0.8-2
-                expat-2.2.10-1
-                gcc-libs-10.2.0-6
-                gettext-0.19.8.1-10
-                glib2-2.66.4-1
-                iconv-1.16-2
-                libffi-3.3-2
-                libiconv-1.16-2
-                libwinpthread-git-8.0.0.5906.c9a21571-1
-                pcre-8.44-2
-                zlib-1.2.11-8
+                bzip2-1.0
+                expat-2.2
+                gcc-libs-10.2
+                gettext-0.19
+                glib2-2.66
+                iconv-1.16
+                libffi-3.3
+                libiconv-1.16
+                libwinpthread-git-8.0.0
+                pcre-8.44
+                zlib-1.2
             )
             for pkg in "${packages[@]}" ; do
                 filename=$(grep ${pkg} filenames.lst | tail -1)
