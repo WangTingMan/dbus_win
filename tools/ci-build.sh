@@ -358,12 +358,22 @@ case "$ci_buildsys" in
 
     (cmake|cmake-dist)
         cmdwrapper=
+        cmake=cmake
         case "$ci_host" in
             (*-w64-mingw32)
                 # CFLAGS and CXXFLAGS does do work, checked with cmake 3.15
                 export LDFLAGS="-${ci_runtime}-libgcc"
                 # enable tests if supported
                 if [ "$ci_test" = yes ]; then
+                    # choose correct wine architecture
+                    if [ "${ci_distro}" = opensuse ]; then
+                        if [ "${ci_host%%-*}" = x86_64 ]; then
+                            export WINEARCH=win64
+                            cmake=mingw64-cmake
+                        else
+                            cmake=mingw32-cmake
+                        fi
+                    fi
                     libgcc_path=
                     if [ "$ci_runtime" = "shared" ]; then
                         libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
@@ -372,7 +382,9 @@ case "$ci_buildsys" in
                     cmdwrapper="xvfb-run -a"
                 fi
                 set _ "$@"
-                set "$@" -D CMAKE_TOOLCHAIN_FILE="${srcdir}/cmake/${ci_host}.cmake"
+                if [ "$ci_distro" != "opensuse" ]; then
+                    set "$@" -D CMAKE_TOOLCHAIN_FILE="${srcdir}/cmake/${ci_host}.cmake"
+                fi
                 set "$@" -D CMAKE_PREFIX_PATH="${dep_prefix}"
                 if [ "$ci_local_packages" = yes ]; then
                     set "$@" -D CMAKE_INCLUDE_PATH="${dep_prefix}/include"
@@ -389,7 +401,7 @@ case "$ci_buildsys" in
                 ;;
         esac
 
-        cmake "$@" -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON ..
+        $cmake "$@" -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON ..
 
         ${make}
         # The test coverage for OOM-safety is too verbose to be useful on
