@@ -628,6 +628,7 @@ dbus_bool_t _dbus_get_autolaunch_address (const char *scope,
                                           DBusString *address,
 					                      DBusError  *error);
 
+DBUS_PRIVATE_EXPORT
 dbus_bool_t _dbus_lookup_session_address (dbus_bool_t *supported,
                                           DBusString  *address,
                                           DBusError   *error);
