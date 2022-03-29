@@ -195,6 +195,8 @@ if [ "$ci_local_packages" = yes ]; then
             mirror=https://repo.msys2.org/mingw/${ci_host%%-*}
             dep_prefix=$(pwd)/${ci_host}-prefix
             install -d "${dep_prefix}"
+            wget -O files.lst ${mirror}
+            sed 's,^<a href=",,g;s,">.*$,,g' files.lst | grep -v "\.db" | grep -v "\.files" | grep ".*zst$" | sort > filenames.lst
             packages=(
                 bzip2-1.0.8-2
                 expat-2.2.10-1
@@ -209,8 +211,13 @@ if [ "$ci_local_packages" = yes ]; then
                 zlib-1.2.11-8
             )
             for pkg in "${packages[@]}" ; do
-                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
-                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
+                filename=$(grep ${pkg} filenames.lst | tail -1)
+                if [ -z ${filename} ]; then
+                    echo "could not find filename for package '${pkg}'"
+                    exit 1
+                fi
+                wget ${mirror}/${filename}
+                tar -C ${dep_prefix} --strip-components=1 -xvf ${filename}
             done
 
             # limit access rights
