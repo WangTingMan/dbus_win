@@ -7,6 +7,9 @@
 /build-aux/
 /bus/tmpfiles.d/dbus.conf
 /ci-build*/
+/*-prefix/
+*.zst*
+file*.lst
 /cmake/DBus1Config*.cmake
 /config.cache
 /config.h
