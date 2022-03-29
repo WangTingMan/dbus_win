@@ -575,8 +575,14 @@ if(MSVC_IDE)
 endif()
 
 #### Find socket directories
+set(DBUS_SESSION_SOCKET_DIR "" CACHE STRING "Default directory for session socket")
 if(UNIX)
-    if(NOT $ENV{TMPDIR} STREQUAL "")
+    if (CMAKE_CROSSCOMPILING)
+        if (NOT DBUS_SESSION_SOCKET_DIR)
+            message(FATAL_ERROR "cannot autodetect session socket directory "
+                    "when crosscompiling, pass -DDBUS_SESSION_SOCKET_DIR=...")
+        endif()
+    elseif(NOT $ENV{TMPDIR} STREQUAL "")
         set(DBUS_SESSION_SOCKET_DIR $ENV{TMPDIR})
     elseif(NOT $ENV{TEMP} STREQUAL "")
         set(DBUS_SESSION_SOCKET_DIR $ENV{TEMP})
