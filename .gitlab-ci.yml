@@ -31,7 +31,6 @@ variables:
   ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
-  ci_distro: "debian"
   ci_suite: "bullseye"
   ###
   # IMPORTANT
@@ -158,8 +157,6 @@ debian buster autotools:
 .suse-build:
   extends: .unix-host-build
   image: "opensuse/leap:15"
-  variables:
-    ci_distro: "opensuse"
 
 opensuse cmake:
   extends: .suse-build
