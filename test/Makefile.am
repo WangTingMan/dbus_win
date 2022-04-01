@@ -140,7 +140,7 @@ test_assertions_SOURCES = internals/assertions.c
 test_assertions_LDADD = libdbus-testutils.la $(GLIB_LIBS)
 
 test_printf_SOURCES = internals/printf.c
-test_printf_LDADD = $(top_builddir)/dbus/libdbus-internal.la
+test_printf_LDADD = libdbus-testutils.la
 
 test_refs_SOURCES = internals/refs.c
 test_refs_LDADD = libdbus-testutils.la $(GLIB_LIBS)

@@ -34,10 +34,6 @@
 #include <dbus/dbus-test-tap.h>
 #include <string.h>
 
-#if !defined(PRIx64) && defined(DBUS_WIN)
-#define PRIx64 "I64x"
-#endif
-
 /** turn this on to get deluged in TypeWriter verbose spam */
 #define RECURSIVE_MARSHAL_WRITE_TRACE 0
 
@@ -2629,7 +2625,9 @@ double_read_value (TestTypeNode   *node,
   expected = double_from_seed (seed);
 
   if (!_DBUS_DOUBLES_BITWISE_EQUAL (v, expected))
-    _dbus_test_fatal ("Expected double %g got %g\n bits = 0x%" PRIx64 " vs.\n bits = 0x%" PRIx64,
+    _dbus_test_fatal ("Expected double %g got %g\n"
+                      " bits = 0x%" DBUS_INT64_MODIFIER "x vs.\n"
+                      " bits = 0x%" DBUS_INT64_MODIFIER "x",
                       expected, v,
                       *(dbus_uint64_t*)(char*)&expected,
                       *(dbus_uint64_t*)(char*)&v);

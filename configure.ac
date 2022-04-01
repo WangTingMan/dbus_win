@@ -448,23 +448,30 @@ $ac_cv_sizeof_int)
   dbusint64=int
   dbusint64_constant='(val)'
   dbusuint64_constant='(val)'
+  dbusint64_modifier=""
   ;;
 $ac_cv_sizeof_long)
   dbusint64=long
   dbusint64_constant='(val##L)'
   dbusuint64_constant='(val##UL)'
+  dbusint64_modifier="l"
   ;;
 $ac_cv_sizeof_long_long)
   dbusint64='long long'
   dbusint64_constant='(val##LL)'
   dbusuint64_constant='(val##ULL)'
+  dbusint64_modifier="ll"
   ;;
 $ac_cv_sizeof___int64)
   dbusint64=__int64
   dbusint64_constant='(val##i64)'
   dbusuint64_constant='(val##ui64)'
+  dbusint64_modifier="I64"
   ;;
 esac
+
+# MSVCRT.dll printf() doesn't support %lld
+AS_IF([test "$dbus_win" = yes], [dbusint64_modifier="I64"])
 
 AS_IF(
   [test -z "$dbusint64"],
@@ -480,12 +487,14 @@ Please report a bug here with details of your platform and compiler:
         DBUS_INT64_TYPE="$dbusint64"
         DBUS_INT64_CONSTANT="$dbusint64_constant"
         DBUS_UINT64_CONSTANT="$dbusuint64_constant"
+        DBUS_INT64_MODIFIER="$dbusint64_modifier"
         AC_MSG_RESULT($DBUS_INT64_TYPE)
   ])
 
 AC_SUBST(DBUS_INT64_TYPE)
 AC_SUBST(DBUS_INT64_CONSTANT)
 AC_SUBST(DBUS_UINT64_CONSTANT)
+AC_SUBST(DBUS_INT64_MODIFIER)
 
 ### see what 32-bit int is called
 AC_MSG_CHECKING([32-bit integer type])
