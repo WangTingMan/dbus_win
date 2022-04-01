@@ -35,6 +35,9 @@ DBusTransportOpenResult _dbus_transport_open_unix_socket (DBusAddressEntry  *ent
                                                           DBusTransport    **transport_p,
                                                           DBusError         *error);
 
+DBusTransportOpenResult _dbus_transport_open_unixexec (DBusAddressEntry  *entry,
+                                                       DBusTransport    **transport_p,
+                                                       DBusError         *error);
 DBUS_END_DECLS
 
 #endif /* DBUS_TRANSPORT_UNIX_H */

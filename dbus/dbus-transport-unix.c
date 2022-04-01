@@ -272,7 +272,24 @@ _dbus_transport_open_unix_socket (DBusAddressEntry  *entry,
           return DBUS_TRANSPORT_OPEN_OK;
         }
     }
-  else if (strcmp (method, "unixexec") == 0)
+  else
+    {
+      _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+      return DBUS_TRANSPORT_OPEN_NOT_HANDLED;
+    }
+}
+
+DBusTransportOpenResult
+_dbus_transport_open_unixexec (DBusAddressEntry  *entry,
+                               DBusTransport    **transport_p,
+                               DBusError         *error)
+{
+  const char *method;
+
+  method = dbus_address_entry_get_method (entry);
+  _dbus_assert (method != NULL);
+
+  if (strcmp (method, "unixexec") == 0)
     {
       const char *path;
       unsigned i;

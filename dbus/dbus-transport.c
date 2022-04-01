@@ -350,6 +350,7 @@ static const struct {
   { _dbus_transport_open_socket },
 #ifndef _WIN32 /* FIXME: removed in next patch */
   { _dbus_transport_open_unix_socket },
+  { _dbus_transport_open_unixexec },
 #endif
   { _dbus_transport_open_platform_specific },
   { _dbus_transport_open_autolaunch }
