@@ -1848,7 +1848,7 @@ _dbus_listen_tcp_socket (const char     *host,
                       host ? host : "*", port, _dbus_strerror (saved_errno));
         }
 
-      if (bind (fd.sock, (struct sockaddr*) tmp->ai_addr, tmp->ai_addrlen) == SOCKET_ERROR)
+      if (bind (fd.sock, (struct sockaddr *) tmp->ai_addr, tmp->ai_addrlen) == SOCKET_ERROR)
         {
           saved_errno = _dbus_get_low_level_socket_errno ();
           closesocket (fd.sock);
