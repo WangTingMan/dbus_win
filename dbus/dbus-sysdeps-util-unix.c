@@ -1627,12 +1627,12 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
   const char *error_str = NULL;
 
 #ifdef O_CLOEXEC
-  fd = open ("/proc/self/oom_score_adj", O_RDWR | O_CLOEXEC);
+  fd = open ("/proc/self/oom_score_adj", O_RDONLY | O_CLOEXEC);
 #endif
 
   if (fd < 0)
     {
-      fd = open ("/proc/self/oom_score_adj", O_RDWR);
+      fd = open ("/proc/self/oom_score_adj", O_RDONLY);
       if (fd >= 0)
         _dbus_fd_set_close_on_exec (fd);
     }
@@ -1680,6 +1680,26 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
           goto out;
         }
 
+      close (fd);
+#ifdef O_CLOEXEC
+      fd = open ("/proc/self/oom_score_adj", O_WRONLY | O_CLOEXEC);
+
+      if (fd < 0)
+#endif
+        {
+          fd = open ("/proc/self/oom_score_adj", O_WRONLY);
+          if (fd >= 0)
+            _dbus_fd_set_close_on_exec (fd);
+        }
+
+      if (fd < 0)
+        {
+          ret = FALSE;
+          error_str = "open(/proc/self/oom_score_adj) for writing";
+          saved_errno = errno;
+          goto out;
+        }
+
       if (pwrite (fd, "0", sizeof (char), 0) < 0)
         {
           ret = FALSE;
@@ -1700,7 +1720,7 @@ _dbus_reset_oom_score_adj (const char **error_str_p)
   else
     {
       ret = FALSE;
-      error_str = "open(/proc/self/oom_score_adj)";
+      error_str = "open(/proc/self/oom_score_adj) for reading";
       saved_errno = errno;
       goto out;
     }
