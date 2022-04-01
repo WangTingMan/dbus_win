@@ -72,6 +72,8 @@ windows amd64 docker:
 
 .unix-host-build:
   stage: build
+  # No need to wait for the Windows Docker image to be built
+  needs: []
   cache:
     key: ${CI_JOB_NAME}
     paths:
