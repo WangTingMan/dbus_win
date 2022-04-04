@@ -31,7 +31,6 @@ variables:
   ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
-  ci_suite: "bullseye"
   ###
   # IMPORTANT
   # These are the version tags for the docker images the CI runs against.
@@ -151,8 +150,6 @@ debian buster autotools:
   extends: .debian-build
   when: manual
   image: "debian:buster-slim"
-  variables:
-    ci_suite: "buster"
 
 .suse-build:
   extends: .unix-host-build

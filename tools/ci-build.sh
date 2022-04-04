@@ -110,9 +110,8 @@ init_wine() {
 
 # ci_suite:
 # OS suite (release, branch) in which we are testing.
-# Typical values for ci_distro=debian: sid, jessie
-# Typical values for ci_distro=fedora might be 25, rawhide
-: "${ci_suite:=xenial}"
+# Typical values: auto (detect at runtime), ci_distro=debian: bullseye, buster, ci_distro=fedora: 35, rawhide
+: "${ci_suite:=auto}"
 
 # ci_test:
 # If yes, run tests; if no, just build
@@ -136,6 +135,12 @@ echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_docker=$ci_docker ci_host
 if [ "$ci_distro" = "auto" ]; then
     ci_distro=$(. /etc/os-release; echo ${ID} | sed 's, ,_,g')
     echo "detected ci_distro as '${ci_distro}'"
+fi
+
+# choose suite
+if [ "$ci_suite" = "auto" ]; then
+    ci_suite=$(. /etc/os-release; if test -v VERSION_CODENAME; then echo ${VERSION_CODENAME}; else echo ${VERSION_ID}; fi)
+    echo "detected ci_suite as '${ci_suite}'"
 fi
 
 if [ -n "$ci_docker" ]; then
