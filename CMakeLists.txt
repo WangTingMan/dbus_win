@@ -338,6 +338,7 @@ else()
         error=null-dereference
         error=strict-aliasing
         error=unused-parameter
+        inline
         unused-parameter
     )
     set(WARNINGS_ERRORS
