@@ -2345,6 +2345,41 @@ _dbus_string_append_byte_as_hex (DBusString *str,
   return TRUE;
 }
 
+/* Currently only used when embedded tests are enabled */
+#ifdef DBUS_ENABLE_EMBEDDED_TESTS
+/**
+ * Appends \p size bytes from the buffer \p buf as hex digits to the string \p str
+ *
+ * If \p size is nonzero, then \p buf must be non-NULL.
+ *
+ * @param str the string
+ * @param buf the buffer to add bytes from
+ * @param size the number of bytes to add
+ * @returns #FALSE if no memory
+ */
+dbus_bool_t
+_dbus_string_append_buffer_as_hex (DBusString *str,
+                                   void *buf,
+                                   int size)
+{
+  unsigned char *p;
+  int i;
+
+  _dbus_assert (size >= 0);
+  _dbus_assert (size == 0 || buf != NULL);
+
+  p = (unsigned char *) buf;
+
+  for (i = 0; i < size; i++)
+    {
+      if (!_dbus_string_append_byte_as_hex (str, p[i]))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+#endif
+
 /**
  * Encodes a string in hex, the way MD5 and SHA-1 are usually
  * encoded. (Each byte is two hex digits.)

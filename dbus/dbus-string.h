@@ -31,6 +31,8 @@
 
 #include <stdarg.h>
 
+#include <dbus/dbus-macros-internal.h>
+
 DBUS_BEGIN_DECLS
 
 /**
@@ -358,6 +360,10 @@ DBUS_PRIVATE_EXPORT
 void          _dbus_string_chop_white            (DBusString        *str); 
 dbus_bool_t   _dbus_string_append_byte_as_hex    (DBusString        *str,
                                                   unsigned char      byte);
+DBUS_EMBEDDED_TESTS_EXPORT
+dbus_bool_t _dbus_string_append_buffer_as_hex    (DBusString        *str,
+                                                  void              *buf,
+                                                  int                size);
 DBUS_PRIVATE_EXPORT
 dbus_bool_t   _dbus_string_hex_encode            (const DBusString  *source,
                                                   int                start,
