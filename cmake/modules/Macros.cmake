@@ -124,6 +124,8 @@ include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 function(check_compiler_warning_flag _flag _result _cxx)
     string(MAKE_C_IDENTIFIER "${_flag}" _varname)
+    # required to get errors
+    list(APPEND _flag -Werror)
     if (_cxx)
         check_cxx_compiler_flag("${_flag}" HAVE_CXX_FLAG${_varname})
         set(${_result} ${HAVE_CXX_FLAG${_varname}} PARENT_SCOPE)
