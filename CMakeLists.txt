@@ -372,7 +372,7 @@ generate_compiler_warning_flags(
 )
 
 string(APPEND CMAKE_C_FLAGS " ${WARNINGS_CFLAGS}")
-string(APPEND CMAKE_CXX_FLAGS " ${WARNINGS_CFLAGS}")
+string(APPEND CMAKE_CXX_FLAGS " ${WARNINGS_CXXFLAGS}")
 
 # let wine be able to show file and lines in backtrace
 if(DBUS_USE_WINE)
