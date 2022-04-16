@@ -846,9 +846,7 @@ main (int argc, char **argv)
   dbus_bool_t existing_bus_supported = FALSE;
   DBusString existing_bus;
   const char *error_str;
-#ifdef DBUS_BUILD_X11
   DBusError error = DBUS_ERROR_INIT;
-#endif
 
   exit_with_session = FALSE;
   config_file = NULL;
