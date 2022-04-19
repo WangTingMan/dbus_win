@@ -43,15 +43,6 @@
 #include <inttypes.h>
 #endif
 
-#if defined(DBUS_WIN)
-#if !defined(PRId64)
-#define PRId64 "I64d"
-#endif
-#if !defined(PRIu64)
-#define PRIu64 "I64u"
-#endif
-#endif
-
 #ifndef HAVE_SOCKLEN_T
 #define socklen_t int
 #endif
@@ -401,7 +392,7 @@ print_iter (DBusMessageIter *iter, dbus_bool_t literal, int depth)
           {
             dbus_int64_t val;
             dbus_message_iter_get_basic (iter, &val);
-            printf ("int64 %" PRId64 "\n", val);
+            printf ("int64 %" DBUS_INT64_MODIFIER "d\n", val);
             break;
           }
 
@@ -409,7 +400,7 @@ print_iter (DBusMessageIter *iter, dbus_bool_t literal, int depth)
           {
             dbus_uint64_t val;
             dbus_message_iter_get_basic (iter, &val);
-            printf ("uint64 %" PRIu64 "\n", val);
+            printf ("uint64 %" DBUS_INT64_MODIFIER "u\n", val);
             break;
           }
 

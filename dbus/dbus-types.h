@@ -115,6 +115,27 @@ typedef dbus_uint32_t  dbus_bool_t;
  */
 
 /**
+ * @def DBUS_INT64_MODIFIER
+ *
+ * A string literal for a length modifier that is appropriate to print
+ * the #dbus_int64_t and #dbus_uint64_t types.
+ * For example, it might be an empty string, "l", "ll", or "I64".
+ *
+ * This modifier needs to be concatenated with a literal "%" and a
+ * conversion specifier that can print signed or unsigned integers,
+ * for example:
+ *
+ * @code
+ * dbus_int64_t i = -123;
+ * dbus_uint64_t u = 456;
+ *
+ * printf ("signed: %" DBUS_INT64_MODIFIER "d\n", i);
+ * printf ("unsigned decimal: %" DBUS_INT64_MODIFIER "u\n", u);
+ * printf ("unsigned hex: 0x%" DBUS_INT64_MODIFIER "x\n", x);
+ * @endcode
+ */
+
+/**
  * An 8-byte struct you could use to access int64 without having
  * int64 support. Use #dbus_int64_t or #dbus_uint64_t instead.
  */
