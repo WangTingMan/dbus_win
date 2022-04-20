@@ -108,10 +108,15 @@ _set_watched_dirs_internal (DBusList **directories)
 
   i = 0;
   link = _dbus_list_get_first_link (directories);
-  while (link != NULL)
+  while (link != NULL && i < MAX_DIRS_TO_WATCH)
     {
       new_dirs[i++] = (char *)link->data;
       link = _dbus_list_get_next_link (directories, link);
+    }
+
+  if (link != NULL)
+    {
+      _dbus_warn ("Too many directories to watch them all, only watching first %d.", MAX_DIRS_TO_WATCH);
     }
 
   /* Look for directories in both the old and new sets, if
