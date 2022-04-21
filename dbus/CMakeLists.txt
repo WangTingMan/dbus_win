@@ -135,6 +135,7 @@ set(DBUS_SHARED_HEADERS
     dbus-hash.h
     dbus-internals.h
     dbus-list.h
+    dbus-macros-internal.h
     dbus-marshal-basic.h
     dbus-mempool.h
     dbus-string.h

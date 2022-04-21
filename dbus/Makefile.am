@@ -227,6 +227,7 @@ DBUS_SHARED_SOURCES=				\
 	dbus-internals.h			\
 	dbus-list.c				\
 	dbus-list.h				\
+	dbus-macros-internal.h			\
 	dbus-marshal-basic.c			\
 	dbus-marshal-basic.h			\
 	dbus-memory.c				\
