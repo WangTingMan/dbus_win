@@ -27,6 +27,7 @@
 #ifndef DBUS_UUIDGEN_H
 #define DBUS_UUIDGEN_H
 
+#include <dbus/dbus-macros-internal.h>
 #include <dbus/dbus-types.h>
 #include <dbus/dbus-errors.h>
 

@@ -1,5 +1,6 @@
 /*
- * Copyright © 2019 Collabora Ltd.
+ * Copyright © 2010-2015 Ralf Habacker
+ * Copyright © 2015-2019 Collabora Ltd.
  * SPDX-License-Identifier: AFL-2.1 or GPL-2.0-or-later
  *
  * Licensed under the Academic Free License version 2.1
@@ -31,6 +32,22 @@
 # define DBUS_EMBEDDED_TESTS_EXPORT DBUS_PRIVATE_EXPORT
 #else
 # define DBUS_EMBEDDED_TESTS_EXPORT /* nothing */
+#endif
+
+#if defined(DBUS_PRIVATE_EXPORT)
+  /* value forced by compiler command line, don't redefine */
+#elif defined(_WIN32)
+#  if defined(DBUS_STATIC_BUILD)
+#    define DBUS_PRIVATE_EXPORT /* no decoration */
+#  elif defined(dbus_1_EXPORTS)
+#    define DBUS_PRIVATE_EXPORT __declspec(dllexport)
+#  else
+#    define DBUS_PRIVATE_EXPORT __declspec(dllimport)
+#  endif
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#  define DBUS_PRIVATE_EXPORT __attribute__ ((__visibility__ ("default")))
+#else
+#  define DBUS_PRIVATE_EXPORT /* no decoration */
 #endif
 
 #endif
