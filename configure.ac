@@ -382,6 +382,8 @@ AS_IF([test x$enable_code_coverage = xyes],[
 AC_CHECK_FUNCS_ONCE([
 accept4
 clearenv
+close_range
+closefrom
 fpathconf
 getgrouplist
 getpeereid
@@ -418,12 +420,14 @@ byteswap.h
 crt_externs.h
 dirent.h
 errno.h
+linux/close_range.h
 locale.h
 signal.h
 stdint.h
 sys/prctl.h
 sys/random.h
 sys/resource.h
+sys/syscall.h
 sys/syslimits.h
 sys/time.h
 unistd.h

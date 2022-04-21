@@ -177,6 +177,19 @@ opensuse mingw64 cmake debug:
     ci_local_packages: "no"
     ci_variant: "debug"
 
+.ubuntu-build:
+  extends: .unix-host-build
+  image: "ubuntu:latest"
+  variables:
+    ci_distro: "ubuntu"
+
+ubuntu jammy autotools:
+  extends: .ubuntu-build
+  when: manual
+  image: "ubuntu:jammy"
+  variables:
+    ci_suite: "jammy"
+
 .win-build:
   image: $WINDOWS_IMAGE
   stage: build
