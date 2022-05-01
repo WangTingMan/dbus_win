@@ -83,10 +83,33 @@ void         _dbus_condvar_free_at_location  (DBusCondVar      **location_p);
  */
 DBUS_EMBEDDED_TESTS_EXPORT
 DBusRMutex  *_dbus_platform_rmutex_new       (void);
+
+/**
+ * Free a recursive usable mutex
+ *
+ * @param mutex the mutex instance to free
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_free      (DBusRMutex       *mutex);
+
+/**
+ * Locks a recursively usable mutex
+ *
+ * @param mutex the mutex instance to lock
+ *
+ * Unlike _dbus_cmutex_lock(), it is valid for the same thread
+ * to lock a recursive mutex more than once, and it will not
+ * deadlock. Each call to this function must be paired with a
+ * corresponding call to _dbus_rmutex_unlock().
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_lock      (DBusRMutex       *mutex);
+
+/**
+ * Release a recursively usable mutex
+ *
+ * @param mutex the mutex instance to release
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_rmutex_unlock    (DBusRMutex       *mutex);
 
@@ -97,10 +120,35 @@ void         _dbus_platform_rmutex_unlock    (DBusRMutex       *mutex);
  */
 DBUS_EMBEDDED_TESTS_EXPORT
 DBusCMutex  *_dbus_platform_cmutex_new       (void);
+
+/**
+ * Implementation of _dbus_rmutex_new_at_location().
+ * This should only be called internally by the threading implementation.
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_free      (DBusCMutex       *mutex);
+
+/**
+ * Locks a mutex suitable for use with condition variables
+ *
+ * @param mutex the mutex instance to lock
+ *
+ * @note On Windows, after a thread obtains ownership of a mutex,
+ * it can specify the same mutex in repeated calls to the dbus
+ * platform related mutex lock functions without blocking its
+ * execution. This prevents a thread from deadlocking itself
+ * while waiting for a mutex that it already owns. On unix
+ * like os, calling the dbus platform related mutex lock
+ * functions the second time is a programming error.
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_lock      (DBusCMutex       *mutex);
+
+/**
+ * Release a mutex suitable for use with condition variables
+ *
+ * @param mutex the mutex instance to release
+ */
 DBUS_EMBEDDED_TESTS_EXPORT
 void         _dbus_platform_cmutex_unlock    (DBusCMutex       *mutex);
 
