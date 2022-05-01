@@ -31,15 +31,10 @@
 #include <dbus/dbus-types.h>
 #include <dbus/dbus-errors.h>
 #include <dbus/dbus-sysdeps.h>
+#include <dbus/dbus-macros-internal.h>
 #include <dbus/dbus-threads-internal.h>
 
 DBUS_BEGIN_DECLS
-
-#ifdef DBUS_ENABLE_EMBEDDED_TESTS
-#define DBUS_EMBEDDED_TESTS_EXPORT DBUS_PRIVATE_EXPORT
-#else
-#define DBUS_EMBEDDED_TESTS_EXPORT /* nothing */
-#endif
 
 DBUS_PRIVATE_EXPORT
 void _dbus_warn               (const char *format,

@@ -2625,13 +2625,28 @@ double_read_value (TestTypeNode   *node,
   expected = double_from_seed (seed);
 
   if (!_DBUS_DOUBLES_BITWISE_EQUAL (v, expected))
-    _dbus_test_fatal ("Expected double %g got %g\n"
-                      " bits = 0x%" DBUS_INT64_MODIFIER "x vs.\n"
-                      " bits = 0x%" DBUS_INT64_MODIFIER "x",
-                      expected, v,
-                      *(dbus_uint64_t*)(char*)&expected,
-                      *(dbus_uint64_t*)(char*)&v);
-
+    {
+      DBusString es = _DBUS_STRING_INIT_INVALID;
+      DBusString vs = _DBUS_STRING_INIT_INVALID;
+      if (!_dbus_string_init (&es))
+        goto out;
+      if (!_dbus_string_init (&vs))
+        goto out;
+      if (!_dbus_string_append_buffer_as_hex (&es, &expected, sizeof(double)))
+        goto out;
+      if (!_dbus_string_append_buffer_as_hex (&vs, &v, sizeof(double)))
+        goto out;
+      _dbus_test_fatal ("Expected double %g got %g\n"
+                        " bits = 0x%s vs.\n"
+                        " bits = 0x%s",
+                        expected, v,
+                        _dbus_string_get_const_data (&es),
+                        _dbus_string_get_const_data (&vs));
+out:
+      _dbus_string_free (&es);
+      _dbus_string_free (&vs);
+      return FALSE;
+    }
   return TRUE;
 }
 

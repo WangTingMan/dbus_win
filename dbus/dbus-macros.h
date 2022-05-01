@@ -210,22 +210,6 @@
 #define DBUS_EXPORT
 #endif
 
-#if defined(DBUS_PRIVATE_EXPORT)
-  /* value forced by compiler command line, don't redefine */
-#elif defined(_WIN32)
-#  if defined(DBUS_STATIC_BUILD)
-#    define DBUS_PRIVATE_EXPORT /* no decoration */
-#  elif defined(dbus_1_EXPORTS)
-#    define DBUS_PRIVATE_EXPORT __declspec(dllexport)
-#  else
-#    define DBUS_PRIVATE_EXPORT __declspec(dllimport)
-#  endif
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#  define DBUS_PRIVATE_EXPORT __attribute__ ((__visibility__ ("default")))
-#else
-#  define DBUS_PRIVATE_EXPORT /* no decoration */
-#endif
-
 /* Implementation for dbus_clear_message() etc. This is not API,
  * do not use it directly.
  *
