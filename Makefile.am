@@ -16,6 +16,7 @@ EXTRA_DIST =			\
 	LICENSES/Apache-2.0.txt	\
 	LICENSES/GPL-2.0-or-later.txt	\
 	LICENSES/LicenseRef-GAP.txt	\
+	LICENSES/LicenseRef-pycrypto-orig.txt	\
 	LICENSES/MIT.txt	\
         NEWS.pre-1-0            \
         NEWS.pre-1-2		\
