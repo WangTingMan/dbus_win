@@ -85,6 +85,7 @@ TEST_BINARIES               += test-spawn
 endif
 
 uninstallable_test_programs += \
+	test-platform-mutex \
 	test-bus \
 	test-bus-dispatch \
 	test-bus-dispatch-sha1 \
@@ -255,6 +256,12 @@ test_misc_internals_SOURCES = \
 	internals/sha.c \
 	$(NULL)
 test_misc_internals_LDADD = libdbus-testutils.la
+
+test_platform_mutex_SOURCES = test-platform-mutex.c
+test_platform_mutex_LDADD = \
+	$(top_builddir)/dbus/libdbus-internal.la \
+	libdbus-testutils.la \
+	$(NULL)
 
 EXTRA_DIST += dbus-test-runner
 
