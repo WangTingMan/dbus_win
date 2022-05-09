@@ -20,6 +20,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+include:
+  - project: 'freedesktop/ci-templates'
+    ref: 957024f97e7b0f2cedc9ef29c6970fbeadd9326c
+    file:
+      - '/templates/debian.yml'
+      - '/templates/opensuse.yml'
+
 image: debian:bullseye-slim
 
 stages:
@@ -45,8 +52,17 @@ variables:
   WINDOWS_IMAGE: "$CI_REGISTRY_IMAGE/$WINDOWS_AMD64_SUFFIX:$WINDOWS_TAG-$UPSTREAM_BRANCH"
   WINDOWS_UPSTREAM_IMAGE: "$CI_REGISTRY/$UPSTREAM_REPO/$WINDOWS_AMD64_SUFFIX:$WINDOWS_TAG-$UPSTREAM_BRANCH"
 
+.debian-vars:
+  variables:
+    FDO_DISTRIBUTION_VERSION: 'bullseye-slim'
+    FDO_DISTRIBUTION_TAG: '2022-04-17' # Bump this version on every ci-install.sh change
 
-windows amd64 docker:
+.opensuse-vars:
+  variables:
+    FDO_DISTRIBUTION_VERSION: 'leap'
+    FDO_DISTRIBUTION_TAG: '2022-04-17' # Bump this version on every ci-install.sh change
+
+windows amd64 image:
   stage: "build docker"
   variables:
     # this file needs to be relative to docker/windows/ subdir
@@ -88,9 +104,21 @@ windows amd64 docker:
     - chown -R user .
     - runuser -u user ./tools/ci-build.sh
 
+debian image:
+  extends:
+    - .fdo.container-build@debian
+    - .debian-vars
+  variables:
+    FDO_DISTRIBUTION_EXEC: './tools/ci-install.sh'
+  stage: 'build docker'
+
 .debian-build:
-  extends: .unix-host-build
-  image: "debian:bullseye-slim"
+  needs: ["debian image"]
+  extends:
+    - .fdo.distribution-image@debian
+    - .debian-vars
+    - .unix-host-build
+  stage: build
 
 debian autotools production:
   extends: .debian-build
@@ -151,9 +179,21 @@ debian buster autotools:
   when: manual
   image: "debian:buster-slim"
 
+opensuse image:
+  extends:
+    - .fdo.container-build@opensuse
+    - .opensuse-vars
+  variables:
+    FDO_DISTRIBUTION_EXEC: './tools/ci-install.sh'
+  stage: 'build docker'
+
 .suse-build:
-  extends: .unix-host-build
-  image: "opensuse/leap:15"
+  needs: ["opensuse image"]
+  extends:
+    - .fdo.distribution-image@opensuse
+    - .opensuse-vars
+    - .unix-host-build
+  stage: build
 
 opensuse cmake:
   extends: .suse-build
@@ -198,7 +238,7 @@ ubuntu jammy autotools:
     - 'windows'
     - '1809'
   needs:
-    - "windows amd64 docker"
+    - "windows amd64 image"
   timeout: '2h'
   before_script:
     - $ErrorActionPreference = "Stop"
