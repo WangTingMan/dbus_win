@@ -224,6 +224,27 @@ case "$ci_distro" in
             which
         )
 
+        # choose distribution
+        id=$(. /etc/os-release; echo ${ID} | sed 's, ,_,g')
+        case "$id" in
+            (opensuse-leap)
+                version=$(. /etc/os-release; echo ${VERSION_ID} | sed 's, ,_,g')
+                repo="openSUSE_Leap_$version"
+                # Use a newer CMake (3.21) version for JUnit XML support on openSUSE Leap.
+                if ! zypper lr cmake > /dev/null; then
+                    $zypper ar --refresh --no-gpgcheck --name cmake \
+                        "https://download.opensuse.org/repositories/devel:tools:building/$version/devel:tools:building.repo"
+                fi
+                ;;
+            (opensuse-tumbleweed)
+                repo="openSUSE_Tumbleweed"
+                ;;
+            (*)
+                echo "ci_suite not specified, please choose one from 'leap' or 'tumbleweed'"
+                exit 1
+                ;;
+        esac
+
         case "$ci_host" in
             (*-w64-mingw32)
                 # cross
@@ -232,22 +253,6 @@ case "$ci_distro" in
                     wine
                     xvfb-run
                 )
-
-                # choose distribution
-                id=$(. /etc/os-release; echo ${ID} | sed 's, ,_,g')
-                case "$id" in
-                    (opensuse-leap)
-                        version=$(. /etc/os-release; echo ${VERSION_ID} | sed 's, ,_,g')
-                        repo="openSUSE_Leap_$version"
-                        ;;
-                    (opensuse-tumbleweed)
-                        repo="openSUSE_Tumbleweed"
-                        ;;
-                    (*)
-                        echo "ci_suite not specified, please choose one from 'leap' or 'tumbleweed'"
-                        exit 1
-                        ;;
-                esac
 
                 # add required repos
                 if [ "${ci_host%%-*}" = x86_64 ]; then
@@ -281,7 +286,7 @@ case "$ci_distro" in
                 )
                 ;;
         esac
-        $zypper install "${packages[@]}"
+        $zypper install --allow-vendor-change "${packages[@]}"
 
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
