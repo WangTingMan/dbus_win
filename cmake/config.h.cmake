@@ -246,7 +246,7 @@
 #cmakedefine DBUS_HAVE_LINUX_EPOLL 1
 
 /* Use the gcc __sync extension */
-#cmakedefine DBUS_USE_SYNC 1
+#cmakedefine01 DBUS_USE_SYNC
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_VSNPRINTF 1
 
