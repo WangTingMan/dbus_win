@@ -53,7 +53,8 @@ byteswap_body_helper (DBusTypeReader       *reader,
         case DBUS_TYPE_UINT16:
           {
             p = _DBUS_ALIGN_ADDRESS (p, 2);
-            *((dbus_uint16_t*)p) = DBUS_UINT16_SWAP_LE_BE (*((dbus_uint16_t*)p));
+            *((dbus_uint16_t *) (void *) p) =
+                DBUS_UINT16_SWAP_LE_BE (*((dbus_uint16_t *) (void *) p));
             p += 2;
           }
           break;
@@ -63,7 +64,8 @@ byteswap_body_helper (DBusTypeReader       *reader,
         case DBUS_TYPE_UINT32:
           {
             p = _DBUS_ALIGN_ADDRESS (p, 4);
-            *((dbus_uint32_t*)p) = DBUS_UINT32_SWAP_LE_BE (*((dbus_uint32_t*)p));
+            *((dbus_uint32_t *) (void *) p) =
+                DBUS_UINT32_SWAP_LE_BE (*((dbus_uint32_t *) (void *) p));
             p += 4;
           }
           break;
@@ -73,7 +75,8 @@ byteswap_body_helper (DBusTypeReader       *reader,
         case DBUS_TYPE_DOUBLE:
           {
             p = _DBUS_ALIGN_ADDRESS (p, 8);
-            *((dbus_uint64_t*)p) = DBUS_UINT64_SWAP_LE_BE (*((dbus_uint64_t*)p));
+            *((dbus_uint64_t *) (void *) p) =
+                DBUS_UINT64_SWAP_LE_BE (*((dbus_uint64_t *) (void *) p));
             p += 8;
           }
           break;
@@ -88,7 +91,8 @@ byteswap_body_helper (DBusTypeReader       *reader,
 
             array_len = _dbus_unpack_uint32 (old_byte_order, p);
 
-            *((dbus_uint32_t*)p) = DBUS_UINT32_SWAP_LE_BE (*((dbus_uint32_t*)p));
+            *((dbus_uint32_t *) (void *) p) =
+                DBUS_UINT32_SWAP_LE_BE (*((dbus_uint32_t *) (void *) p));
             p += 4;
 
             if (current_type == DBUS_TYPE_ARRAY)
