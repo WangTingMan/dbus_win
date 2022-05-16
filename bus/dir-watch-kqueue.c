@@ -51,7 +51,7 @@ static DBusWatch *watch = NULL;
 static DBusLoop *loop = NULL;
 
 static dbus_bool_t
-_handle_kqueue_watch (DBusWatch *watch, unsigned int flags, void *data)
+_handle_kqueue_watch (DBusWatch *_watch, unsigned int flags, void *data)
 {
   struct kevent ev;
   struct timespec nullts = { 0, 0 };
@@ -73,6 +73,7 @@ _handle_kqueue_watch (DBusWatch *watch, unsigned int flags, void *data)
   else if (res < 0 && errno == EBADF)
     {
       kq = -1;
+      _dbus_assert (watch == _watch);
       if (watch != NULL)
         {
           _dbus_loop_remove_watch (loop, watch);
