@@ -138,6 +138,15 @@ _dbus_platform_rmutex_new (void)
   return (DBusRMutex *) handle;
 }
 
+DBusRMutex *
+_dbus_win_rmutex_named_new (const char *name)
+{
+  HANDLE handle;
+  handle = CreateMutex (NULL, FALSE, name);
+  THREAD_CHECK_TRUE ("CreateMutex", handle);
+  return (DBusRMutex *) handle;
+}
+
 void
 _dbus_platform_cmutex_free (DBusCMutex *mutex)
 {

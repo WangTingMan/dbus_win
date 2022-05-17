@@ -31,6 +31,7 @@ extern void *_dbus_win_get_dll_hmodule (void);
 
 #include "dbus-hash.h"
 #include "dbus-string.h"
+#include "dbus-threads-internal.h"
 #include <ctype.h>
 #include <malloc.h>
 #include <windows.h>
@@ -113,6 +114,8 @@ dbus_bool_t _dbus_win_event_free (HANDLE handle, DBusError *error);
 dbus_bool_t _dbus_daemon_is_session_bus_address_published (const char *scope);
 dbus_bool_t _dbus_daemon_publish_session_bus_address (const char *address,
                                                       const char *shm_name);
+DBUS_PRIVATE_EXPORT
+DBusRMutex  *_dbus_win_rmutex_named_new (const char* name);
 
 #endif
 

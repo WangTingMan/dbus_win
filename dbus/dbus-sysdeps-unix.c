@@ -4655,9 +4655,10 @@ _dbus_append_keyring_directory_for_credentials (DBusString      *directory,
 }
 
 /* Documented in dbus-sysdeps-win.c, does nothing on Unix */
-void
+dbus_bool_t
 _dbus_daemon_unpublish_session_bus_address (void)
 {
+  return TRUE;
 }
 
 /**
