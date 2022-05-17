@@ -102,7 +102,7 @@ _DBUS_ASSERT_ALIGNMENT (DBus8ByteStruct, <=, 8);
 static void
 pack_2_octets (dbus_uint16_t   value,
                int             byte_order,
-               unsigned char  *data)
+               void           *data)
 {
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, 2) == data);
 
@@ -115,7 +115,7 @@ pack_2_octets (dbus_uint16_t   value,
 static void
 pack_4_octets (dbus_uint32_t   value,
                int             byte_order,
-               unsigned char  *data)
+               void           *data)
 {
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, 4) == data);
 
@@ -128,7 +128,7 @@ pack_4_octets (dbus_uint32_t   value,
 static void
 pack_8_octets (dbus_uint64_t      value,
                int                byte_order,
-               unsigned char     *data)
+               void              *data)
 {
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, 8) == data);
 
@@ -178,9 +178,9 @@ _dbus_unpack_uint16 (int                  byte_order,
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, 2) == data);
 
   if (byte_order == DBUS_LITTLE_ENDIAN)
-    return DBUS_UINT16_FROM_LE (*(dbus_uint16_t*)data);
+    return DBUS_UINT16_FROM_LE (*(dbus_uint16_t *) (void *) data);
   else
-    return DBUS_UINT16_FROM_BE (*(dbus_uint16_t*)data);
+    return DBUS_UINT16_FROM_BE (*(dbus_uint16_t *) (void *) data);
 }
 #endif /* _dbus_unpack_uint16 */
 
@@ -199,9 +199,9 @@ _dbus_unpack_uint32 (int                  byte_order,
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, 4) == data);
 
   if (byte_order == DBUS_LITTLE_ENDIAN)
-    return DBUS_UINT32_FROM_LE (*(dbus_uint32_t*)data);
+    return DBUS_UINT32_FROM_LE (*(dbus_uint32_t *) (void *) data);
   else
-    return DBUS_UINT32_FROM_BE (*(dbus_uint32_t*)data);
+    return DBUS_UINT32_FROM_BE (*(dbus_uint32_t *) (void *) data);
 }
 #endif /* _dbus_unpack_uint32 */
 
@@ -549,7 +549,7 @@ _dbus_marshal_read_basic (const DBusString      *str,
       {
       volatile dbus_uint16_t *vp = value;
       pos = _DBUS_ALIGN_VALUE (pos, 2);
-      *vp = *(dbus_uint16_t *)(str_data + pos);
+      *vp = *(dbus_uint16_t *) (void *) (str_data + pos);
       if (byte_order != DBUS_COMPILER_BYTE_ORDER)
 	*vp = DBUS_UINT16_SWAP_LE_BE (*vp);
       pos += 2;
@@ -562,7 +562,7 @@ _dbus_marshal_read_basic (const DBusString      *str,
       {
       volatile dbus_uint32_t *vp = value;
       pos = _DBUS_ALIGN_VALUE (pos, 4);
-      *vp = *(dbus_uint32_t *)(str_data + pos);
+      *vp = *(dbus_uint32_t *) (void *) (str_data + pos);
       if (byte_order != DBUS_COMPILER_BYTE_ORDER)
 	*vp = DBUS_UINT32_SWAP_LE_BE (*vp);
       pos += 4;
@@ -575,9 +575,10 @@ _dbus_marshal_read_basic (const DBusString      *str,
       volatile dbus_uint64_t *vp = value;
       pos = _DBUS_ALIGN_VALUE (pos, 8);
       if (byte_order != DBUS_COMPILER_BYTE_ORDER)
-        *vp = DBUS_UINT64_SWAP_LE_BE (*(dbus_uint64_t*)(str_data + pos));
+        *vp = DBUS_UINT64_SWAP_LE_BE (
+            *(dbus_uint64_t *) (void *) (str_data + pos));
       else
-        *vp = *(dbus_uint64_t*)(str_data + pos);
+        *vp = *(dbus_uint64_t *) (void *) (str_data + pos);
       pos += 8;
       }
       break;
@@ -934,8 +935,8 @@ _dbus_swap_array (unsigned char *data,
                   int            n_elements,
                   int            alignment)
 {
-  unsigned char *d;
-  unsigned char *end;
+  void *d;
+  void *end;
 
   _dbus_assert (_DBUS_ALIGN_ADDRESS (data, alignment) == data);
 
@@ -943,14 +944,14 @@ _dbus_swap_array (unsigned char *data,
    * for the unit tests. don't ask.
    */
   d = data;
-  end = d + (n_elements * alignment);
+  end = data + (n_elements * alignment);
   
   if (alignment == 8)
     {
       while (d != end)
         {
           *((dbus_uint64_t*)d) = DBUS_UINT64_SWAP_LE_BE (*((dbus_uint64_t*)d));
-          d += 8;
+          d = ((unsigned char *) d) + 8;
         }
     }
   else if (alignment == 4)
@@ -958,7 +959,7 @@ _dbus_swap_array (unsigned char *data,
       while (d != end)
         {
           *((dbus_uint32_t*)d) = DBUS_UINT32_SWAP_LE_BE (*((dbus_uint32_t*)d));
-          d += 4;
+          d = ((unsigned char *) d) + 4;
         }
     }
   else
@@ -968,7 +969,7 @@ _dbus_swap_array (unsigned char *data,
       while (d != end)
         {
           *((dbus_uint16_t*)d) = DBUS_UINT16_SWAP_LE_BE (*((dbus_uint16_t*)d));
-          d += 2;
+          d = ((unsigned char *) d) + 2;
         }
     }
 }
@@ -1394,9 +1395,8 @@ _dbus_verbose_bytes (const unsigned char *data,
               _DBUS_ALIGN_ADDRESS (&data[i], 8) == &data[i])
             {
               _dbus_verbose (" u64: 0x%" DBUS_INT64_MODIFIER "x",
-                             *(dbus_uint64_t*)&data[i-8]);
-              _dbus_verbose (" dbl: %g",
-                             *(double*)&data[i-8]);
+                             *(dbus_uint64_t *) (void *) &data[i - 8]);
+              _dbus_verbose (" dbl: %g", *(double *) (void *) &data[i - 8]);
             }
 
           _dbus_verbose ("\n");

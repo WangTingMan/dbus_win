@@ -461,7 +461,7 @@ _dbus_read_socket_with_unix_fds (DBusSocket        fd,
         if (cm->cmsg_level == SOL_SOCKET && cm->cmsg_type == SCM_RIGHTS)
           {
             size_t i;
-            int *payload = (int *) CMSG_DATA (cm);
+            int *payload = (int *) (void *) CMSG_DATA (cm);
             size_t payload_len_bytes = (cm->cmsg_len - CMSG_LEN (0));
             size_t payload_len_fds;
             size_t fds_to_use;
@@ -2372,7 +2372,7 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
             cmsgp->cmsg_level == SOL_SOCKET &&
             cmsgp->cmsg_len >= CMSG_LEN (sizeof (struct cmsgcred)))
           {
-            cred = (struct cmsgcred *) CMSG_DATA (cmsgp);
+            cred = (struct cmsgcred *) (void *) CMSG_DATA (cmsgp);
             pid_read = cred->cmcred_pid;
             uid_read = cred->cmcred_euid;
             break;
