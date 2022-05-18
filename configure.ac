@@ -1286,8 +1286,8 @@ AM_CONDITIONAL(DBUS_CAN_UPLOAD_DOCS,
     [test x$enable_doxygen_docs = xyes && test x$enable_xml_docs = xyes &&
      test x$enable_ducktype_docs = xyes])
 
-# Autoconf 2.70 will support this, and many distros patch this option in,
-# but Autoconf 2.70 hasn't actually been released yet.
+# Autoconf 2.70 supports this, and many distros patched this option in
+# before Autoconf 2.70 was released
 AS_IF([test -z "${runstatedir}"], [runstatedir='${localstatedir}/run'])
 AC_SUBST([runstatedir])
 
