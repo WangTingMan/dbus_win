@@ -18,6 +18,7 @@ EXTRA_DIST =			\
 	LICENSES/LicenseRef-GAP.txt	\
 	LICENSES/LicenseRef-pycrypto-orig.txt	\
 	LICENSES/MIT.txt	\
+	LICENSES/TCL.txt	\
         NEWS.pre-1-0            \
         NEWS.pre-1-2		\
 	README.cmake		\
