@@ -16,3 +16,8 @@ but not limited to, tools/dbus-cleanup-sockets.c and test/decode-gcov.c.
 
 Each source code file is marked with the proper copyright information -
 if you find a file that isn't marked please bring it to our attention.
+
+Some files contain a SPDX-License-Identifier marker. These markers
+indicate the license of that file, consistent with the SPDX and REUSE
+specifications: see <https://reuse.software/>. dbus is not yet fully
+REUSE-compliant, and not all files carry these markers.
