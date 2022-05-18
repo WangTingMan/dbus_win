@@ -1340,6 +1340,10 @@ AS_IF([! test -z "$with_system_socket"],
    DBUS_SYSTEM_SOCKET=${EXPANDED_LOCALSTATEDIR}/run/dbus/system_bus_socket
    ])
 
+dnl The actual check script is shared between Autotools and CMake.
+AS_IF([test "$dbus_win" != yes],
+    [${CONFIG_SHELL-/bin/sh} "${srcdir}/tools/check-runstatedir.sh" "$DBUS_SYSTEM_SOCKET"])
+
 AC_SUBST(DBUS_SYSTEM_SOCKET)
 AC_DEFINE_UNQUOTED(DBUS_SYSTEM_SOCKET,"$DBUS_SYSTEM_SOCKET",[The name of the socket the system bus listens on by default])
 

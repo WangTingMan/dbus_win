@@ -831,6 +831,25 @@ if system_socket == ''
         /'run'/'dbus'/'system_bus_socket'
     )
 endif
+
+# This check assumes that the disposition of /run and /var/run on the
+# system where we're building is the same as on the system we're building
+# for, so we can't usefully do this check if we're building for Windows,
+# or if we're cross-building for Unix on a Windows machine.
+#
+# The check is shared between Autotools, CMake and Meson.
+# Because we only run it on Unix, it's fine to make it a shell script.
+if platform_unix and build_machine.system() != 'windows'
+    msg = run_command(
+        find_program('tools/check-runstatedir.sh'),
+        system_socket,
+        check: false,
+    ).stdout()
+    if msg != ''
+        warning(msg)
+    endif
+endif
+
 data_config.set('DBUS_SYSTEM_SOCKET', system_socket)
 
 ## System bus only listens on local domain sockets, and never
