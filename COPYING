@@ -4,6 +4,13 @@ License version 2.1, or the GNU General Public License version 2
 The full text of these licenses can be found in LICENSES/AFL-2.1.txt
 and LICENSES/GPL-2-or-later.txt.
 
+Some source files are under more permissive BSD-/MIT-style licenses
+that are compatible with the AFL and GPL.
+
+When contributing new code, our preferred license for new code is the
+version of the MIT/X11 license used by the Expat library, referred to
+as "MIT" by SPDX, which can be found in LICENSES/MIT.txt.
+
 Some of the standalone binaries are under the GPL only; in particular,
 but not limited to, tools/dbus-cleanup-sockets.c and test/decode-gcov.c.
 

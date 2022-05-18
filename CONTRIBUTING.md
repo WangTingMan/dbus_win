@@ -180,11 +180,15 @@ http://vsftpd.beasts.org/ has other good security suggestions.
 
 ### Licensing
 
-Please match the existing licensing (a dual-license: AFL-2.1 or GPL-2+,
-recipient's choice). Entirely new modules can be placed under a more
-permissive license: to avoid license proliferation, our preferred
-permissive license is the variant of the MIT/X11 license used by the
-Expat XML library (for example see the top of tools/ci-build.sh).
+Please match the existing licensing, which is generally a dual-license:
+AFL-2.1 or GPL-2+, recipient's choice (`AFL-2.1 OR GPL-2.0-or-later`
+in SPDX notation).
+
+Entirely new modules can be placed under a more permissive license:
+to avoid license proliferation, our preferred permissive license is
+the variant of the MIT/X11 license used by the Expat XML library (`MIT`
+in SPDX notation), which can be found in LICENSES/MIT.txt. For example,
+tools/ci-build.sh is under this license.
 
 ### Build systems
 
