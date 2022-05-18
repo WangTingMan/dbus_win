@@ -318,6 +318,11 @@
         See <ulink url="http://www.freedesktop.org/software/dbus/">http://www.freedesktop.org/software/dbus/</ulink>.</para>
   </refsect1>
 
+  <refsect1 id='author'>
+    <title>AUTHOR</title>
+    <para>See <ulink url='http://www.freedesktop.org/software/dbus/doc/AUTHORS'>http://www.freedesktop.org/software/dbus/doc/AUTHORS</ulink></para>
+  </refsect1>
+
   <refsect1 id="see_also">
     <title>SEE ALSO</title>
     <para><citerefentry><refentrytitle>dbus-send</refentrytitle><manvolnum>1</manvolnum></citerefentry></para>
