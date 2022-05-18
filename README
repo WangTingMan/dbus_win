@@ -15,7 +15,7 @@ The "and coordination" part is important; D-Bus provides a bus daemon that does 
  - start services on demand
  - support single-instance applications
 
-See http://www.freedesktop.org/software/dbus/ for lots of documentation, 
+See https://www.freedesktop.org/wiki/Software/dbus/ for lots of documentation,
 mailing lists, etc.
 
 See also the file CONTRIBUTING.md for notes of interest to developers
