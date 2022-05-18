@@ -2,6 +2,7 @@
 # win32 macros 
 # 
 # Copyright (c) 2006-2007, Ralf Habacker
+# SPDX-License-Identifier: BSD-3-Clause
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 #
