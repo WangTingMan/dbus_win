@@ -1330,14 +1330,15 @@ AS_HELP_STRING([--with-systemduserunitdir=DIR], [Directory for systemd user serv
 AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
 ##### Set up location for system bus socket
-if ! test -z "$with_system_socket"; then
-   DBUS_SYSTEM_SOCKET=$with_system_socket
-else
+
+AS_IF([! test -z "$with_system_socket"],
+   [DBUS_SYSTEM_SOCKET=$with_system_socket],
+   [
    # We don't use runstatedir for this (yet?), because /var/run has been the
    # interoperable system bus socket for 10+ years.
    # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
    DBUS_SYSTEM_SOCKET=${EXPANDED_LOCALSTATEDIR}/run/dbus/system_bus_socket
-fi
+   ])
 
 AC_SUBST(DBUS_SYSTEM_SOCKET)
 AC_DEFINE_UNQUOTED(DBUS_SYSTEM_SOCKET,"$DBUS_SYSTEM_SOCKET",[The name of the socket the system bus listens on by default])
