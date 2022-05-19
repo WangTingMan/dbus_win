@@ -5459,14 +5459,18 @@ oom:
 const char *
 _dbus_variant_get_signature (DBusVariant *self)
 {
-  unsigned char len;
   const char *ret;
+#ifndef DBUS_DISABLE_ASSERT
+  unsigned char len;
+#endif
 
   _dbus_assert (self != NULL);
 
+#ifndef DBUS_DISABLE_ASSERT
   /* Here we make use of the fact that the serialization of a variant starts
    * with the 1-byte length, then that many bytes of signature, then \0. */
   len = _dbus_string_get_byte (&self->data, 0);
+#endif
   ret = _dbus_string_get_const_data_len (&self->data, 1, len);
   _dbus_assert (strlen (ret) == len);
   return ret;
