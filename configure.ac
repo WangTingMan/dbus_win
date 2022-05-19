@@ -223,7 +223,6 @@ AC_ARG_WITH(session-socket-dir, AS_HELP_STRING([--with-session-socket-dir=[dirna
 AC_ARG_WITH(test-socket-dir, AS_HELP_STRING([--with-test-socket-dir=[dirname]],[Where to put sockets for make check]))
 AC_ARG_WITH(system-pid-file, AS_HELP_STRING([--with-system-pid-file=[pidfile]],[PID file for systemwide daemon]))
 AC_ARG_WITH(system-socket, AS_HELP_STRING([--with-system-socket=[filename]],[UNIX domain socket for systemwide daemon]))
-AC_ARG_WITH(console-auth-dir, AS_HELP_STRING([--with-console-auth-dir=[dirname]],[directory to check for console ownerhip]))
 AC_ARG_WITH(console-owner-file, AS_HELP_STRING([--with-console-owner-file=[filename]],[file whose owner determines current console owner]))
 AC_ARG_WITH(launchd-agent-dir, AS_HELP_STRING([--with-launchd-agent-dir=[dirname]],[directory to put the launchd agent (default: /Library/LaunchAgents)]))
 AC_ARG_WITH(dbus_user, AS_HELP_STRING([--with-dbus-user=<user>],[User for running the DBUS daemon (messagebus)]))
@@ -1447,12 +1446,6 @@ else
 fi
 
 AC_SUBST(DBUS_SYSTEM_PID_FILE)
-
-#### Directory to check for console ownership
-AS_IF([test -n "$with_console_auth_dir" && test "x$with_console_auth_dir" != xno],
-    [AC_DEFINE_UNQUOTED([DBUS_CONSOLE_AUTH_DIR], ["$with_console_auth_dir"],
-        [Directory to check for pam_console/pam_foreground flag files, or undefined])],
-    [with_console_auth_dir=])
 
 #### File to check for console ownership
 if test x$have_console_owner_file = xyes; then
