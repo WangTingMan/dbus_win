@@ -11,6 +11,12 @@ Fixes:
 • Slightly improve error-handling for inotify
   (dbus!235, Simon McVittie)
 
+Feature removal:
+
+• Remove support for the obsolete pam_console and pam_foreground modules
+  (the Autotools --with-console-auth-dir= and CMake -DDBUS_CONSOLE_AUTH_DIR=
+  options, which have been deprecated since dbus 1.11.18).
+
 dbus 1.14.0 (2022-02-28)
 ========================
 
