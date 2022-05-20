@@ -1,21 +1,93 @@
 dbus 1.15.0 (UNRELEASED)
 ========================
 
-Fixes:
-
-• When building with Autotools, don't treat --with-x or --with-x=yes
-  as a request to disable X11, fixing a regression in 1.13.20.
-  Instead, require X11 libraries and fail if they cannot be detected.
-  (dbus!263, Lars Wendler)
-
-• Slightly improve error-handling for inotify
-  (dbus!235, Simon McVittie)
-
 Feature removal:
 
 • Remove support for the obsolete pam_console and pam_foreground modules
   (the Autotools --with-console-auth-dir= and CMake -DDBUS_CONSOLE_AUTH_DIR=
   options, which have been deprecated since dbus 1.11.18).
+  (dbus#181, fd.o#101629)
+
+Enhancements:
+
+• Speed up closing file descriptors for subprocesses by using
+  closefrom() or close_range() where available
+  (dbus#278; rim, Simon McVittie)
+
+• Detect programming errors with Windows mutexes if assertions are
+  enabled, similar to what we already did for pthreads mutexes
+  (dbus#369, Ralf Habacker)
+
+Fixes:
+
+• Fix build failure on FreeBSD (dbus!277, Alex Richardson)
+
+• Fix build failure on macOS with launchd enabled
+  (dbus!287, Dawid Wróbel)
+
+• Preserve errno on failure to open /proc/self/oom_score_adj
+  (dbus!285, Gentoo#834725; Mike Gilbert)
+
+• Improve dbus-launch --autolaunch so it can pick up an existing bus from
+  Linux XDG_RUNTIME_DIR or macOS launchd, even if X11 autolaunching was
+  disabled (dbus#385, dbus#392; Simon McVittie, Alex Richardson)
+
+• Slightly improve error-handling for inotify
+  (dbus!235, Simon McVittie)
+
+• Don't crash if dbus-daemon is asked to watch more than 128 directories
+  for changes (dbus!302, Jan Tojnar)
+
+• Silence various compiler warnings
+  (dbus!275, dbus!289, dbus!305, dbus!307, dbus!312, dbus!315;
+  Ralf Habacker, Simon McVittie, Alex Richardson, Marc-André Lureau)
+
+• On Windows, use safer locking patterns for the system-global mutex used
+  to implement autolaunching (dbus#368, dbus#370; Ralf Habacker)
+
+• Index dbus-arch-deps.h for API documentation when building out-of-tree
+  (dbus!312, Marc-André Lureau)
+
+• Silence xmlto warnings when building man pages
+  (dbus!312, Marc-André Lureau)
+
+• Autotools build system fixes:
+  · Don't treat --with-x or --with-x=yes as a request to disable X11,
+    fixing a regression in 1.13.20. Instead, require X11 libraries and
+    fail if they cannot be detected. (dbus!263, Lars Wendler)
+  · When a CMake project uses an Autotools-built libdbus in a
+    non-standard prefix, find dbus-arch-deps.h successfully
+    (dbus#314, Simon McVittie)
+
+• CMake build system fixes:
+  · Detect endianness correctly, fixing interoperability with other D-Bus
+    implementations on big-endian systems (dbus#375, Ralf Habacker)
+  · Fix a race condition generating man pages and HTML documentation
+    (dbus#381, Ralf Habacker)
+  · When building for Unix, install session and system bus setup
+    in the intended locations
+    (dbus!267, dbus!297; Ralf Habacker, Alex Richardson)
+  · Detect backtrace() on FreeBSD (dbus!281, Alex Richardson)
+  · Don't include headers from parent directory (dbus!282, Alex Richardson)
+  · Fix -Wunused-command-line-argument on FreeBSD
+    (dbus!278, Alex Richardson)
+  · Only add warning flags if the compiler supports them
+    (dbus!276, Alex Richardson)
+  · Distinguish between host and target TMPDIR when cross-compiling
+    (dbus!279, Alex Richardson)
+  · Improve compiler warning detection (dbus#387, Ralf Habacker)
+  · Allow TEST_SOCKET_DIR to be overridden (dbus!295, Ralf Habacker)
+  · Fix detection of atomic operations (dbus!306, Alex Richardson)
+
+Tests and CI enhancements:
+
+• Avoid compiler warnings in test code
+  (dbus#383, dbus!274, dbus!275; Simon McVittie, Ralf Habacker)
+
+• Gitlab-CI improvements
+  (dbus#383, dbus#388, dbus!262, dbus!288, dbus!292, dbus!296, dbus!299,
+  dbus!301;
+  Ralf Habacker, Simon McVittie, Alex Richardson)
 
 dbus 1.14.0 (2022-02-28)
 ========================
