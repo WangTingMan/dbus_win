@@ -302,9 +302,6 @@ case "$ci_buildsys" in
                 set "$@" --disable-launchd --disable-systemd
                 # No X11 autolaunching
                 set "$@" --disable-x11-autolaunch
-                # Re-enable the deprecated pam_console support to make
-                # sure it still builds
-                set "$@" --with-console-auth-dir=/var/run/console
                 # Leave stats, user-session, etc. at default settings
                 # to check that the defaults can compile on an old OS
                 shift

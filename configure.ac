@@ -1824,7 +1824,6 @@ echo "
         System bus PID file:      ${DBUS_SYSTEM_PID_FILE}
         Session bus listens on:   ${DBUS_SESSION_BUS_LISTEN_ADDRESS}
         Session clients connect to: ${DBUS_SESSION_BUS_CONNECT_ADDRESS}
-        pam_console auth dir:     ${with_console_auth_dir:-(none)}
         Console owner file:       ${have_console_owner_file}
         Console owner file path:  ${DBUS_CONSOLE_OWNER_FILE}
 	System bus user:          ${DBUS_USER}
