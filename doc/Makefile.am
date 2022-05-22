@@ -30,7 +30,7 @@ xmlcatalogdir = $(dtddir)
 catalog.xml: catalog.xml.in
 	$(SED) "s|@DBUS_DTD_DIR@|$(dtddir)|" $< >$@
 
-dist_xmlcatalog_DATA = \
+xmlcatalog_DATA = \
 	catalog.xml
 
 dist_doc_DATA = system-activation.txt
@@ -211,6 +211,7 @@ endif
 CLEANFILES = \
 	$(man1_MANS) \
 	$(MAN_XML_FILES) \
+	$(xmlcatalog_DATA) \
 	$(XMLTO_HTML) \
 	$(YELP_HTML) \
 	$(YELP_STATIC_HTML) \
