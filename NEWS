@@ -14,11 +14,18 @@ Enhancements:
   closefrom() or close_range() where available
   (dbus#278; rim, Simon McVittie)
 
+• Teach dbus-send to handle variants in containers: arrays of variants,
+  variant values in dictionaries, and nested variants
+  (dbus!206, Frederik Van Bogaert)
+
 • Detect programming errors with Windows mutexes if assertions are
   enabled, similar to what we already did for pthreads mutexes
   (dbus#369, Ralf Habacker)
 
 Fixes:
+
+• Portability to CPU architectures with larger-than-64-bit pointers
+  (dbus!318, Alex Richardson)
 
 • Fix build failure on FreeBSD (dbus!277, Alex Richardson)
 
