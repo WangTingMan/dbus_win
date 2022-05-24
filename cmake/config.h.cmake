@@ -2,9 +2,6 @@
 
 #ifndef _DBUS_CONFIG_H
 #define _DBUS_CONFIG_H
-/****************************/
-/* indicate that we are building with cmake */
-#define DBUS_CMAKE 1
 
 /* On Windows, we expect to be using msvcrt.dll-compatible printf
  * (%I64u instead of %llu) unless otherwise specified. This must be
