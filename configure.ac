@@ -613,7 +613,7 @@ AS_IF([test -n "$dbus_va_copy_func"],
 AC_CACHE_CHECK([whether $CC knows __sync_sub_and_fetch()],
   dbus_cv_sync_sub_and_fetch,
   [AC_LINK_IFELSE([
-     AC_LANG_PROGRAM([[]], [[int a = 4; int b = __sync_sub_and_fetch(&a, 4); exit(b); ]])],
+     AC_LANG_PROGRAM([[]], [[int a = 4; int b = __sync_sub_and_fetch(&a, 4); return b; ]])],
      [dbus_cv_sync_sub_and_fetch=yes],
      [dbus_cv_sync_sub_and_fetch=no])
   ])
