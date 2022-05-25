@@ -75,6 +75,8 @@ check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
 check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
 check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
 check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
+check_symbol_exists(setresuid    "unistd.h"                  HAVE_SETRESUID)
+check_symbol_exists(getresuid    "unistd.h"                  HAVE_GETRESUID)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
