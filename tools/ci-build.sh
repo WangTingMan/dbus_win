@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright © 2015-2016 Collabora Ltd.
 # Copyright © 2020 Ralf Habacker <ralf.habacker@freenet.de>
