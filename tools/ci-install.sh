@@ -305,6 +305,28 @@ case "$ci_distro" in
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
         ;;
+
+    (freebsd*)
+        $sudo pkg update
+        $sudo pkg upgrade -y
+        packages=(
+            autoconf
+            autoconf-archive
+            automake
+            bash
+            cmake
+            docbook-xml
+            docbook-xsl
+            expat
+            glib
+            git
+            libtool
+            libX11
+            libxslt
+            xmlto
+        )
+        $sudo pkg install -y "${packages[@]}"
+        ;;
 esac
 
 #
@@ -322,6 +344,14 @@ case "$ci_distro" in
     (opensuse*)
         # test-bus depends on group 'bin'
         $sudo getent group bin >/dev/null || /usr/sbin/groupadd -r bin
+        ;;
+
+    (freebsd*)
+
+        # Make sure we have a messagebus user, even if the dbus package
+        # isn't installed (using the same UID/GID as the dbus package).
+        pw groupshow messagebus || $sudo pw groupadd -n messagebus -g 556
+        pw usershow messagebus || $sudo pw useradd -n messagebus -u 556 -c "D-BUS Daemon User" -d /nonexistent -s /usr/sbin/nologin -g 556
         ;;
 
     (*)
