@@ -22,9 +22,10 @@
 
 include:
   - project: 'freedesktop/ci-templates'
-    ref: 957024f97e7b0f2cedc9ef29c6970fbeadd9326c
+    ref: e9a461877f8c7f9fed9fff5491067ec3c3472559
     file:
       - '/templates/debian.yml'
+      - '/templates/freebsd.yml'
       - '/templates/opensuse.yml'
 
 image: debian:bullseye-slim
@@ -52,6 +53,9 @@ variables:
   WINDOWS_AMD64_SUFFIX: 'amd64/windows'
   WINDOWS_IMAGE: "$CI_REGISTRY_IMAGE/$WINDOWS_AMD64_SUFFIX:$WINDOWS_TAG-$UPSTREAM_BRANCH"
   WINDOWS_UPSTREAM_IMAGE: "$CI_REGISTRY/$UPSTREAM_REPO/$WINDOWS_AMD64_SUFFIX:$WINDOWS_TAG-$UPSTREAM_BRANCH"
+  # variables used by the ci-templates scripts:
+  FDO_UPSTREAM_REPO: dbus/dbus
+  FDO_DISTRIBUTION_EXEC: './tools/ci-install.sh'
 
 .debian-vars:
   variables:
@@ -61,7 +65,15 @@ variables:
 .opensuse-vars:
   variables:
     FDO_DISTRIBUTION_VERSION: 'leap'
-    FDO_DISTRIBUTION_TAG: '2022-05-14' # Bump this version on every ci-install.sh change
+    FDO_DISTRIBUTION_TAG: '2022-05-14.0' # Bump this version on every ci-install.sh change
+
+.freebsd-vars:
+  variables:
+    BUILD_OS: freebsd
+    BUILD_ARCH: "x86_64"
+    FDO_DISTRIBUTION_VERSION: '13.0'
+    FDO_DISTRIBUTION_TAG: '2022-08-08.0'  # Bump this version on every ci-install.sh change
+    FDO_REPO_SUFFIX: "$BUILD_OS/$BUILD_ARCH"
 
 .cmake-common:
   variables:
@@ -137,8 +149,6 @@ debian image:
   extends:
     - .fdo.container-build@debian
     - .debian-vars
-  variables:
-    FDO_DISTRIBUTION_EXEC: './tools/ci-install.sh'
   stage: 'build docker'
 
 .debian-build:
@@ -241,8 +251,6 @@ opensuse image:
   extends:
     - .fdo.container-build@opensuse
     - .opensuse-vars
-  variables:
-    FDO_DISTRIBUTION_EXEC: './tools/ci-install.sh'
   stage: 'build docker'
 
 .suse-build:
@@ -382,5 +390,71 @@ windows-meson-vs15-x86:
     paths:
       - "build/config.h"
       - "build/meson-logs/*.txt"
+
+freebsd image:
+  extends:
+    - .fdo.qemu-build@freebsd@x86_64
+    - .freebsd-vars
+  stage: 'build docker'
+
+# Full build and test.
+.do-build-qemu:
+  stage: build
+  variables:
+    ci_parallel: "${FDO_CI_CONCURRENT:-2}"
+    ci_distro: "$BUILD_OS"
+    ci_suite: "$FDO_DISTRIBUTION_VERSION"
+    ci_test_fatal: "no" # One undiagnosed test failure in test-fdpass
+  script:
+    # Start the VM and copy our workspace to the VM
+    - /app/vmctl start
+    # Copy files over to the VM using rsync (not scp) to preserve permissions.
+    - rsync -av $PWD "vm:"
+    - /app/vmctl exec "cd $CI_PROJECT_NAME && ./tools/ci-install.sh"
+    # Variables are not forwarded to the vm automatically so we forward the
+    # ones starting with ci_ to ci-build.sh manually. This works because
+    # $(env | grep "ci_.*=") is evaluated on the current host not in the VM.
+    # We also have to forward builddir since this is required by ci-build.sh.
+    - /app/vmctl exec "cd $CI_PROJECT_NAME && env builddir=$builddir $(echo $(env | grep "ci_.*=")) bash -x ./tools/ci-build.sh $CI_BUILD_ARGS"
+    # Copy build artifacts from the VM for archiving/JUnit XML display
+    - mkdir -p "$builddir"
+    - scp -v "vm:$CI_PROJECT_NAME/$builddir/config.h" . || true
+    - scp -v "vm:$ci_cmake_junit_output" "$ci_cmake_junit_output" || true
+    # Finally, shut down the VM.
+    - /app/vmctl stop
+  artifacts:
+    name: dbus-$CI_JOB_NAME
+    when: always
+    paths:
+      - test-results.xml
+    reports:
+      junit: test-results.xml
+
+.build-env-freebsd:
+  extends:
+    - .fdo.suffixed-image@freebsd
+    - .freebsd-vars
+    - .do-build-qemu
+  needs:
+    - job: "freebsd image"
+      artifacts: false
+
+freebsd cmake debug:
+  extends:
+    - .cmake-common
+    - .build-env-freebsd
+  variables:
+    # Don't build doxygen documentation since installing the required tools
+    # massively increases the VM image (and therefore container) size.
+    CI_BUILD_ARGS: "-DDBUS_ENABLE_DOXYGEN_DOCS=OFF -DDBUS_ENABLE_XML_DOCS=ON -DCMAKE_BUILD_TYPE=Debug"
+
+freebsd cmake release:
+  extends:
+    - .cmake-common
+    - .build-env-freebsd
+  variables:
+    # Don't build doxygen documentation since installing the required tools
+    # massively increases the VM image (and therefore container) size.
+    CI_BUILD_ARGS: "-DDBUS_ENABLE_DOXYGEN_DOCS=OFF -DDBUS_ENABLE_XML_DOCS=ON -DCMAKE_BUILD_TYPE=Release"
 
 # vim:set sw=2 sts=2 et:
