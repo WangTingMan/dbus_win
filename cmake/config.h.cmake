@@ -255,6 +255,8 @@
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_VSNPRINTF 1
 
+#cmakedefine HAVE_SETRESUID 1
+#cmakedefine HAVE_GETRESUID 1
 /* whether -export-dynamic was passed to libtool */
 #cmakedefine DBUS_BUILT_R_DYNAMIC 1
 
