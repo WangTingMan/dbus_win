@@ -4,10 +4,7 @@
 #
 # Copyright (c) 2019,2021 Ralf Habacker <ralf.habacker@freenet.de>
 #
-# SPDX-License-Identifier: BSD
-#
-# Redistribution and use is allowed according to the terms of the BSD license.
-#
+# SPDX-License-Identifier: BSD-3-Clause
 
 if test -z "$1"; then
 	echo "format cmake files                                                                   by Ralf Habacker"
