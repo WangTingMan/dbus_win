@@ -116,6 +116,7 @@ if platform_windows
     ))
 
     dbus_shared_sources += [
+        'dbus-backtrace-win.c',
         'dbus-file-win.c',
         'dbus-pipe-win.c',
         'dbus-sysdeps-thread-win.c',

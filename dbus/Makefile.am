@@ -75,6 +75,7 @@ endif
 
 DBUS_SHARED_arch_sources = 			\
 	$(wince_source)				\
+	dbus-backtrace-win.c 			\
 	dbus-file-win.c 			\
 	dbus-pipe-win.c 			\
 	dbus-sockets-win.h			\
