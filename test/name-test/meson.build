@@ -64,6 +64,7 @@ if embedded_tests
                 test_exe,
             ],
             env: test_env,
+            protocol: 'tap',
         )
     endforeach
 
