@@ -32,8 +32,8 @@ if embedded_tests
         tests += [
             'test-pending-call-dispatch',
             'test-pending-call-timeout',
-            'test-threads-init',
             'test-privserver-client',
+            'test-threads-init',
         ]
     endif
 
