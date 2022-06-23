@@ -125,7 +125,6 @@ if platform_windows
         )
     endif
 
-    # TODO: make this respect SOURCE_DATE_EPOCH
     build_timestamp = run_command(
         find_program('tools/build-timestamp.py'),
         check: true,

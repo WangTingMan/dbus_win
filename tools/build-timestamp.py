@@ -20,5 +20,12 @@
 # SOFTWARE.
 
 import datetime
+import os
 
-print(datetime.datetime.now().isoformat(timespec='minutes'))
+if 'SOURCE_DATE_EPOCH' in os.environ:
+    stamp = int(os.environ['SOURCE_DATE_EPOCH'])
+    dt = datetime.datetime.utcfromtimestamp(stamp)
+else:
+    dt = datetime.datetime.now()
+
+print(dt.isoformat(timespec='minutes'))
