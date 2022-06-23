@@ -435,7 +435,10 @@ case "$ci_buildsys" in
 
         meson=meson
         case "$ci_host" in
-            (*-w64-mingw32)
+            (i686-w64-mingw32)
+                meson=mingw32-meson
+                ;;
+            (x86_64-w64-mingw32)
                 meson=mingw64-meson
                 ;;
         esac
