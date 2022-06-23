@@ -144,8 +144,8 @@ option(
 
 option(
   'modular_tests',
-  type: 'boolean',
-  value: false,
+  type: 'feature',
+  value: 'auto',
   description: 'Enable modular regression tests (requires GLib)'
 )
 

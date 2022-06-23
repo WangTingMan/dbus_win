@@ -282,11 +282,13 @@ data_config.set('top_builddir', meson.project_build_root())
 threads = dependency('threads')
 config.set('HAVE_MONOTONIC_CLOCK', cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC'))
 
-glib = dependency('glib-2.0', version: '>=2.40', required: false)
+glib = dependency(
+    'glib-2.0', version: '>=2.40', required: get_option('modular_tests'),
+)
 if platform_windows
-    gio = dependency('gio-windows-2.0', required: false)
+    gio = dependency('gio-windows-2.0', required: glib.found())
 else
-    gio = dependency('gio-unix-2.0',    required: false)
+    gio = dependency('gio-unix-2.0',    required: glib.found())
 endif
 use_glib = glib.found() and gio.found()
 config.set('DBUS_WITH_GLIB', use_glib)
@@ -678,7 +680,7 @@ config.set('DBUS_ENABLE_EMBEDDED_TESTS', embedded_tests)
 # default (unless you don't have GLib), because they don't bloat the library
 # or binaries.
 dbus_enable_modular_tests = (
-    get_option('modular_tests')
+    not get_option('modular_tests').disabled()
     and glib.version().version_compare('>=2.40')
     and gio.found()
 )
