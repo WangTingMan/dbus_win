@@ -137,10 +137,7 @@ SUFFIXES = .rc
 .rc.o:
 	$(RC) $< -o $@
 
-nodist_dbus_update_activation_environment_SOURCES = disable-uac.rc
-
-disable-uac.rc: Win32.Manifest
-	echo '1 24 "$<"' > $@
+dbus_update_activation_environment_SOURCES += disable-uac.rc
 endif
 
 EXTRA_DIST = run-with-tmp-session-bus.sh strtoll.c strtoull.c Win32.Manifest
