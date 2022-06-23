@@ -49,6 +49,11 @@ if embedded_tests
             dependencies: dbus_dependencies,
         )
 
+        if test == 'test-autolaunch'
+            # This one is run from run-test.sh, not directly
+            continue
+        endif
+
         test(test,
             dbus_run_session,
             args: [
