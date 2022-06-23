@@ -160,14 +160,9 @@ foreach file : data_in_to_install
         output: file.underscorify(),
         configuration: test_data_config,
     )
-    if install_tests
-        install_data(configured_file,
-            rename: file,
-            install_dir: test_exec_dir / 'data',
-        )
-    endif
+    # We don't install this version: see test/data/installable/ for the
+    # version that we *do* install.
 endforeach
-
 
 ###############################################################################
 # Copy files into correct places in build directory for tests
@@ -201,4 +196,8 @@ run_result = run_command(find_program('copy_data_for_tests.py'), files, check: t
 files_not_found = run_result.stdout().split()
 if files_not_found.length() > 0
     error('Those files could not be copied for test : @0@'.format(files_not_found))
+endif
+
+if install_tests
+    subdir('installable')
 endif
