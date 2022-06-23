@@ -76,8 +76,8 @@ test_env.set('DBUS_TEST_UNINSTALLED', '1')
 
 xdgdir = custom_target('gen-xdgdir',
     command: [
-        python, '-c',
-        'import os, sys; os.makedirs(sys.argv[1], exist_ok=True)',
+        python,
+        files('mkdir-m700.py'),
         meson.current_build_dir() / 'XDG_RUNTIME_DIR',
     ],
     output: 'XDG_RUNTIME_DIR'

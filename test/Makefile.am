@@ -855,6 +855,7 @@ EXTRA_DIST += data/installable/meson.build
 EXTRA_DIST += data/meson.build
 EXTRA_DIST += meson.build
 EXTRA_DIST += meta_template.test.in
+EXTRA_DIST += mkdir-m700.py
 
 # Add rules for code-coverage testing, as defined by AX_CODE_COVERAGE
 include $(top_srcdir)/aminclude_static.am
