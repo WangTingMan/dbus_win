@@ -133,13 +133,12 @@ test_privserver = executable('test-privserver',
 )
 # This helper is meant to crash, so if we're compiling the rest with
 # AddressSanitizer, we need to stop it from catching the SIGSEGV and
-# turning it into _exit(1); so don't give it SANITIZE_CFLAGS.
-# CODE_COVERAGE_CFLAGS are fairly pointless here, too.
-# TODO
+# turning it into _exit(1).
 test_segfault = executable('test-segfault',
     'test-segfault.c', 'disable-crash-handling.c',
     include_directories: root_include,
     dependencies: dbus_dependencies,
+    override_options: ['b_sanitize=none'],
 )
 test_shell_service = executable('test-shell-service',
     'test-shell-service.c',
