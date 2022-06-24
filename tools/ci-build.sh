@@ -231,6 +231,22 @@ esac
 
 cd "$builddir"
 
+case "$ci_host" in
+    (*-w64-mingw32)
+        # If we're dynamically linking libgcc, make sure Wine will find it
+        if [ "$ci_test" = yes ]; then
+            if [ "${ci_distro%%-*}" = opensuse ] && [ "${ci_host%%-*}" = x86_64 ]; then
+                export WINEARCH=win64
+            fi
+            libgcc_path=
+            if [ "$ci_runtime" = "shared" ]; then
+                libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
+            fi
+            init_wine "${dep_prefix}/bin" "${builddir}/bin" ${libgcc_path:+"$libgcc_path"}
+        fi
+        ;;
+esac
+
 make="make -j${ci_parallel} V=1 VERBOSE=1"
 
 case "$ci_buildsys" in
@@ -379,22 +395,12 @@ case "$ci_buildsys" in
             (*-w64-mingw32)
                 # CFLAGS and CXXFLAGS does do work, checked with cmake 3.15
                 export LDFLAGS="-${ci_runtime}-libgcc"
-                # enable tests if supported
-                if [ "$ci_test" = yes ]; then
-                    # choose correct wine architecture
-                    if [ "${ci_distro%%-*}" = opensuse ]; then
-                        if [ "${ci_host%%-*}" = x86_64 ]; then
-                            export WINEARCH=win64
-                            cmake=mingw64-cmake
-                        else
-                            cmake=mingw32-cmake
-                        fi
+                if [ "${ci_distro%%-*}" = opensuse ]; then
+                    if [ "${ci_host%%-*}" = x86_64 ]; then
+                        cmake=mingw64-cmake
+                    else
+                        cmake=mingw32-cmake
                     fi
-                    libgcc_path=
-                    if [ "$ci_runtime" = "shared" ]; then
-                        libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
-                    fi
-                    init_wine "${dep_prefix}/bin" "$(pwd)/bin" ${libgcc_path:+"$libgcc_path"}
                     cmdwrapper="xvfb-run -a"
                 fi
                 set _ "$@"
