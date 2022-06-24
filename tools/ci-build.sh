@@ -175,10 +175,13 @@ maybe_fail_tests () {
 # own checks.
 NOCONFIGURE=1 ./autogen.sh
 
+# clean up directories from possible previous builds
+rm -rf "$builddir"
+rm -rf ci-build-dist
+rm -rf src-from-dist
+
 case "$ci_buildsys" in
     (cmake-dist)
-        # clean up directories from possible previous builds
-        rm -rf ci-build-dist
         # Do an Autotools `make dist`, then build *that* with CMake,
         # to assert that our official release tarballs will be enough
         # to build with CMake.
@@ -186,9 +189,16 @@ case "$ci_buildsys" in
         ( cd ci-build-dist; ../configure )
         make -C ci-build-dist dist
         tar --xz -xvf ci-build-dist/dbus-1.*.tar.xz
-        cd dbus-1.*/
+        mv dbus-1.*/ src-from-dist
+        srcdir="$(pwd)/src-from-dist"
+        ;;
+    (*)
+        srcdir="$(pwd)"
         ;;
 esac
+
+mkdir -p "$builddir"
+builddir="$(realpath "$builddir")"
 
 #
 # cross compile setup
@@ -219,11 +229,6 @@ case "$ci_host" in
         ;;
 esac
 
-srcdir="$(pwd)"
-builddir="ci-build-${ci_variant}-${ci_host}"
-# clean up directories from possible previous builds
-rm -rf "$builddir"
-mkdir -p "$builddir"
 cd "$builddir"
 
 make="make -j${ci_parallel} V=1 VERBOSE=1"

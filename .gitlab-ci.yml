@@ -34,6 +34,7 @@ stages:
   - build
 
 variables:
+  builddir: "build"
   ci_in_docker: "yes"
   ci_local_packages: "yes"
   ci_parallel: "2"
@@ -82,11 +83,11 @@ variables:
     ci_buildsys: "meson"
   artifacts:
     reports:
-      junit: "$builddir/meson-logs/testlog.junit.xml"
+      junit: "build/meson-logs/testlog.junit.xml"
     name: "dbus-$CI_JOB_NAME"
     when: always
     paths:
-      - "$builddir/meson-logs/*.txt"
+      - "build/meson-logs/*.txt"
 
 windows amd64 image:
   stage: "build docker"
@@ -180,8 +181,6 @@ debian meson:
   extends:
     - .meson-common
     - .debian-build
-  variables:
-    builddir: "ci-build-production-native"
 
 debian mingw32 autotools debug:
   extends: .debian-build
@@ -266,7 +265,6 @@ opensuse mingw64 meson debug:
     ci_host: "x86_64-w64-mingw32"
     ci_local_packages: "no"
     ci_variant: "debug"
-    builddir: "ci-build-$ci_variant-$ci_host"
 
 .ubuntu-build:
   extends: .unix-host-build
