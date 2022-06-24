@@ -501,6 +501,7 @@ endif
 
 if get_option('x11_autolaunch').disabled()
     use_x11_autolaunch = false
+    x11 = not_found
 else
     if get_option('x11_autolaunch').enabled() and platform_windows
         error('X11 autolaunch is not supported on Windows')
