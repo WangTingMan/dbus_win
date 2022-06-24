@@ -438,20 +438,28 @@ case "$ci_buildsys" in
         # travis-ci, and too slow when running under wine.
         export DBUS_TEST_MALLOC_FAILURES=0
 
-        meson=meson
+        meson_setup=
+
+        # openSUSE has convenience wrappers that run Meson with appropriate
+        # cross options
         case "$ci_host" in
             (i686-w64-mingw32)
-                meson=mingw32-meson
+                meson_setup=mingw32-meson
                 ;;
             (x86_64-w64-mingw32)
-                meson=mingw64-meson
+                meson_setup=mingw64-meson
                 ;;
         esac
+
+        if [ -z "$meson_setup" ]; then
+            meson_setup="meson setup"
+        fi
+
         # FIXME: ducktype target fails on debian CI..
-        $meson setup -Dducktype_docs=disabled
-        $meson compile
-        [ "$ci_test" = no ] || $meson test
-        DESTDIR=DESTDIR $meson install
+        $meson_setup -Dducktype_docs=disabled
+        meson compile
+        [ "$ci_test" = no ] || meson test
+        DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
         ;;
 esac
