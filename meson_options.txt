@@ -170,6 +170,15 @@ option(
   description: 'Make pkg-config metadata relocatable'
 )
 
+# Deliberately not named runstatedir to avoid colliding with
+# https://github.com/mesonbuild/meson/issues/4141
+option(
+  'runtime_dir',
+  type: 'string',
+  value: '',
+  description: 'Directory for transient runtime state [default: LOCALSTATEDIR/run or /run]'
+)
+
 option(
   'selinux',
   type: 'feature',

@@ -690,9 +690,21 @@ dbus_enable_modular_tests = (
 
 docs_dir = get_option('datadir') / 'doc' / 'dbus'
 
+# TODO: If a future Meson version gets a runstatedir option, try both.
+# https://github.com/mesonbuild/meson/issues/4141
+runstatedir = get_option('runtime_dir')
+
+if runstatedir == ''
+    if get_option('prefix') == '/usr'
+        runstatedir = '/run'
+    else
+        runstatedir = get_option('localstatedir') / 'run'
+    endif
+endif
+
 data_config.set('EXPANDED_LOCALSTATEDIR', get_option('prefix') / get_option('localstatedir'))
 data_config.set('EXPANDED_SYSCONFDIR', get_option('prefix') / get_option('sysconfdir'))
-data_config.set('EXPANDED_RUNSTATEDIR',   '/' / 'run')
+data_config.set('EXPANDED_RUNSTATEDIR', get_option('prefix') / runstatedir)
 data_config.set('EXPANDED_BINDIR',  get_option('prefix') / get_option('bindir'))
 data_config.set('EXPANDED_DATADIR', get_option('prefix') / get_option('datadir'))
 
@@ -703,7 +715,7 @@ config.set_quoted('DBUS_DATADIR',get_option('prefix') / get_option('datadir'))
 data_config.set('DBUS_LIBEXECDIR', get_option('prefix') / get_option('libexecdir'))
 
 config.set_quoted('DBUS_RUNSTATEDIR',
-    get_option('localstatedir')
+    get_option('prefix') / runstatedir
 )
 config.set_quoted('DBUS_MACHINE_UUID_FILE',
     get_option('prefix') / get_option('localstatedir') / 'lib'/'dbus'/'machine-id'
@@ -747,7 +759,7 @@ config.set_quoted('DBUS_SYSTEM_BUS_DEFAULT_ADDRESS', system_bus_default_address)
 
 system_pid_file = get_option('system_pid_file')
 if system_pid_file == ''
-    system_pid_file = '/run'/'dbus'/'pid'
+    system_pid_file = get_option('prefix') / runstatedir / 'dbus'/'pid'
 endif
 data_config.set('DBUS_SYSTEM_PID_FILE', system_pid_file)
 
