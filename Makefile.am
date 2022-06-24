@@ -27,6 +27,10 @@ EXTRA_DIST =			\
 	bus/CMakeLists.txt \
 	dbus/CMakeLists.txt \
 	doc/CMakeLists.txt \
+	meson.build \
+	meson_options.txt \
+	meson_post_install.py \
+	meson_post_install_systemd.py \
 	test/CMakeLists.txt \
 	test/name-test/CMakeLists.txt \
 	tools/CMakeLists.txt \

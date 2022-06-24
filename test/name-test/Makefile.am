@@ -121,3 +121,5 @@ test_autolaunch_LDADD = \
 	$(NULL)
 endif
 endif
+
+EXTRA_DIST += meson.build

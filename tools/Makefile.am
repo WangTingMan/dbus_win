@@ -151,3 +151,6 @@ install-data-local:
 
 installcheck-local:
 	test -d $(DESTDIR)$(localstatedir)/lib/dbus
+
+EXTRA_DIST += build-timestamp.py
+EXTRA_DIST += meson.build

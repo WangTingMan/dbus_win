@@ -850,5 +850,11 @@ $(installable_test_meta_with_config): %_with_config.test: %$(EXEEXT) Makefile
 		echo 'Exec=env DBUS_TEST_EXEC=$(testexecdir) DBUS_TEST_DATA=$(testexecdir)/data $(testexecdir)/$* --tap'; \
 	) > $@.tmp && mv $@.tmp $@
 
+EXTRA_DIST += data/copy_data_for_tests.py
+EXTRA_DIST += data/installable/meson.build
+EXTRA_DIST += data/meson.build
+EXTRA_DIST += meson.build
+EXTRA_DIST += meta_template.test.in
+
 # Add rules for code-coverage testing, as defined by AX_CODE_COVERAGE
 include $(top_srcdir)/aminclude_static.am
