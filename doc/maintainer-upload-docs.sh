@@ -22,11 +22,11 @@
 
 set -ex
 
-DOC_SERVER=dbus.freedesktop.org
-DOC_WWW_DIR=/srv/dbus.freedesktop.org/www
+: "${DOC_SERVER:=dbus.freedesktop.org}"
+: "${DOC_WWW_DIR:=/srv/dbus.freedesktop.org/www}"
 
-SPECIFICATION_SERVER=specifications.freedesktop.org
-SPECIFICATION_PATH=/srv/specifications.freedesktop.org/www/dbus/1.0
+: "${SPECIFICATION_SERVER:=specifications.freedesktop.org}"
+: "${SPECIFICATION_PATH:=/srv/specifications.freedesktop.org/www/dbus/1.0}"
 
 TMPDIR=$(mktemp -d)
 
