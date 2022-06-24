@@ -471,6 +471,27 @@ case "$ci_buildsys" in
                 ;;
         esac
 
+        case "$ci_variant" in
+            (debug)
+                set -- -Dasserts=true "$@"
+                set -- -Dembedded_tests=true "$@"
+                set -- -Dmodular_tests=enabled "$@"
+                set -- -Dverbose_mode=true "$@"
+
+                case "$ci_host" in
+                    (*-w64-mingw32)
+                        ;;
+                    (*)
+                        set -- -Db_sanitize=address,undefined "$@"
+                        set -- -Db_pie=true "$@"
+                        set -- -Duser_session=true "$@"
+                        ;;
+                esac
+
+                shift
+                ;;
+        esac
+
         # Debian doesn't have similar convenience wrappers, but we can use
         # a cross-file
         if [ -z "$meson_setup" ] || ! command -v "$meson_setup" >/dev/null; then
@@ -482,7 +503,7 @@ case "$ci_buildsys" in
         fi
 
         # FIXME: ducktype target fails on debian CI..
-        $meson_setup -Dducktype_docs=disabled
+        $meson_setup -Dducktype_docs=disabled "$@"
         meson compile
         [ "$ci_test" = no ] || meson test
         DESTDIR=DESTDIR meson install
