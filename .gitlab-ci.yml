@@ -86,7 +86,7 @@ variables:
     name: "dbus-$CI_JOB_NAME"
     when: always
     paths:
-      - "$builddir/meson-logs/testlog.txt"
+      - "$builddir/meson-logs/*.txt"
 
 windows amd64 image:
   stage: "build docker"
