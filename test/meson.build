@@ -217,14 +217,15 @@ if embedded_tests
             'srcs': [ 'bus/dispatch-sha1.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
-            'timeout': 120,
+            'suite': ['slow'],
         },
         {
             'name': 'bus-dispatch',
             'srcs': [ 'bus/dispatch.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
-            'timeout': 120,
+            'suite': ['slow'],
+            'timeout': 3000,
         },
         {
             'name': 'marshal-recursive',
@@ -234,6 +235,7 @@ if embedded_tests
             ],
             'link': [ libdbus_testutils, ],
             'install': false,
+            'timeout': 60,
         },
         {
             'name': 'message-internals',
@@ -245,6 +247,7 @@ if embedded_tests
             ],
             'link': [ libdbus_testutils, ],
             'install': false,
+            'suite': ['slow'],
         },
     ]
 
@@ -378,7 +381,7 @@ if use_glib
             'srcs': [ 'dbus-daemon.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
-            'suite': ['runs-dbus-daemon'],
+            'suite': ['runs-dbus-daemon', 'slow'],
         },
         {
             'name': 'dbus-daemon-eavesdrop',
@@ -404,8 +407,7 @@ if use_glib
             'srcs': [ 'header-fields.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
-            'timeout': 120,
-            'suite': ['runs-dbus-daemon'],
+            'suite': ['runs-dbus-daemon', 'slow'],
         },
         {
             'name': 'message',
@@ -419,6 +421,7 @@ if use_glib
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
             'suite': ['runs-dbus-daemon'],
+            'timeout': 45,
         },
         {
             'name': 'loopback',
@@ -437,12 +440,14 @@ if use_glib
             'srcs': [ 'internals/refs.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'suite': ['slow'],
         },
         {
             'name': 'relay',
             'srcs': [ 'relay.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'timeout': 60,
         },
         {
             'name': 'server-oom',
@@ -522,8 +527,15 @@ foreach test: tests
     link = test.get('link', [])
     deps = test.get('deps', [])
     suites = test.get('suite', ['dbus'])
-    timeout = test.get('timeout', 30)
     install = test.get('install', true)
+
+    if 'slow' in suites
+        timeout = 300
+    else
+        timeout = 30
+    endif
+
+    timeout = test.get('timeout', timeout)
 
     test_exe = executable('test-' + name,
         srcs,

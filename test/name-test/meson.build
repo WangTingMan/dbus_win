@@ -55,6 +55,14 @@ if embedded_tests
             continue
         endif
 
+        if test == 'test-pending-call-timeout'
+            timeout = 75
+            suites = ['name-test', 'slow']
+        else
+            timeout = 30
+            suites = ['name-test']
+        endif
+
         test(test,
             dbus_run_session,
             args: [
@@ -66,6 +74,8 @@ if embedded_tests
             ],
             env: test_env,
             protocol: 'tap',
+            suite: suites,
+            timeout: timeout,
         )
     endforeach
 
@@ -75,12 +85,14 @@ if embedded_tests
             find_program('run-test.sh'),
             env: test_env,
             protocol: 'tap',
+            suite: 'name-test',
         )
 
         test('run-test-systemserver',
             find_program('run-test-systemserver.sh'),
             env: test_env,
             protocol: 'tap',
+            suite: 'name-test',
         )
     endif
 endif
