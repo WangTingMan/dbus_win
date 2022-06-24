@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-set -ex
+set -eux
 
 : "${DOC_SERVER:=dbus.freedesktop.org}"
 : "${DOC_WWW_DIR:=/srv/dbus.freedesktop.org/www}"
