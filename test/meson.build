@@ -514,7 +514,6 @@ foreach test: tests
     deps = test.get('deps', [])
     timeout = test.get('timeout', 30)
     install = test.get('install', true)
-    test_now = test.get('test', true)
 
     test_exe = executable('test-' + name,
         srcs,
@@ -525,8 +524,10 @@ foreach test: tests
         install_dir: test_exec_dir,
     )
 
-    # Some binaries are used in tests but are not themselves tests
-    if test_now
+    # Some binaries are used in tests but are not themselves tests,
+    # and some might be "as-installed" integration tests that aren't
+    # guaranteed to work at build-time
+    if test.get('build_time_test', true) and test.get('test', true)
         test(name,
             test_exe,
             args: ['--tap'],
@@ -547,8 +548,10 @@ if platform_unix and use_glib
     scripts += [
         {   'name': 'test-dbus-daemon-fork.sh', },
         {   'name': 'transient-services.sh',
-            'exec': 'integration/transient-services.sh', },
-        {   'name': 'test-apparmor-activation.sh' },
+            'exec': 'integration/transient-services.sh',
+            'build_time_test': false },
+        {   'name': 'test-apparmor-activation.sh',
+            'build_time_test': false },
     ]
 
     # Testing dbus-launch relies on special code in that binary.
@@ -571,11 +574,16 @@ foreach script: scripts
         )
     endif
 
-    test(name,
-        find_program(exec),
-        env: test_env,
-        depends: xdgdir,
-    )
+    # Some scripts might be used in tests but not themselves tests,
+    # and some are "as-installed" integration tests that aren't
+    # guaranteed to work at build-time
+    if script.get('build_time_test', true) and script.get('test', true)
+        test(name,
+            find_program(exec),
+            env: test_env,
+            depends: xdgdir,
+        )
+    endif
 endforeach
 
 
