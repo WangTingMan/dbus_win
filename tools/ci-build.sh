@@ -455,6 +455,19 @@ case "$ci_buildsys" in
         case "$ci_host" in
             (*-w64-mingw32)
                 cross_file="${srcdir}/maint/${ci_host}.txt"
+                # openSUSE's wrappers are designed for building predictable
+                # RPM packages, so they set --auto-features=enabled -
+                # but that includes some things that make no sense on
+                # Windows.
+                set -- -Dapparmor=disabled "$@"
+                set -- -Depoll=disabled "$@"
+                set -- -Dinotify=disabled "$@"
+                set -- -Dkqueue=disabled "$@"
+                set -- -Dlaunchd=disabled "$@"
+                set -- -Dlibaudit=disabled "$@"
+                set -- -Dselinux=disabled "$@"
+                set -- -Dsystemd=disabled "$@"
+                set -- -Dx11_autolaunch=disabled "$@"
                 ;;
         esac
 
