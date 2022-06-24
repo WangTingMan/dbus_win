@@ -209,26 +209,26 @@ if doxygen.found()
             install_dir: docs_dir,
         )
     endif
+endif
 
-    if ducktype.found() and yelpbuild.found()
-        design_page = custom_target('dbus-api-design.page',
-            input: 'dbus-api-design.duck',
-            output: 'dbus-api-design.page',
-            command: [ ducktype, '-o', '@OUTPUT@', '@INPUT@' ],
-        )
-        html_files += custom_target('dbus-api-design.html',
-            input: design_page,
-            output: [
-                'dbus-api-design.html',
-                'yelp.js',
-                'C.css',
-                'highlight.pack.js',
-            ],
-            command: [ yelpbuild, 'html', '@INPUT@', '-o', meson.current_build_dir() ],
-            install: true,
-            install_dir: docs_dir,
-        )
-    endif
+if ducktype.found() and yelpbuild.found()
+    design_page = custom_target('dbus-api-design.page',
+        input: 'dbus-api-design.duck',
+        output: 'dbus-api-design.page',
+        command: [ ducktype, '-o', '@OUTPUT@', '@INPUT@' ],
+    )
+    html_files += custom_target('dbus-api-design.html',
+        input: design_page,
+        output: [
+            'dbus-api-design.html',
+            'yelp.js',
+            'C.css',
+            'highlight.pack.js',
+        ],
+        command: [ yelpbuild, 'html', '@INPUT@', '-o', meson.current_build_dir() ],
+        install: true,
+        install_dir: docs_dir,
+    )
 endif
 
 if can_upload_docs
