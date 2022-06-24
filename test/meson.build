@@ -48,6 +48,7 @@ test_env.set('HOME',                meson.project_source_root() / 'dbus')
 test_env.set('DBUS_TEST_SRCDIR',    meson.current_source_dir())
 
 test_env.set('DBUS_TOP_BUILDDIR',   meson.project_build_root())
+# Tests in bus/config-parser.c rely on this specific value
 test_env.set('DBUS_TEST_BUILDDIR',  meson.current_build_dir())
 test_env.set('DBUS_TEST_EXEC',      meson.current_build_dir())
 test_env.set('DBUS_TEST_DATA',      meson.current_build_dir() / 'data')
@@ -61,7 +62,7 @@ if platform_unix
     test_env.set('DBUS_TEST_DBUS_UUIDGEN', dbus_uuidgen.full_path())
 endif
 
-
+# Tests in bus/config-parser.c rely on these specific values for XDG_*
 test_env.set('XDG_DATA_HOME',       meson.current_build_dir() / 'XDG_DATA_HOME')
 test_env.set('XDG_RUNTIME_DIR',     meson.current_build_dir() / 'XDG_RUNTIME_DIR')
 xdg_data_dirs = [
@@ -137,6 +138,9 @@ test_privserver = executable('test-privserver',
 # This helper is meant to crash, so if we're compiling the rest with
 # AddressSanitizer, we need to stop it from catching the SIGSEGV and
 # turning it into _exit(1).
+# We have to compile a separate copy of disable-crash-handling.c for
+# test-segfault rather than using libdbus-testutils, because
+# otherwise it would fail to link when using the AddressSanitizer.
 test_segfault = executable('test-segfault',
     'test-segfault.c', 'disable-crash-handling.c',
     include_directories: root_include,
@@ -521,6 +525,7 @@ foreach test: tests
         install_dir: test_exec_dir,
     )
 
+    # Some binaries are used in tests but are not themselves tests
     if test_now
         test(name,
             test_exe,
@@ -546,6 +551,7 @@ if platform_unix and use_glib
         {   'name': 'test-apparmor-activation.sh' },
     ]
 
+    # Testing dbus-launch relies on special code in that binary.
     if embedded_tests
         scripts += { 'name': 'test-dbus-launch-eval.sh' }
     endif

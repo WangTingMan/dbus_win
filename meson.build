@@ -203,6 +203,7 @@ foreach type : int_types
         arch_config.set('DBUS_INT64_CONSTANT', type.get('type_c'))
         arch_config.set('DBUS_UINT64_CONSTANT', type.get('type_u_c'))
         if platform_windows
+          # MSVCRT.dll printf() doesn't support %lld
           arch_config.set('DBUS_INT64_MODIFIER', 'I64')
         else
           arch_config.set('DBUS_INT64_MODIFIER', type.get('type_m'))
@@ -834,20 +835,30 @@ if session_socket_dir == ''
 endif
 config.set_quoted('DBUS_SESSION_SOCKET_DIR', session_socket_dir)
 
+# This must be a listening address. It doesn't necessarily need to be an
+# address you can connect to - it can be something vague like
+# "nonce-tcp:".
 session_bus_listen_address = get_option('dbus_session_bus_listen_address')
 if session_bus_listen_address == ''
     if platform_windows
+        # On Windows, you can (and should) listen on autolaunch addresses,
+        # because autolaunching is not the same as X11 autolaunching.
         session_bus_listen_address = 'autolaunch:'
     elif use_launchd
+        # macOS default is to use launchd
         session_bus_listen_address = 'launchd:env=DBUS_LAUNCHD_SESSION_BUS_SOCKET'
     else
+        # The default on all other Unix platforms (notably Linux)
+        # is to create a randomly named socket in /tmp or similar
         session_bus_listen_address = 'unix:tmpdir=@0@'.format(session_socket_dir)
     endif
 endif
 data_config.set('DBUS_SESSION_BUS_LISTEN_ADDRESS', session_bus_listen_address)
 
 
-
+# This must be an address you can connect to. It doesn't necessarily
+# need to be an address you can listen on - it can be "autolaunch:",
+# even on Unix.
 session_bus_connect_address = get_option('dbus_session_bus_connect_address')
 if session_bus_connect_address == ''
     session_bus_connect_address = 'autolaunch:'
@@ -896,6 +907,8 @@ else
       '-Wno-unused-parameter',
       '-Wchar-subscripts',
       '-Wfloat-equal',
+      # On Windows, we expect to be using msvcrt.dll-compatible printf
+      # (%I64u instead of %llu)
       '-D__USE_MINGW_ANSI_STDIO=0',
   ]
 
