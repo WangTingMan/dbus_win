@@ -439,6 +439,7 @@ case "$ci_buildsys" in
         export DBUS_TEST_MALLOC_FAILURES=0
 
         meson_setup=
+        cross_file=
 
         # openSUSE has convenience wrappers that run Meson with appropriate
         # cross options
@@ -451,8 +452,20 @@ case "$ci_buildsys" in
                 ;;
         esac
 
-        if [ -z "$meson_setup" ]; then
+        case "$ci_host" in
+            (*-w64-mingw32)
+                cross_file="${srcdir}/maint/${ci_host}.txt"
+                ;;
+        esac
+
+        # Debian doesn't have similar convenience wrappers, but we can use
+        # a cross-file
+        if [ -z "$meson_setup" ] || ! command -v "$meson_setup" >/dev/null; then
             meson_setup="meson setup"
+
+            if [ -n "$cross_file" ]; then
+                set -- --cross-file="$cross_file" "$@"
+            fi
         fi
 
         # FIXME: ducktype target fails on debian CI..

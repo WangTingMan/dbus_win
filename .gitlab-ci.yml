@@ -198,6 +198,14 @@ debian mingw32 cmake:
   variables:
     ci_host: "i686-w64-mingw32"
 
+debian mingw32 meson:
+  extends:
+    - .meson-common
+    - .debian-build
+  when: manual
+  variables:
+    ci_host: "i686-w64-mingw32"
+
 debian mingw64 autotools:
   extends: .debian-build
   variables:
@@ -210,6 +218,15 @@ debian mingw64 cmake debug:
   when: manual
   variables:
     ci_buildsys: "cmake"
+    ci_host: "x86_64-w64-mingw32"
+    ci_variant: "debug"
+
+debian mingw64 meson debug:
+  extends:
+    - .meson-common
+    - .debian-build
+  when: manual
+  variables:
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
 
