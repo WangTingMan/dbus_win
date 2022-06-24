@@ -85,6 +85,8 @@ xdgdir = custom_target('gen-xdgdir',
     output: 'XDG_RUNTIME_DIR'
 )
 
+installed_tests = []
+
 ###############################################################################
 # Dbus testutils
 
@@ -536,6 +538,13 @@ foreach test: tests
             timeout: timeout,
         )
     endif
+
+    if install and test.get('test', true)
+        installed_tests += [{
+            'name': 'test-' + test.get('name'),
+            'exe': 'test-' + test.get('name') + exe_ext,
+        }]
+    endif
 endforeach
 
 
@@ -573,6 +582,10 @@ foreach script: scripts
             install_mode: 'rwxr-xr-x',
             install_dir: test_exec_dir,
         )
+        installed_tests += [{
+            'name': name,
+            'exe': name,
+        }]
     endif
 
     # Some scripts might be used in tests but not themselves tests,
@@ -588,27 +601,27 @@ foreach script: scripts
 endforeach
 
 
-foreach exe : scripts + tests
-    name = exe.get('name')
-    install = exe.get('install', true)
+foreach test_case: installed_tests
+    name = test_case.get('name')
+    exe = test_case.get('exe', name)
 
     meta_config = configuration_data()
     meta_config.set('command',
         'env @0@/@1@ --tap'.format(
-            get_option('prefix') / test_exec_dir, name
+            get_option('prefix') / test_exec_dir, exe,
     ))
     configure_file(
         input : 'meta_template.test.in',
         output: name + '.test',
         configuration: meta_config,
-        install: install_tests and install,
+        install: install_tests,
         install_dir: test_meta_dir
     )
 
     meta_config = configuration_data()
     meta_config.set('command',
         'env DBUS_TEST_EXEC=@0@ DBUS_TEST_DATA=@0@/data @0@/@1@ --tap'.format(
-            get_option('prefix') / test_exec_dir, name
+            get_option('prefix') / test_exec_dir, exe,
     ))
     configure_file(
         input : 'meta_template.test.in',
