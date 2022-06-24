@@ -477,11 +477,12 @@ case "$ci_buildsys" in
                 ;;
         esac
 
+        set -- -Dmodular_tests=enabled "$@"
+
         case "$ci_variant" in
             (debug)
                 set -- -Dasserts=true "$@"
                 set -- -Dembedded_tests=true "$@"
-                set -- -Dmodular_tests=enabled "$@"
                 set -- -Dverbose_mode=true "$@"
 
                 case "$ci_host" in
