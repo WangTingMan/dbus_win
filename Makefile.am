@@ -12,6 +12,9 @@ EXTRA_DIST =			\
 	CONTRIBUTING.md		\
 	dbus-1.pc.in		\
 	cleanup-man-pages.sh    \
+	LICENSES/AFL-2.1.txt	\
+	LICENSES/GPL-2.0-or-later.txt	\
+	LICENSES/MIT.txt	\
         NEWS.pre-1-0            \
         NEWS.pre-1-2		\
 	README.cmake		\
