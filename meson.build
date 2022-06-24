@@ -705,7 +705,7 @@ config.set_quoted('DBUS_RUNSTATEDIR',
     get_option('localstatedir')
 )
 config.set_quoted('DBUS_MACHINE_UUID_FILE',
-    get_option('localstatedir') / 'lib'/'dbus'/'machine-id'
+    get_option('prefix') / get_option('localstatedir') / 'lib'/'dbus'/'machine-id'
 )
 config.set_quoted('DBUS_SYSTEM_CONFIG_FILE',
     get_option('prefix') / get_option('datadir') / 'dbus-1' / 'system.conf'
