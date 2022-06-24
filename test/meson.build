@@ -566,8 +566,9 @@ endif
 foreach script: scripts
     name = script.get('name')
     exec = script.get('exec', script.get('name'))
+    install = script.get('install', true)
 
-    if install_tests
+    if install_tests and install
         install_data(exec,
             install_mode: 'rwxr-xr-x',
             install_dir: test_exec_dir,
