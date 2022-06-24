@@ -257,7 +257,7 @@ endif
 # For doxygen
 doxygen = find_program('doxygen', required: get_option('doxygen_docs'))
 ducktype = find_program('ducktype', required: get_option('ducktype_docs'))
-yelpbuild = find_program('yelp-build', required: get_option('doxygen_docs'))
+yelpbuild = find_program('yelp-build', required: get_option('ducktype_docs'))
 
 can_upload_docs = doxygen.found() and xsltproc.found() and ducktype.found()
 
