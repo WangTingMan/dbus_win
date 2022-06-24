@@ -950,6 +950,13 @@ bonus_files = files(
     'README',
 )
 
+if platform_unix
+    run_target(
+        'maintainer-update-authors',
+        command: 'maint/update-authors.sh',
+    )
+endif
+
 subdir('dbus')
 subdir('bus')
 subdir('tools')
