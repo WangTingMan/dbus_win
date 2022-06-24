@@ -502,6 +502,11 @@ case "$ci_buildsys" in
             fi
         fi
 
+        # openSUSE's mingw*-meson wrappers are designed for self-contained
+        # package building, so they include --wrap-mode=nodownload. Switch
+        # the wrap mode back, so we can use wraps.
+        set -- "$@" --wrap=default
+
         # FIXME: ducktype target fails on debian CI..
         $meson_setup -Dducktype_docs=disabled "$@" "$srcdir"
         meson compile
