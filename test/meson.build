@@ -109,6 +109,7 @@ libdbus_testutils = static_library('dbus-testutils',
     ],
     dependencies: [
         glib,
+        gio,
         dbus_dependencies,
     ],
 )
