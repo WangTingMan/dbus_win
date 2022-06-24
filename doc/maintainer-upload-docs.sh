@@ -28,6 +28,17 @@ set -eux
 : "${SPECIFICATION_SERVER:=specifications.freedesktop.org}"
 : "${SPECIFICATION_PATH:=/srv/specifications.freedesktop.org/www/dbus/1.0}"
 
+if [ -n "${MESON_BUILD_ROOT-}" ]; then
+    cd "${MESON_BUILD_ROOT}"
+fi
+
+if [ -n "${MESON_SOURCE_ROOT-}" ]; then
+    top_srcdir="${MESON_SOURCE_ROOT}"
+else
+    # assume build directory is inside source directory
+    top_srcdir=".."
+fi
+
 TMPDIR=$(mktemp -d)
 
 mkdir -p "$TMPDIR/api"
@@ -39,4 +50,4 @@ tar --xz -c -f dbus-docs.tar.xz dbus-docs
 scp dbus-docs.tar.xz "$DOC_SERVER:$DOC_WWW_DIR/"
 rsync -rpvzP --chmod=Dg+s,ug+rwX,o=rX dbus-docs/ "$DOC_SERVER:$DOC_WWW_DIR/doc/"
 
-scp -p ../doc/*.dtd "$SPECIFICATION_SERVER:$SPECIFICATION_PATH/"
+scp -p "$top_srcdir"/doc/*.dtd "$SPECIFICATION_SERVER:$SPECIFICATION_PATH/"
