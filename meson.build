@@ -689,8 +689,8 @@ dbus_enable_modular_tests = (
 
 docs_dir = get_option('datadir') / 'doc' / 'dbus'
 
-data_config.set('EXPANDED_LOCALSTATEDIR', '/' / get_option('localstatedir'))
-data_config.set('EXPANDED_SYSCONFDIR',    '/' / get_option('sysconfdir'))
+data_config.set('EXPANDED_LOCALSTATEDIR', get_option('prefix') / get_option('localstatedir'))
+data_config.set('EXPANDED_SYSCONFDIR', get_option('prefix') / get_option('sysconfdir'))
 data_config.set('EXPANDED_RUNSTATEDIR',   '/' / 'run')
 data_config.set('EXPANDED_BINDIR',  get_option('prefix') / get_option('bindir'))
 data_config.set('EXPANDED_DATADIR', get_option('prefix') / get_option('datadir'))
@@ -720,7 +720,11 @@ if system_socket == ''
     # We don't use runstatedir for this (yet?), because /var/run has been the
     # interoperable system bus socket for 10+ years.
     # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
-    system_socket = '/' / get_option('localstatedir')/'run'/'dbus'/'system_bus_socket'
+    system_socket = (
+        get_option('prefix')
+        / get_option('localstatedir')
+        /'run'/'dbus'/'system_bus_socket'
+    )
 endif
 data_config.set('DBUS_SYSTEM_SOCKET', system_socket)
 
@@ -958,7 +962,7 @@ pkgconfig.generate(
          'bindir': '${prefix}' / get_option('bindir'),
          'datadir': '${prefix}' / get_option('datadir'),
          'datarootdir': '${prefix}' / get_option('datadir'),
-         'sysconfdir': '/' / get_option('sysconfdir'),
+         'sysconfdir': '${prefix}' / get_option('sysconfdir'),
 
          'daemondir': '${bindir}',
          'system_bus_default_address': system_bus_default_address,
