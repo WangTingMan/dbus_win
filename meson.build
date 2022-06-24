@@ -883,7 +883,6 @@ config.set('DBUS_ENABLE_CONTAINERS', get_option('containers'))
 enable_user_session = get_option('user_session')
 
 
-# Add this only for the correct targets
 config.set('DBUS_COMPILATION', true)
 
 exe_ext = platform_windows ? '.exe' : ''
