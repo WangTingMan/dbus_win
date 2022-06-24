@@ -268,6 +268,8 @@ case "$ci_distro" in
                     p=$(zypper lr | grep "windows_mingw_win${bits}" || true)
                     if [ -z "$p" ]; then
                         $zypper ar --refresh --no-gpgcheck \
+                            "https://download.opensuse.org/repositories/windows:/mingw/$repo/windows:mingw.repo"
+                        $zypper ar --refresh --no-gpgcheck \
                             "https://download.opensuse.org/repositories/windows:/mingw:/win${bits}/$repo/windows:mingw:win${bits}.repo"
                     fi
                 )
