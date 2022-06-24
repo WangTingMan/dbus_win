@@ -176,9 +176,10 @@ if doxygen.found()
 
     dbus_srcs = run_command(
         python,
-        '-c',
-        '''from glob import glob;print('\n'.join(glob('@0@/*.[ch]')))'''.format(meson.project_source_root() / 'dbus'),
-        check: true).stdout().strip().split('\n')
+        files('list-doc-source.py'),
+        meson.project_source_root() / 'dbus',
+        check: true
+    ).stdout().strip().split('\n')
     dbus_srcs += dbus_arch_deps_h
 
     doxygen_tgt = custom_target('doxygen',
