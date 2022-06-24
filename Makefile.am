@@ -31,6 +31,8 @@ EXTRA_DIST =			\
 	meson_options.txt \
 	meson_post_install.py \
 	meson_post_install_systemd.py \
+	subprojects/expat.wrap \
+	subprojects/glib.wrap \
 	test/CMakeLists.txt \
 	test/name-test/CMakeLists.txt \
 	tools/CMakeLists.txt \

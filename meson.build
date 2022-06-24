@@ -283,7 +283,12 @@ threads = dependency('threads')
 config.set('HAVE_MONOTONIC_CLOCK', cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC'))
 
 glib = dependency(
-    'glib-2.0', version: '>=2.40', required: get_option('modular_tests'),
+    'glib-2.0', version: '>=2.40',
+    required: get_option('modular_tests'),
+    fallback: ['glib', 'libglib_dep'],
+    default_options: [
+        'tests=false',
+    ],
 )
 if platform_windows
     gio = dependency('gio-windows-2.0', required: glib.found())
@@ -294,7 +299,14 @@ use_glib = glib.found() and gio.found()
 config.set('DBUS_WITH_GLIB', use_glib)
 
 expat = dependency('expat')
-config.set('HAVE_XML_SETHASHSALT', cc.has_function('XML_SetHashSalt', dependencies: expat))
+if expat.type_name() == 'internal'
+    # Configure-time checks can't act on subprojects that haven't been
+    # built yet, but we know that subprojects/expat.wrap is a new enough
+    # version to have this
+    config.set('HAVE_XML_SETHASHSALT', true)
+else
+    config.set('HAVE_XML_SETHASHSALT', cc.has_function('XML_SetHashSalt', dependencies: expat))
+endif
 
 selinux = dependency('libselinux', version: '>=2.0.86', required: get_option('selinux'))
 

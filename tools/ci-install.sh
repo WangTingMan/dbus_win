@@ -159,6 +159,7 @@ case "$ci_distro" in
             ducktype
             g++
             gcc
+            git
             gnome-desktop-testing
             libapparmor-dev
             libaudit-dev
