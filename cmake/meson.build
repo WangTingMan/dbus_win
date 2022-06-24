@@ -27,7 +27,7 @@ cmake_config.set('DBUS_VERSION',            version)
 
 cmake_files = [
     configure_file(
-        input: 'DBus1Config.cmake.in',
+        input: 'DBus1Config.pkgconfig.in',
         output: 'DBus1Config.cmake',
         configuration: cmake_config,
     ),
