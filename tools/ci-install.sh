@@ -275,6 +275,7 @@ case "$ci_distro" in
                     "${packages[@]}"
                     mingw${bits}-cross-gcc-c++
                     mingw${bits}-libexpat-devel
+                    mingw${bits}-glib2-devel
                     mingw${bits}-cross-meson
                 )
                 ;;
