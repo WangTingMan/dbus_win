@@ -49,6 +49,11 @@ configure_file(
     install_dir: get_option('datadir') / 'doc' / 'dbus' / 'examples',
 )
 
+install_data(
+    'example-system-hardening-without-traditional-activation.conf',
+    install_dir: get_option('datadir') / 'doc' / 'dbus' / 'examples',
+)
+
 if use_launchd
     configure_file(
         input: 'org.freedesktop.dbus-session.plist.in',
