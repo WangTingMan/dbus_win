@@ -157,7 +157,7 @@ configure_file(
     input: 'catalog.xml.in',
     output: 'catalog.xml',
     install_dir: xml_dir,
-    configuration: {'DBUS_DTD_DIR': xml_dir},
+    configuration: {'DBUS_DTD_DIR': get_option('prefix') / xml_dir},
 )
 
 ###############################################################################
