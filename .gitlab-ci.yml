@@ -353,7 +353,7 @@ windows-meson-vs15-x86:
   extends: .win-build
   script:
     - cmd.exe /C "C:\BuildTools\Common7\Tools\VsDevCmd.bat -host_arch=amd64 -arch=x86 &&
-        meson build &&
+        meson --force-fallback-for=expat,glib,zlib build &&
         meson test -C build"
 
 # vim:set sw=2 sts=2 et:
