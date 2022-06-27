@@ -87,6 +87,7 @@ variables:
     name: "dbus-$CI_JOB_NAME"
     when: always
     paths:
+      - "build/config.h"
       - "build/meson-logs/*.txt"
 
 windows amd64 image:
