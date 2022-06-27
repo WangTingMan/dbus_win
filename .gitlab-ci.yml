@@ -348,6 +348,14 @@ windows-meson-mingw-ucrt64:
         meson build &&
         ninja -j1 -C build &&
         meson test -C build"
+  artifacts:
+    reports:
+      junit: "build/meson-logs/testlog.junit.xml"
+    name: "dbus-$CI_JOB_NAME"
+    when: always
+    paths:
+      - "build/config.h"
+      - "build/meson-logs/*.txt"
 
 windows-meson-vs15-x86:
   extends: .win-build
@@ -355,5 +363,13 @@ windows-meson-vs15-x86:
     - cmd.exe /C "C:\BuildTools\Common7\Tools\VsDevCmd.bat -host_arch=amd64 -arch=x86 &&
         meson --force-fallback-for=expat,glib,zlib build &&
         meson test -C build"
+  artifacts:
+    reports:
+      junit: "build/meson-logs/testlog.junit.xml"
+    name: "dbus-$CI_JOB_NAME"
+    when: always
+    paths:
+      - "build/config.h"
+      - "build/meson-logs/*.txt"
 
 # vim:set sw=2 sts=2 et:
