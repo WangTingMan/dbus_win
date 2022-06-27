@@ -378,12 +378,14 @@ if use_glib
             'srcs': [ 'dbus-daemon.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'suite': ['runs-dbus-daemon'],
         },
         {
             'name': 'dbus-daemon-eavesdrop',
             'srcs': [ 'dbus-daemon-eavesdrop.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'suite': ['runs-dbus-daemon'],
         },
         {
             'name': 'desktop-file',
@@ -403,6 +405,7 @@ if use_glib
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
             'timeout': 120,
+            'suite': ['runs-dbus-daemon'],
         },
         {
             'name': 'message',
@@ -415,6 +418,7 @@ if use_glib
             'srcs': [ 'monitor.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'suite': ['runs-dbus-daemon'],
         },
         {
             'name': 'loopback',
@@ -469,6 +473,7 @@ if use_glib
             'srcs': [ 'uid-permissions.c' ],
             'link': [ libdbus_testutils, ],
             'deps': [ glib, gio, ],
+            'suite': ['runs-dbus-daemon'],
         },
         {
             'name': 'variant',
@@ -498,11 +503,13 @@ if use_glib
                 'srcs': [ 'containers.c' ],
                 'link': [ libdbus_testutils, ],
                 'deps': [ glib, gio, ],
+                'suite': ['runs-dbus-daemon'],
             },
             {   'name': 'sd-activation',
                 'srcs': [ 'sd-activation.c' ],
                 'link': [ libdbus_testutils, ],
                 'deps': [ glib, gio, ],
+                'suite': ['runs-dbus-daemon'],
             },
         ]
 
@@ -514,6 +521,7 @@ foreach test: tests
     srcs = test.get('srcs')
     link = test.get('link', [])
     deps = test.get('deps', [])
+    suites = test.get('suite', ['dbus'])
     timeout = test.get('timeout', 30)
     install = test.get('install', true)
 
@@ -535,6 +543,7 @@ foreach test: tests
             args: ['--tap'],
             env: test_env,
             protocol: 'tap',
+            suite: suites,
             timeout: timeout,
         )
     endif
@@ -575,6 +584,7 @@ endif
 foreach script: scripts
     name = script.get('name')
     install = script.get('install', true)
+    suites = script.get('suite', ['dbus'])
     test_subdir = script.get('subdir', '')
 
     if test_subdir == ''
@@ -602,6 +612,7 @@ foreach script: scripts
             find_program(script.get('subdir', '.') / name),
             env: test_env,
             depends: xdgdir,
+            suite: suites,
         )
     endif
 endforeach
