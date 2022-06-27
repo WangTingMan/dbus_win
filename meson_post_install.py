@@ -91,8 +91,8 @@ def post_install_exe():
         exe_path = abs_libdir / 'dbus-1.0' / exe_name
         dbus_user = get_option('dbus_user')
         if os.getuid() == 0:
-            os.chmod(exe_path, stat.S_ISUID | stat.S_IXUSR | stat.S_IXGRP)
             os.chown(exe_path, 0, grp.getgrnam(dbus_user).gr_gid)
+            os.chmod(exe_path, stat.S_ISUID | stat.S_IXUSR | stat.S_IXGRP)
         else:
             print('Not installing {0} binary setuid!'.format(exe_path))
             print('You\'ll need to manually set permissions to root:{0} and permissions 4750'
