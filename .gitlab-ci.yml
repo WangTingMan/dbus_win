@@ -347,7 +347,7 @@ windows-meson-mingw-ucrt64:
     - C:\msys64\usr\bin\bash -lc "
         meson build &&
         ninja -j1 -C build &&
-        meson test -C build"
+        meson test --no-suite=runs-dbus-daemon -C build"
   artifacts:
     reports:
       junit: "build/meson-logs/testlog.junit.xml"
@@ -360,10 +360,11 @@ windows-meson-mingw-ucrt64:
 windows-meson-vs15-x86:
   extends: .win-build
   script:
+    # FIXME: tests that run dbus-daemon time out on the Gitlab runner
     - cmd.exe /C "C:\BuildTools\Common7\Tools\VsDevCmd.bat -host_arch=amd64 -arch=x86 &&
         meson --force-fallback-for=expat,glib,zlib build &&
         meson compile -C build &&
-        meson test -C build"
+        meson test --no-suite=runs-dbus-daemon -C build"
   artifacts:
     reports:
       junit: "build/meson-logs/testlog.junit.xml"
