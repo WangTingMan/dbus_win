@@ -242,7 +242,16 @@ case "$ci_host" in
             if [ "$ci_runtime" = "shared" ]; then
                 libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
             fi
-            init_wine "${dep_prefix}/bin" "${builddir}/bin" ${libgcc_path:+"$libgcc_path"}
+            init_wine \
+                "${builddir}/bin" \
+                "${builddir}/subprojects/expat-2.4.8" \
+                "${builddir}/subprojects/glib-2.72.2/gio" \
+                "${builddir}/subprojects/glib-2.72.2/glib" \
+                "${builddir}/subprojects/glib-2.72.2/gmodule" \
+                "${builddir}/subprojects/glib-2.72.2/gobject" \
+                "${builddir}/subprojects/glib-2.72.2/gthread" \
+                "${dep_prefix}/bin" \
+                ${libgcc_path:+"$libgcc_path"}
         fi
         ;;
 esac
