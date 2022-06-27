@@ -145,7 +145,6 @@ xml_dir = get_option('datadir') / 'xml' / 'dbus-1'
 dtd_files = [
     'busconfig.dtd',
     'introspect.dtd',
-    'introspect.xsl',
 ]
 
 install_data(
