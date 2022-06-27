@@ -48,5 +48,6 @@ file*.lst
 .libs/
 Makefile
 Makefile.in
+__pycache__/
 cscope.out
 tags
