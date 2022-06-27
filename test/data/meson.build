@@ -201,4 +201,23 @@ endif
 
 if install_tests
     subdir('installable')
+
+    if platform_unix
+        install_symlinks += [
+            {
+                'link_name': 'session.conf',
+                'install_dir': test_exec_dir / 'data' / 'valid-config-files',
+                'pointing_to':
+                    get_option('prefix') / get_option('datadir') /
+                    'dbus-1' / 'session.conf',
+            },
+            {
+                'link_name': 'system.conf',
+                'install_dir': test_exec_dir / 'data' / 'valid-config-files-system',
+                'pointing_to':
+                    get_option('prefix') / get_option('datadir') /
+                    'dbus-1' / 'system.conf',
+            },
+        ]
+    endif
 endif
