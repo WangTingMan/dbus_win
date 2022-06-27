@@ -284,6 +284,9 @@ opensuse mingw64 meson debug:
   variables:
     ci_host: "x86_64-w64-mingw32"
     ci_local_packages: "no"
+    # TODO: Tests in this configuration fail to find the mingw builds
+    # of expat and GLib in /usr/x86_64-w64-mingw32/sys-root/mingw/bin
+    ci_test: "no"
     ci_variant: "debug"
 
 .ubuntu-build:
