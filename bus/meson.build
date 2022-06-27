@@ -183,3 +183,28 @@ if platform_unix and use_traditional_activation
         install_dir: get_option('libexecdir'),
     )
 endif
+
+if use_systemd
+    install_symlinks += [
+        {
+            'link_name': 'dbus.service',
+            'install_dir': systemd_system_unitdir / 'multi-user.target.wants',
+            'pointing_to': '../dbus.service',
+        },
+        {
+            'link_name': 'dbus.socket',
+            'install_dir': systemd_system_unitdir / 'sockets.target.wants',
+            'pointing_to': '../dbus.socket',
+        },
+    ]
+endif
+
+if use_systemd and get_option('user_session')
+    install_symlinks += [
+        {
+            'link_name': 'dbus.socket',
+            'install_dir': systemd_user_unitdir / 'sockets.target.wants',
+            'pointing_to': '../dbus.socket',
+        },
+    ]
+endif

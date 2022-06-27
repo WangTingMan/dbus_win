@@ -154,3 +154,4 @@ installcheck-local:
 
 EXTRA_DIST += build-timestamp.py
 EXTRA_DIST += meson.build
+EXTRA_DIST += meson-compat-install-symlink.py

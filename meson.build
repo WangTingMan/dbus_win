@@ -42,6 +42,8 @@ data_config = configuration_data()
 compile_args = []
 link_args = []
 
+install_symlinks = []
+
 ###############################################################################
 # Project configuration
 
@@ -983,13 +985,6 @@ meson.add_install_script('meson_post_install.py',
     '@0@'.format(use_systemd),
 )
 
-if use_systemd
-    meson.add_install_script('meson_post_install_systemd.py',
-        systemd_system_unitdir,
-        systemd_user_unitdir,
-    )
-endif
-
 pkgconfig.generate(
     libdbus,
     name: 'dbus',
@@ -1015,6 +1010,31 @@ pkgconfig.generate(
          'interfaces_dir': '${datadir}/dbus-1/interfaces',
     }
 )
+
+foreach symlink : install_symlinks
+    if not platform_unix
+        warning(
+            'Not creating symbolic link @0@/@1@ -> @2@'.format(
+                symlink['install_dir'],
+                symlink['link_name'],
+                symlink['pointing_to'],
+            )
+        )
+    elif meson.version().version_compare('>=0.61.0')
+        install_symlink(
+            symlink['link_name'],
+            install_dir : symlink['install_dir'],
+            pointing_to : symlink['pointing_to'],
+        )
+    else
+        meson.add_install_script(
+            'tools/meson-compat-install-symlink.py',
+            symlink['link_name'],
+            symlink['install_dir'],
+            symlink['pointing_to'],
+        )
+    endif
+endforeach
 
 summary_dict = {
     'prefix':                   get_option('prefix'),
