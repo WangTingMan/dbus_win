@@ -2895,6 +2895,44 @@ static const char *cDBusDaemonMutex = "DBusDaemonMutex";
 // named shm for dbus adress info (per user)
 static const char *cDBusDaemonAddressInfo = "DBusDaemonAddressInfo";
 
+/* custom command line parameter for autolaunching daemon */
+static const char *autolaunch_custom_command_line_parameter = "";
+
+/**
+ * Set command line parameters for the dbus daemon to start
+ * for an autolaunch session.
+ *
+ * The specified instance must be valid until the dbus-daemon
+ * is started.
+ *
+ * This function is not thread-safe, and can only be called from a
+ * single-threaded unit test.
+ *
+ * @param path string to use as command line parameter
+ */
+void _dbus_test_win_autolaunch_set_command_line_parameter (const char *path)
+{
+  autolaunch_custom_command_line_parameter = path;
+}
+
+static HANDLE *autolaunch_handle_location;
+
+/**
+ * Set location where to store process handle of an autostarted server
+ *
+ * This function is not thread-safe, and can only be called from a
+ * single-threaded unit test.
+ *
+ * After using the handle it must be closed with @ref CloseHandle().
+ *
+ * @param location Pointer where to store the handle
+ */
+void
+_dbus_test_win_set_autolaunch_handle_location (HANDLE *location)
+{
+  autolaunch_handle_location = location;
+}
+
 /**
  * Return the hash of the installation root directory, which can be
  * used to construct a per-installation-root scope for autolaunching
@@ -3235,41 +3273,53 @@ _dbus_daemon_unpublish_session_bus_address (void)
   return TRUE;
 }
 
+/**
+ * Get server bus address from shared memory segment provided by running dbus-daemon
+ *
+ * @param address initialized DBusString instance to store the retrieved address
+ * @param shm_name the name of the shared memory segment
+ * @param wait if TRUE wait maximum 2 seconds for the presence of the shared memory segment
+ * @return #TRUE the bus address was fetched from the shared memory segment
+ * @return #FALSE error during execution
+ */
 static dbus_bool_t
-_dbus_get_autolaunch_shm (DBusString *address, DBusString *shm_name)
+_dbus_get_autolaunch_shm (DBusString *address, DBusString *shm_name, dbus_bool_t wait)
 {
-  HANDLE sharedMem;
+  HANDLE sharedMem = NULL;
   char *shared_addr;
   int i;
+  int max = 20; /* max 2 seconds */
+  dbus_bool_t retval = FALSE;
+
+  if (!wait)
+    max = 1;
 
   // read shm
-  for(i=0;i<20;++i) {
+  for (i = 0; i < max; ++i)
+    {
       // we know that dbus-daemon is available, so we wait until shm is available
       sharedMem = OpenFileMappingA (FILE_MAP_READ, FALSE, _dbus_string_get_const_data (shm_name));
       if (sharedMem == 0)
-          Sleep (100);
-      if ( sharedMem != 0)
-          break;
-  }
+        Sleep (100);
+      if (sharedMem != 0)
+        break;
+    }
 
   if (sharedMem == 0)
-      return FALSE;
+    return FALSE;
 
   shared_addr = MapViewOfFile (sharedMem, FILE_MAP_READ, 0, 0, 0);
 
   if (!shared_addr)
-      return FALSE;
+    goto out;
 
-  _dbus_string_init (address);
+  retval = _dbus_string_append (address, shared_addr);
 
-  _dbus_string_append (address, shared_addr);
-
-  // cleanup
   UnmapViewOfFile (shared_addr);
 
+out:
   CloseHandle (sharedMem);
-
-  return TRUE;
+  return retval;
 }
 
 static dbus_bool_t
@@ -3283,7 +3333,7 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
   if (!_dbus_string_init (&mutex_name))
     return FALSE;
 
-  if (!_dbus_get_mutex_name (&mutex_name,scope) ||
+  if (!_dbus_get_mutex_name (&mutex_name, scope) ||
       /* not determinable */
       _dbus_string_get_length (&mutex_name) == 0)
     {
@@ -3300,15 +3350,15 @@ _dbus_daemon_already_runs (DBusString *address, DBusString *shm_name, const char
 
   // do checks
   daemon = CreateMutexA (NULL, FALSE, _dbus_string_get_const_data (&mutex_name));
-  if(WaitForSingleObject (daemon, 10) != WAIT_TIMEOUT)
+  if (WaitForSingleObject (daemon, 10) != WAIT_TIMEOUT)
     {
       ReleaseMutex (daemon);
       CloseHandle (daemon);
       goto out;
     }
 
-  // read shm
-  retval = _dbus_get_autolaunch_shm (address, shm_name);
+  // read shm, wait max 2 seconds
+  retval = _dbus_get_autolaunch_shm (address, shm_name, TRUE);
 
   // cleanup
   CloseHandle (daemon);
@@ -3333,14 +3383,15 @@ _dbus_get_autolaunch_address (const char *scope,
   LPSTR lpFile;
   char dbus_exe_path[MAX_PATH];
   DBusString dbus_args = _DBUS_STRING_INIT_INVALID;
-  const char * daemon_name = DBUS_DAEMON_NAME ".exe";
+  const char *daemon_name = DBUS_DAEMON_NAME ".exe";
   DBusString shm_name;
+  HANDLE ready_event_handle = NULL;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
   if (!_dbus_string_init (&shm_name))
     {
-      _DBUS_SET_OOM(error);
+      _DBUS_SET_OOM (error);
       return FALSE;
     }
 
@@ -3365,12 +3416,12 @@ _dbus_get_autolaunch_address (const char *scope,
   if (_dbus_daemon_already_runs (address, &shm_name, scope))
     {
       _dbus_verbose ("found running dbus daemon for scope '%s' at %s\n",
-                     scope ? scope : "", _dbus_string_get_const_data (&shm_name) );
+                     scope ? scope : "", _dbus_string_get_const_data (&shm_name));
       retval = TRUE;
       goto out;
     }
 
-  if (!SearchPathA (NULL, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+  if (!SearchPathA (NULL, daemon_name, NULL, sizeof (dbus_exe_path), dbus_exe_path, &lpFile))
     {
       // Look in directory containing dbus shared library
       HMODULE hmod;
@@ -3381,7 +3432,7 @@ _dbus_get_autolaunch_address (const char *scope,
                      "trying path where dbus shared library is located");
 
       hmod = _dbus_win_get_dll_hmodule ();
-      rc = GetModuleFileNameA (hmod, dbus_module_path, sizeof(dbus_module_path));
+      rc = GetModuleFileNameA (hmod, dbus_module_path, sizeof (dbus_module_path));
       if (rc <= 0)
         {
           dbus_set_error_const (error, DBUS_ERROR_FAILED, "could not retrieve dbus shared library file name");
@@ -3393,7 +3444,7 @@ _dbus_get_autolaunch_address (const char *scope,
           char *ext_idx = strrchr (dbus_module_path, '\\');
           if (ext_idx)
             *ext_idx = '\0';
-          if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof(dbus_exe_path), dbus_exe_path, &lpFile))
+          if (!SearchPathA (dbus_module_path, daemon_name, NULL, sizeof (dbus_exe_path), dbus_exe_path, &lpFile))
             {
               dbus_set_error (error, DBUS_ERROR_FAILED,
                               "Could not find dbus-daemon executable. "
@@ -3407,11 +3458,10 @@ _dbus_get_autolaunch_address (const char *scope,
         }
     }
 
-
   // Create process
-  ZeroMemory (&si, sizeof(si));
+  ZeroMemory (&si, sizeof (si));
   si.cb = sizeof (si);
-  ZeroMemory (&pi, sizeof(pi));
+  ZeroMemory (&pi, sizeof (pi));
 
   if (!_dbus_string_init (&dbus_args))
     {
@@ -3420,19 +3470,79 @@ _dbus_get_autolaunch_address (const char *scope,
       goto out;
     }
 
-  if (!_dbus_string_append_printf (&dbus_args, "\"%s\" --session", dbus_exe_path))
+  if (!_dbus_string_append_printf (&dbus_args, "\"%s\" %s", dbus_exe_path,
+                                   autolaunch_custom_command_line_parameter ? autolaunch_custom_command_line_parameter : "--session"))
     {
-      dbus_set_error_const (error, DBUS_ERROR_NO_MEMORY, "Failed to append string to argument buffer");
+      _DBUS_SET_OOM (error);
       retval = FALSE;
       goto out;
     }
 
-//  argv[i] = "--config-file=bus\\session.conf";
-  if(CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+  ready_event_handle = _dbus_win_event_create_inheritable (error);
+  if (ready_event_handle == NULL)
+    goto out;
+
+  _dbus_verbose ("Creating connection readiness event: handle=%p\n", ready_event_handle);
+  if (!_dbus_string_append_printf (&dbus_args, " \"--ready-event-handle=%p\"", ready_event_handle))
     {
+      _DBUS_SET_OOM (error);
+      goto out;
+    }
+
+  _dbus_verbose ("Starting dbus daemon with args: '%s'\n", _dbus_string_get_const_data (&dbus_args));
+  if (CreateProcessA (dbus_exe_path, _dbus_string_get_data (&dbus_args), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+      DWORD status;
+      HANDLE events[2];
+
       CloseHandle (pi.hThread);
-      CloseHandle (pi.hProcess);
-      retval = _dbus_get_autolaunch_shm (address, &shm_name);
+
+      _dbus_verbose ("Wait until dbus-daemon is ready for connections (event handle %p)\n", ready_event_handle);
+
+      events[0] = ready_event_handle;
+      events[1] = pi.hProcess;
+      status = WaitForMultipleObjects (2, events, FALSE, 30000);
+
+      switch (status)
+        {
+        case WAIT_OBJECT_0:
+          /* ready event signalled, everything is okay */
+          retval = TRUE;
+          break;
+
+        case WAIT_OBJECT_0 + 1:
+          /* dbus-daemon process has exited */
+          dbus_set_error (error, DBUS_ERROR_SPAWN_CHILD_EXITED, "dbus-daemon exited before signalling ready");
+          goto out;
+
+        case WAIT_FAILED:
+          _dbus_win_set_error_from_last_error (error, "Unable to wait for server readiness (handle %p)", ready_event_handle);
+          goto out;
+
+        case WAIT_TIMEOUT:
+          /* GetLastError() is not set */
+          dbus_set_error (error, DBUS_ERROR_TIMEOUT, "Timed out waiting for server readiness or exit (handle %p)", ready_event_handle);
+          goto out;
+
+        default:
+          /* GetLastError() is probably not set? */
+          dbus_set_error (error, DBUS_ERROR_FAILED, "Unknown result '%lu' while waiting for server readiness (handle %p)", status, ready_event_handle);
+          goto out;
+        }
+      _dbus_verbose ("Got signal that dbus-daemon with process id '%ld' is ready for connections\n", GetProcessId (pi.hProcess));
+
+      if (autolaunch_handle_location != NULL)
+        {
+          *autolaunch_handle_location = pi.hProcess;
+          _dbus_verbose ("Returning process handle of started server (handle=%p)\n", pi.hProcess);
+        }
+      else
+        {
+          CloseHandle (pi.hProcess);
+        }
+
+      /* do not wait for the appearance of shm, we can assume that it is present */
+      retval = _dbus_get_autolaunch_shm (address, &shm_name, FALSE);
       if (retval == FALSE)
         dbus_set_error_const (error, DBUS_ERROR_FAILED, "Failed to get autolaunch address from launched dbus-daemon");
     }
@@ -3448,10 +3558,12 @@ out:
   _dbus_platform_rmutex_free (lock);
   _dbus_string_free (&shm_name);
   _dbus_string_free (&dbus_args);
+  if (ready_event_handle)
+    _dbus_win_event_free (ready_event_handle, NULL);
 
+  _DBUS_ASSERT_ERROR_XOR_BOOL (error, retval);
   return retval;
- }
-
+}
 
 /** Makes the file readable by every user in the system.
  *
