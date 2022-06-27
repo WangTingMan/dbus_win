@@ -516,7 +516,7 @@ case "$ci_buildsys" in
 
         # FIXME: ducktype target fails on debian CI..
         $meson_setup -Dducktype_docs=disabled "$@" "$srcdir"
-        meson compile
+        meson compile -v
         [ "$ci_test" = no ] || meson test
         DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
