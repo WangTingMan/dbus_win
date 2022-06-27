@@ -23,7 +23,7 @@ dbus_dependencies = [
     threads,
     network_libs,
     systemd,
-    valgrind,
+    valgrind.partial_dependency(compile_args: true),
 ]
 
 # source code that goes in the installed client library
