@@ -477,6 +477,17 @@ case "$ci_buildsys" in
                 ;;
         esac
 
+        case "$ci_distro" in
+            (debian*|ubuntu*)
+                # We know how to install python3-mallard-ducktype
+                ;;
+            (*)
+                # TODO: We don't know the openSUSE equivalent of
+                # python3-mallard-ducktype
+                set -- -Dducktype_docs=disabled "$@"
+                ;;
+        esac
+
         set -- -Dmodular_tests=enabled "$@"
 
         case "$ci_variant" in
@@ -514,8 +525,7 @@ case "$ci_buildsys" in
         # the wrap mode back, so we can use wraps.
         set -- "$@" --wrap=default
 
-        # FIXME: ducktype target fails on debian CI..
-        $meson_setup -Dducktype_docs=disabled "$@" "$srcdir"
+        $meson_setup "$@" "$srcdir"
         meson compile -v
         [ "$ci_test" = no ] || meson test
         DESTDIR=DESTDIR meson install
