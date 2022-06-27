@@ -42,6 +42,7 @@ data_config = configuration_data()
 compile_args = []
 link_args = []
 
+install_emptydirs = []
 install_symlinks = []
 
 ###############################################################################
@@ -980,9 +981,7 @@ subdir('doc')
 subdir('cmake')
 
 meson.add_install_script('meson_post_install.py',
-    '@0@'.format(platform_unix),
     '@0@'.format(relocation),
-    '@0@'.format(use_systemd),
 )
 
 pkgconfig.generate(
@@ -1010,6 +1009,17 @@ pkgconfig.generate(
          'interfaces_dir': '${datadir}/dbus-1/interfaces',
     }
 )
+
+if meson.version().version_compare('>=0.60.0')
+    foreach dir : install_emptydirs
+        install_emptydir(dir)
+    endforeach
+else
+    meson.add_install_script(
+        'tools/meson-compat-install-emptydirs.py',
+        ':'.join(install_emptydirs),
+    )
+endif
 
 foreach symlink : install_symlinks
     if not platform_unix

@@ -57,23 +57,8 @@ def to_destdir(path):
 
 # Define paths here
 abs_libdir = destdir_prefix / get_option('libdir')
-dbus_data_dir = destdir_prefix / get_option('datadir') / 'dbus-1'
 
-platform_unix = sys.argv[1].lower() == 'true'
-relocation = sys.argv[2].lower() == 'true'
-
-def post_install_data():
-    (dbus_data_dir / 'session.d').mkdir(parents=True, exist_ok=True)
-    (dbus_data_dir / 'services').mkdir(parents=True, exist_ok=True)
-    (dbus_data_dir / 'session.d').mkdir(parents=True, exist_ok=True)
-
-    localstatedir = Path(get_option('localstatedir'))
-    if destdir:
-        localstatedir = destdir / localstatedir.relative_to(localstatedir.anchor)
-    if platform_unix:
-        (localstatedir / 'run' / 'dbus').mkdir(parents=True, exist_ok=True)
-        (dbus_data_dir / 'system.d').mkdir(parents=True, exist_ok=True)
-        (dbus_data_dir / 'system-services').mkdir(parents=True, exist_ok=True)
+relocation = sys.argv[1].lower() == 'true'
 
 def post_install_relocation():
     # Edit pkg-config file to replace the prefix
@@ -116,6 +101,5 @@ def post_install_exe():
 
 
 if __name__ == "__main__":
-    post_install_data()
     post_install_relocation()
     post_install_exe()

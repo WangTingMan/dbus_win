@@ -184,6 +184,19 @@ if platform_unix and use_traditional_activation
     )
 endif
 
+install_emptydirs += [
+    get_option('datadir') / 'dbus-1' / 'session.d',
+    get_option('datadir') / 'dbus-1' / 'services',
+]
+
+if platform_unix
+    install_emptydirs += [
+        get_option('localstatedir') / 'run' / 'dbus',
+        get_option('datadir') / 'dbus-1' / 'system.d',
+        get_option('datadir') / 'dbus-1' / 'system-services',
+    ]
+endif
+
 if use_systemd
     install_symlinks += [
         {
