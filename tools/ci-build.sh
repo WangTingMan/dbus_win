@@ -483,6 +483,9 @@ case "$ci_buildsys" in
                 set -- -Dselinux=disabled "$@"
                 set -- -Dsystemd=disabled "$@"
                 set -- -Dx11_autolaunch=disabled "$@"
+                # We seem to have trouble finding libexpat.dll when
+                # cross-building for Windows and running tests with Wine.
+                set -- -Dexpat:default_library=static "$@"
                 ;;
         esac
 
