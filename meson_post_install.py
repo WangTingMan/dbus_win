@@ -80,6 +80,9 @@ def post_install_relocation():
     #
     # TODO: Meson >=0.63 has a new feature, -Dpkgconfig.relocatable=true.
 
+    if not relocation:
+        return
+
     pc_filepath = next(
         v for (k,v) in introspection['installed'].items() if k.endswith('.pc')
     )
