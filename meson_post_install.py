@@ -56,7 +56,7 @@ def to_destdir(path):
 ###############################################################################
 
 # Define paths here
-abs_libdir = destdir_prefix / get_option('libdir')
+abs_libexecdir = destdir_prefix / get_option('libexecdir')
 
 relocation = sys.argv[1].lower() == 'true'
 
@@ -88,7 +88,7 @@ def post_install_exe():
     if daemon_launch_helper:
         import grp
         exe_name = os.path.basename(daemon_launch_helper['install_filename'][0])
-        exe_path = abs_libdir / 'dbus-1.0' / exe_name
+        exe_path = abs_libexecdir / exe_name
         dbus_user = get_option('dbus_user')
         if os.getuid() == 0:
             os.chown(exe_path, 0, grp.getgrnam(dbus_user).gr_gid)
