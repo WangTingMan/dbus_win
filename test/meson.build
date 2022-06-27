@@ -557,7 +557,7 @@ if platform_unix and use_glib
     scripts += [
         {   'name': 'test-dbus-daemon-fork.sh', },
         {   'name': 'transient-services.sh',
-            'exec': 'integration/transient-services.sh',
+            'subdir': 'integration',
             'build_time_test': false },
         {   'name': 'test-apparmor-activation.sh',
             'build_time_test': false },
@@ -574,17 +574,23 @@ endif
 
 foreach script: scripts
     name = script.get('name')
-    exec = script.get('exec', script.get('name'))
     install = script.get('install', true)
+    test_subdir = script.get('subdir', '')
+
+    if test_subdir == ''
+        install_dir = test_exec_dir
+    else
+        install_dir = test_exec_dir / test_subdir
+    endif
 
     if install_tests and install
-        install_data(exec,
+        install_data(test_subdir / name,
             install_mode: 'rwxr-xr-x',
-            install_dir: test_exec_dir,
+            install_dir: install_dir,
         )
         installed_tests += [{
             'name': name,
-            'exe': name,
+            'subdir': test_subdir,
         }]
     endif
 
@@ -593,7 +599,7 @@ foreach script: scripts
     # guaranteed to work at build-time
     if script.get('build_time_test', true) and script.get('test', true)
         test(name,
-            find_program(exec),
+            find_program(script.get('subdir', '.') / name),
             env: test_env,
             depends: xdgdir,
         )
@@ -604,23 +610,31 @@ endforeach
 foreach test_case: installed_tests
     name = test_case.get('name')
     exe = test_case.get('exe', name)
+    test_subdir = test_case.get('subdir', '')
+
+    if test_subdir == ''
+        exe = get_option('prefix') / test_exec_dir / exe
+        install_dir = test_meta_dir
+    else
+        exe = get_option('prefix') / test_exec_dir / test_subdir / exe
+        install_dir = test_meta_dir / test_subdir
+    endif
 
     meta_config = configuration_data()
     meta_config.set('command',
-        'env @0@/@1@ --tap'.format(
-            get_option('prefix') / test_exec_dir, exe,
-    ))
+        'env @0@ --tap'.format(exe),
+    )
     configure_file(
         input : 'meta_template.test.in',
         output: name + '.test',
         configuration: meta_config,
         install: install_tests,
-        install_dir: test_meta_dir
+        install_dir: install_dir,
     )
 
     meta_config = configuration_data()
     meta_config.set('command',
-        'env DBUS_TEST_EXEC=@0@ DBUS_TEST_DATA=@0@/data @0@/@1@ --tap'.format(
+        'env DBUS_TEST_EXEC=@0@ DBUS_TEST_DATA=@0@/data @1@ --tap'.format(
             get_option('prefix') / test_exec_dir, exe,
     ))
     configure_file(
@@ -628,7 +642,7 @@ foreach test_case: installed_tests
         output: name + '_with_config.test',
         configuration: meta_config,
         install: install_tests,
-        install_dir: test_meta_dir
+        install_dir: install_dir,
     )
 
 endforeach
