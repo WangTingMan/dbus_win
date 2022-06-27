@@ -226,7 +226,11 @@ if ducktype.found() and yelpbuild.found()
             'C.css',
             'highlight.pack.js',
         ],
-        command: [ yelpbuild, 'html', '@INPUT@', '-o', meson.current_build_dir() ],
+        command: [
+            yelpbuild, 'html',
+            '-o', meson.current_build_dir(),
+            '@INPUT@',
+        ],
         install: true,
         install_dir: docs_dir,
     )
