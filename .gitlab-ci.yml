@@ -362,6 +362,7 @@ windows-meson-vs15-x86:
   script:
     - cmd.exe /C "C:\BuildTools\Common7\Tools\VsDevCmd.bat -host_arch=amd64 -arch=x86 &&
         meson --force-fallback-for=expat,glib,zlib build &&
+        meson compile -C build &&
         meson test -C build"
   artifacts:
     reports:
