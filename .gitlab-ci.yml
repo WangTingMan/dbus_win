@@ -181,6 +181,8 @@ debian meson:
   extends:
     - .meson-common
     - .debian-build
+  variables:
+    ci_buildsys: "meson-dist"
 
 debian mingw32 autotools debug:
   extends: .debian-build

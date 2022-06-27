@@ -181,10 +181,10 @@ rm -rf ci-build-dist
 rm -rf src-from-dist
 
 case "$ci_buildsys" in
-    (cmake-dist)
-        # Do an Autotools `make dist`, then build *that* with CMake,
+    (cmake-dist|meson-dist)
+        # Do an Autotools `make dist`, then build *that* with CMake or Meson,
         # to assert that our official release tarballs will be enough
-        # to build with CMake.
+        # to build with CMake or Meson.
         mkdir -p ci-build-dist
         ( cd ci-build-dist; ../configure )
         make -C ci-build-dist dist
@@ -433,7 +433,7 @@ case "$ci_buildsys" in
         ( cd DESTDIR && find . -ls)
         ;;
 
-    (meson)
+    (meson|meson-dist)
         # The test coverage for OOM-safety is too verbose to be useful on
         # travis-ci, and too slow when running under wine.
         export DBUS_TEST_MALLOC_FAILURES=0
