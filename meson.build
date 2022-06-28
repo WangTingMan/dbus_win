@@ -630,6 +630,9 @@ config.set10(
 )
 
 config.set10('HAVE_DECL_ENVIRON', cc.has_header_symbol('unistd.h', 'environ'))
+config.set10('HAVE_DECL_LOG_PERROR',
+    cc.has_header_symbol('syslog.h', 'LOG_PERROR')
+)
 config.set10('HAVE_DECL_MSG_NOSIGNAL',
     cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL')
 )
