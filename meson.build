@@ -295,8 +295,10 @@ glib = dependency(
 )
 if platform_windows
     gio = dependency('gio-windows-2.0', required: glib.found())
+    have_gio_unix = false
 else
     gio = dependency('gio-unix-2.0',    required: glib.found())
+    have_gio_unix = gio.found()
 endif
 use_glib = glib.found() and gio.found()
 config.set('DBUS_WITH_GLIB', use_glib)
@@ -688,7 +690,7 @@ checks = get_option('checks')
 config.set('DBUS_ENABLE_CHECKS', checks ? 1 : false)
 config.set('DBUS_DISABLE_CHECKS', not checks ? 1 : false)
 config.set('G_DISABLE_CHECKS', not checks ? 1 : false)
-
+config.set('HAVE_GIO_UNIX', have_gio_unix ? 1 : false)
 
 dbus_static_flags = ( get_option('default_library') == 'static'
     ? '-DDBUS_STATIC_BUILD'
