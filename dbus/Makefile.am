@@ -330,6 +330,7 @@ endif
 noinst_PROGRAMS =
 
 EXTRA_DIST += meson.build
+EXTRA_DIST += test-version-script
 
 # Add rules for code-coverage testing, as defined by AX_CODE_COVERAGE
 include $(top_srcdir)/aminclude_static.am

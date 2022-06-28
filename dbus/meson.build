@@ -172,9 +172,16 @@ version_script = configure_file(
     configuration: data_config,
 )
 
-version_flags = '-Wl,--version-script,@0@'.format(version_script)
-if not cc.has_link_argument(version_flags)
-  version_flags = []
+# We can't use version_script to check for support, because it hasn't been
+# generated yet, so use a static source file instead.
+if cc.has_link_argument(
+    '-Wl,--version-script,@0@'.format(
+        meson.current_source_dir() / 'test-version-script'
+    )
+)
+    version_flags = ['-Wl,--version-script,@0@'.format(version_script)]
+else
+    version_flags = []
 endif
 
 libdbus = library('dbus-1',
