@@ -647,8 +647,6 @@ config.set('DBUS_ENABLE_VERBOSE_MODE', verbose_mode)
 
 # Asserts defaults to developer mode
 asserts = get_option('asserts')
-config.set('DBUS_ENABLE_ASSERTS', asserts)
-
 config.set('DBUS_ENABLE_ASSERT', asserts ? 1 : false)
 config.set('DBUS_DISABLE_ASSERT', not asserts ? 1 : false)
 
