@@ -618,8 +618,8 @@ config.set('DBUS_VA_COPY', va_copy)
 #### Atomic integers
 config.set10('DBUS_USE_SYNC', cc.has_function('__sync_sub_and_fetch') ? 1 : false)
 
-config.set('HAVE_DECL_MSG_NOSIGNAL',
-    cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL') ? 1 : false
+config.set10('HAVE_DECL_MSG_NOSIGNAL',
+    cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL')
 )
 config.set('HAVE_SOCKLEN_T',
     cc.has_type('socklen_t', prefix: '#include <sys/socket.h>')
