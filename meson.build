@@ -487,7 +487,11 @@ int main() {
 ''')
 config.set('HAVE_UNIX_FD_PASSING', has_scm_rights)
 
-valgrind = dependency('valgrind', version: '>=3.6', required: false)
+valgrind = dependency(
+    'valgrind',
+    version: '>=3.6',
+    required: get_option('valgrind'),
+)
 config.set('WITH_VALGRIND', valgrind.found())
 
 if platform_win32ce

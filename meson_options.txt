@@ -265,6 +265,13 @@ option(
 )
 
 option(
+  'valgrind',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Build with Valgrind instrumentation (note that this currently adds a hard dependency on valgrind)'
+)
+
+option(
   'verbose_mode',
   type: 'boolean',
   value: false,
