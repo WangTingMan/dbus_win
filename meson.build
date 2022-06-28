@@ -526,7 +526,6 @@ check_functions = [
     'clearenv',
     'closefrom',
     'close_range',
-    'dirfd',
     'fpathconf',
     'getgrouplist',
     'getpeereid',
