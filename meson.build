@@ -615,8 +615,19 @@ endif
 config.set('DBUS_VA_COPY', va_copy)
 
 
-#### Atomic integers
-config.set10('DBUS_USE_SYNC', cc.has_function('__sync_sub_and_fetch') ? 1 : false)
+# Can't use cc.has_function here because atomic operations are not
+# exactly functions
+config.set10(
+    'DBUS_USE_SYNC',
+    cc.links('''
+    int main(void)
+    {
+      int a = 4;
+      int b = __sync_sub_and_fetch (&a, 4);
+      return b;
+    }
+    ''')
+)
 
 config.set10('HAVE_DECL_MSG_NOSIGNAL',
     cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL')
