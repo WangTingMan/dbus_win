@@ -376,8 +376,8 @@ string(APPEND CMAKE_CXX_FLAGS " ${WARNINGS_CXXFLAGS}")
 
 # let wine be able to show file and lines in backtrace
 if(DBUS_USE_WINE)
-    string(APPEND CMAKE_C_FLAGS " -gstabs")
-    string(APPEND CMAKE_CXX_FLAGS " -gstabs")
+    string(APPEND CMAKE_C_FLAGS " -gdwarf-2")
+    string(APPEND CMAKE_CXX_FLAGS " -gdwarf-2")
 endif()
 
 if(UNIX AND NOT DBUS_DISABLE_ASSERT)
