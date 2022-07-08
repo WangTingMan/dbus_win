@@ -291,3 +291,10 @@ option(
   value: 'auto',
   description: 'Build XML documentation'
 )
+
+option(
+  'windows_output_debug_string',
+  type: 'boolean',
+  value: false,
+  description: 'use OutputDebugString() to log messages to Windows debug port'
+)
