@@ -610,6 +610,7 @@ in_data = \
 	data/valid-config-files/forbidding.conf.in \
 	data/valid-config-files/incoming-limit.conf.in \
 	data/valid-config-files/limit-containers.conf.in \
+	data/valid-config-files/listen-autolaunch-win.conf.in \
 	data/valid-config-files/max-completed-connections.conf.in \
 	data/valid-config-files/max-connections-per-user.conf.in \
 	data/valid-config-files/max-containers.conf.in \
