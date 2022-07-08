@@ -572,6 +572,8 @@ check_headers = [
     'dirent.h',
     'errno.h',
     'inttypes.h',
+    'io.h',
+    'locale.h',
     'linux/close_range.h',
     'locale.h',
     'signal.h',
