@@ -122,6 +122,7 @@ data_in_to_install = [
     'valid-config-files/forbidding.conf',
     'valid-config-files/incoming-limit.conf',
     'valid-config-files/limit-containers.conf',
+    'valid-config-files/listen-autolaunch-win.conf',
     'valid-config-files/max-completed-connections.conf',
     'valid-config-files/max-connections-per-user.conf',
     'valid-config-files/max-containers.conf',

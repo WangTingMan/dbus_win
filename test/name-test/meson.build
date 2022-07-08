@@ -23,11 +23,16 @@
 if embedded_tests
 
     tests = [
-        'test-autolaunch',
         'test-ids',
         'test-pending-call-disconnected',
         'test-shutdown',
     ]
+
+    if platform_windows
+        tests += ['test-autolaunch-win']
+    else
+        tests += ['test-autolaunch']
+    endif
 
     if use_traditional_activation
         tests += [
