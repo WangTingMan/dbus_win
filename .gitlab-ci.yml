@@ -75,6 +75,7 @@ variables:
     when: always
     paths:
       - $CI_PROJECT_DIR/test-results.xml
+      - "build/config.h"
     reports:
       junit: $CI_PROJECT_DIR/test-results.xml
 
@@ -320,6 +321,11 @@ ubuntu jammy autotools:
 
 windows msys64 ucrt64 cmake:
   extends: .win-build
+  artifacts:
+    name: dbus-$CI_JOB_NAME
+    when: always
+    paths:
+      - "build/config.h"
   script:
     - $env:MSYSTEM = "UCRT64"
     - $env:CHERE_INVOKING = "1"
