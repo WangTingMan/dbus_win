@@ -240,7 +240,6 @@ case "$ci_buildsys" in
                     *-w64-mingw32)
                         ;;
                     *)
-                        set "$@" --enable-containers
                         set "$@" --enable-user-session
                         set "$@" SANITIZE_CFLAGS="-fsanitize=address -fsanitize=undefined -fPIE -pie"
                         ;;
@@ -269,7 +268,6 @@ case "$ci_buildsys" in
                 set "$@" --disable-libaudit --without-valgrind
                 # Disable optional features, some of which are on by
                 # default
-                set "$@" --disable-containers
                 set "$@" --disable-stats
                 set "$@" --disable-user-session
                 shift
