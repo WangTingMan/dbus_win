@@ -209,10 +209,6 @@ include(ConfigureChecks)
 # make some more macros available
 include(MacroLibrary)
 
-if(VCS)
-    set(DBUS_VERBOSE_C_S 1 CACHE STRING "verbose mode" FORCE)
-endif()
-
 if(MSVC)
     # controll folders in msvc projects
     include(ProjectSourceGroup)

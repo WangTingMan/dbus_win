@@ -279,13 +279,6 @@
 #define SIGHUP	1
 #endif
 
-#cmakedefine DBUS_VERBOSE_C_S 1
-#ifdef DBUS_VERBOSE_C_S
-#define _dbus_verbose_C_S printf
-#else
-#define _dbus_verbose_C_S _dbus_verbose
-#endif 
-
 # if defined(_MSC_VER) && !defined(inline)
 #define inline __inline
 #endif
