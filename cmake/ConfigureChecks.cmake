@@ -134,32 +134,6 @@ int main() {
 }
 " DBUS_USE_SYNC)
 
-CHECK_C_SOURCE_COMPILES("
-#include <sys/types.h>
-#include <dirent.h>
-int main(
-    DIR *dirp;
-    dirp = opendir(\".\");
-    dirfd(dirp);
-    closedir(dirp);
-)
-" HAVE_DIRFD)
-
-if(NOT HAVE_DIRFD)
-    CHECK_C_SOURCE_COMPILES("
-    #include <sys/types.h>
-    #include <dirent.h>
-    int main()
-    {
-        DIR *dirp;
-        int fd;
-        dirp = opendir(\".\");
-        fd = dirp->dd_fd;
-        closedir(dirp);
-    }
-    " HAVE_DDFD)
-endif()
-
 check_type_size("short"     SIZEOF_SHORT)
 check_type_size("int"       SIZEOF_INT)
 check_type_size("long"      SIZEOF_LONG)

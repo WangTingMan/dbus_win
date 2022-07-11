@@ -647,41 +647,6 @@ if test "x$ac_cv_header_syslog_h" = "xyes"; then
   AC_CHECK_DECLS([LOG_PERROR], [], [], [[#include <syslog.h>]])
 fi
 
-AC_MSG_CHECKING(for dirfd)
-AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/types.h>
-#include <dirent.h>
-]], [[
-DIR *dirp;
-dirp = opendir(".");
-dirfd(dirp);
-closedir(dirp);
-]])],
-[dbus_have_dirfd=yes],
-[dbus_have_dirfd=no])
-AC_MSG_RESULT($dbus_have_dirfd)
-if test "$dbus_have_dirfd" = yes; then
-	AC_DEFINE(HAVE_DIRFD,1,[Have dirfd function])
-else
-	AC_MSG_CHECKING(for DIR *dirp->dd_fd)
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/types.h>
-#include <dirent.h>
-	]], [[
-DIR *dirp;
-int fd;
-dirp = opendir(".");
-fd = dirp->dd_fd;
-closedir(dirp);
-        ]])],
-        [dbus_have_ddfd=yes],
-        [dbus_have_ddfd=no])
-	AC_MSG_RESULT($dbus_have_ddfd)
-	if test "$dbus_have_ddfd" = yes; then
-		AC_DEFINE(HAVE_DDFD,1,[Have the ddfd member of DIR])
-	fi
-fi
-
 AC_CHECK_HEADERS([execinfo.h],
 	[AC_SEARCH_LIBS([backtrace], [execinfo],
 		[AC_DEFINE([HAVE_BACKTRACE], [1],
