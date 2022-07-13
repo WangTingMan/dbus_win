@@ -607,8 +607,35 @@ config.set('HAVE_BACKTRACE', have_backtrace)
 # we currently check for all three va_copy possibilities, so we get
 # all results in config.log for bug reports.
 
-has_va_copy = cc.has_function('va_copy')
-has___va_copy = cc.has_function('__va_copy')
+# Can't use cc.has_function here because va_copy is not
+# exactly a function
+va_copy_check = '''
+#include <stdarg.h>
+#include <stdlib.h>
+
+static void f (int i, ...)
+{
+  va_list args1, args2;
+  va_start (args1, i);
+  @0@ (args2, args1);
+
+  if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
+    exit (1);
+
+  va_end (args1);
+  va_end (args2);
+}
+
+int main()
+{
+  f (0, 42);
+  return 0;
+}
+'''
+
+has_va_copy = cc.links(va_copy_check.format('va_copy'))
+has___va_copy = cc.links(va_copy_check.format('__va_copy'))
+
 if has_va_copy
     va_copy = 'va_copy'
 elif has___va_copy
