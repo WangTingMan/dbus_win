@@ -61,6 +61,21 @@ if platform_unix
     test_env.set('DBUS_TEST_DBUS_UUIDGEN', dbus_uuidgen.full_path())
 endif
 
+if platform_windows
+    # test-autolaunch-win relies on being able to find the just-built
+    # dbus-daemon in the PATH
+    if build_machine.system().contains('windows')
+        test_env.prepend('PATH', meson.project_build_root() / 'bus')
+    else
+        # Assume we'll use Wine to run tests while cross-compiling
+        test_env.prepend(
+            'WINEPATH',
+            'Z:' + meson.project_build_root() / 'bus',
+            separator: ';',
+        )
+    endif
+endif
+
 # Tests in bus/config-parser.c rely on these specific values for XDG_*
 test_env.set('XDG_DATA_HOME',       meson.current_build_dir() / 'XDG_DATA_HOME')
 test_env.set('XDG_RUNTIME_DIR',     meson.current_build_dir() / 'XDG_RUNTIME_DIR')
