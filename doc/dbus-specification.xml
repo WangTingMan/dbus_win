@@ -1976,6 +1976,21 @@
         </para>
 
         <para>
+          If the author's DNS domain name is an internationalized domain
+          name (IDN) such as <literal>δοκιμή.example</literal>,
+          the ASCII encoding (known as ACE-encoding or Punycode) such as
+          <literal>xn--jxalpdlp.example</literal>
+          should be used as a basis for the reversed-domain-name form.
+          As with any other name, hyphen/minus characters should be
+          replaced by underscores in the reversed-domain-name form, for
+          example <literal>example.xn__jxalpdlp.ExampleService1</literal>.
+          For more information about internationalized domain names, see
+          <ulink url="https://datatracker.ietf.org/doc/html/rfc5890">RFC
+            5890 "Internationalized Domain Names for Applications (IDNA):
+            Definitions and Document Framework"</ulink>.
+        </para>
+
+        <para>
           D-Bus does not distinguish between the concepts that would be
           called classes and interfaces in Java: either can be identified on
           D-Bus by an interface name.
@@ -2049,12 +2064,18 @@
         </para>
 
         <para>
-          As with interface names, if the author's DNS domain name
+          As with <link linkend="message-protocol-names-interface">interface
+            names</link>, if the author's DNS domain name
           contains hyphen/minus characters they should be replaced by
-          underscores, and if it contains leading digits they should be
-          escaped by prepending an underscore. For example, if the owner
+          underscores, if it contains leading digits they should be
+          escaped by prepending an underscore, and internationalized
+          domain names (IDN) need to be encoded in their ASCII form
+          (ACE-encoding, Punycode) before replacing dashes with underscores.
+          For example, if the owner
           of 7-zip.org used a D-Bus name for an archiving application,
-          it might be named <literal>org._7_zip.Archiver</literal>.
+          it might be named <literal>org._7_zip.Archiver</literal>,
+          while the owner of <literal>δοκιμή.example</literal> might
+          use the name <literal>example.xn__jxalpdlp.ExampleService1</literal>.
         </para>
 
         <para>
