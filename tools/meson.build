@@ -106,3 +106,8 @@ endif
 install_data('GetAllMatchRules.py',
     install_dir: docs_dir / 'examples',
 )
+
+# Create the empty directory to hold the machine ID
+install_emptydirs += [
+    get_option('localstatedir') / 'lib' / 'dbus',
+]
