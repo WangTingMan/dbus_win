@@ -239,8 +239,8 @@ if can_upload_docs
   run_target('maintainer-upload-docs',
       command: [
           find_program('maintainer-upload-docs.sh'),
-          docs_files,
-          dtd_files,
+          files(docs_files),
+          files(dtd_files),
           static_docs,
           html_files,
           xml_files,
