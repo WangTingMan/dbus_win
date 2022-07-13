@@ -292,14 +292,14 @@ endif
 
 tests += [
     {
-        'name': 'service',
+        'name': 'test-service',
         'srcs': [ 'test-service.c' ],
         'link': [ libdbus_testutils, ],
         'install': true,
         'test': false,
     },
     {
-        'name': 'sleep-forever',
+        'name': 'test-sleep-forever',
         'srcs': [ 'test-sleep-forever.c' ],
         'link': [ libdbus_testutils, ],
         'install': true,
@@ -544,6 +544,12 @@ foreach test: tests
     suites = test.get('suite', ['dbus'])
     install = test.get('install', true)
 
+    if test.get('test', true)
+        exe_name = 'test-' + name
+    else
+        exe_name = name
+    endif
+
     if 'slow' in suites
         timeout = 300
     else
@@ -552,7 +558,7 @@ foreach test: tests
 
     timeout = test.get('timeout', timeout)
 
-    test_exe = executable('test-' + name,
+    test_exe = executable(exe_name,
         srcs,
         link_with: link,
         dependencies: deps,
@@ -577,8 +583,8 @@ foreach test: tests
 
     if install and test.get('test', true)
         installed_tests += [{
-            'name': 'test-' + test.get('name'),
-            'exe': 'test-' + test.get('name') + exe_ext,
+            'name': exe_name,
+            'exe': exe_name + exe_ext,
         }]
     endif
 endforeach
