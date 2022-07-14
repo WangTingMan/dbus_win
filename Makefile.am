@@ -28,6 +28,7 @@ EXTRA_DIST =			\
 	bus/CMakeLists.txt \
 	dbus/CMakeLists.txt \
 	doc/CMakeLists.txt \
+	maint/update-authors.sh \
 	meson.build \
 	meson_options.txt \
 	meson_post_install.py \
