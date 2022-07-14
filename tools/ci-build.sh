@@ -175,20 +175,30 @@ maybe_fail_tests () {
 # own checks.
 NOCONFIGURE=1 ./autogen.sh
 
+# clean up directories from possible previous builds
+rm -rf "$builddir"
+rm -rf ci-build-dist
+rm -rf src-from-dist
+
 case "$ci_buildsys" in
-    (cmake-dist)
-        # clean up directories from possible previous builds
-        rm -rf ci-build-dist
-        # Do an Autotools `make dist`, then build *that* with CMake,
+    (cmake-dist|meson-dist)
+        # Do an Autotools `make dist`, then build *that* with CMake or Meson,
         # to assert that our official release tarballs will be enough
-        # to build with CMake.
+        # to build with CMake or Meson.
         mkdir -p ci-build-dist
         ( cd ci-build-dist; ../configure )
         make -C ci-build-dist dist
         tar --xz -xvf ci-build-dist/dbus-1.*.tar.xz
-        cd dbus-1.*/
+        mv dbus-1.*/ src-from-dist
+        srcdir="$(pwd)/src-from-dist"
+        ;;
+    (*)
+        srcdir="$(pwd)"
         ;;
 esac
+
+mkdir -p "$builddir"
+builddir="$(realpath "$builddir")"
 
 #
 # cross compile setup
@@ -219,12 +229,32 @@ case "$ci_host" in
         ;;
 esac
 
-srcdir="$(pwd)"
-builddir="ci-build-${ci_variant}-${ci_host}"
-# clean up directories from possible previous builds
-rm -rf "$builddir"
-mkdir -p "$builddir"
 cd "$builddir"
+
+case "$ci_host" in
+    (*-w64-mingw32)
+        # If we're dynamically linking libgcc, make sure Wine will find it
+        if [ "$ci_test" = yes ]; then
+            if [ "${ci_distro%%-*}" = opensuse ] && [ "${ci_host%%-*}" = x86_64 ]; then
+                export WINEARCH=win64
+            fi
+            libgcc_path=
+            if [ "$ci_runtime" = "shared" ]; then
+                libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
+            fi
+            init_wine \
+                "${builddir}/bin" \
+                "${builddir}/subprojects/expat-2.4.8" \
+                "${builddir}/subprojects/glib-2.72.2/gio" \
+                "${builddir}/subprojects/glib-2.72.2/glib" \
+                "${builddir}/subprojects/glib-2.72.2/gmodule" \
+                "${builddir}/subprojects/glib-2.72.2/gobject" \
+                "${builddir}/subprojects/glib-2.72.2/gthread" \
+                "${dep_prefix}/bin" \
+                ${libgcc_path:+"$libgcc_path"}
+        fi
+        ;;
+esac
 
 make="make -j${ci_parallel} V=1 VERBOSE=1"
 
@@ -374,22 +404,12 @@ case "$ci_buildsys" in
             (*-w64-mingw32)
                 # CFLAGS and CXXFLAGS does do work, checked with cmake 3.15
                 export LDFLAGS="-${ci_runtime}-libgcc"
-                # enable tests if supported
-                if [ "$ci_test" = yes ]; then
-                    # choose correct wine architecture
-                    if [ "${ci_distro%%-*}" = opensuse ]; then
-                        if [ "${ci_host%%-*}" = x86_64 ]; then
-                            export WINEARCH=win64
-                            cmake=mingw64-cmake
-                        else
-                            cmake=mingw32-cmake
-                        fi
+                if [ "${ci_distro%%-*}" = opensuse ]; then
+                    if [ "${ci_host%%-*}" = x86_64 ]; then
+                        cmake=mingw64-cmake
+                    else
+                        cmake=mingw32-cmake
                     fi
-                    libgcc_path=
-                    if [ "$ci_runtime" = "shared" ]; then
-                        libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
-                    fi
-                    init_wine "${dep_prefix}/bin" "$(pwd)/bin" ${libgcc_path:+"$libgcc_path"}
                     cmdwrapper="xvfb-run -a"
                 fi
                 set _ "$@"
@@ -425,6 +445,102 @@ case "$ci_buildsys" in
 
         [ "$ci_test" = no ] || $cmdwrapper ctest $ctest_args || maybe_fail_tests
         ${make} install DESTDIR=$(pwd)/DESTDIR
+        ( cd DESTDIR && find . -ls)
+        ;;
+
+    (meson|meson-dist)
+        # The test coverage for OOM-safety is too verbose to be useful on
+        # travis-ci, and too slow when running under wine.
+        export DBUS_TEST_MALLOC_FAILURES=0
+
+        meson_setup=
+        cross_file=
+
+        # openSUSE has convenience wrappers that run Meson with appropriate
+        # cross options
+        case "$ci_host" in
+            (i686-w64-mingw32)
+                meson_setup=mingw32-meson
+                ;;
+            (x86_64-w64-mingw32)
+                meson_setup=mingw64-meson
+                ;;
+        esac
+
+        case "$ci_host" in
+            (*-w64-mingw32)
+                cross_file="${srcdir}/maint/${ci_host}.txt"
+                # openSUSE's wrappers are designed for building predictable
+                # RPM packages, so they set --auto-features=enabled -
+                # but that includes some things that make no sense on
+                # Windows.
+                set -- -Dapparmor=disabled "$@"
+                set -- -Depoll=disabled "$@"
+                set -- -Dinotify=disabled "$@"
+                set -- -Dkqueue=disabled "$@"
+                set -- -Dlaunchd=disabled "$@"
+                set -- -Dlibaudit=disabled "$@"
+                set -- -Dselinux=disabled "$@"
+                set -- -Dsystemd=disabled "$@"
+                set -- -Dx11_autolaunch=disabled "$@"
+                # We seem to have trouble finding libexpat.dll when
+                # cross-building for Windows and running tests with Wine.
+                set -- -Dexpat:default_library=static "$@"
+                ;;
+        esac
+
+        case "$ci_distro" in
+            (debian*|ubuntu*)
+                # We know how to install python3-mallard-ducktype
+                ;;
+            (*)
+                # TODO: We don't know the openSUSE equivalent of
+                # python3-mallard-ducktype
+                set -- -Dducktype_docs=disabled "$@"
+                ;;
+        esac
+
+        set -- -Dmodular_tests=enabled "$@"
+
+        case "$ci_variant" in
+            (debug)
+                set -- -Dasserts=true "$@"
+                set -- -Dembedded_tests=true "$@"
+                set -- -Dverbose_mode=true "$@"
+
+                case "$ci_host" in
+                    (*-w64-mingw32)
+                        ;;
+                    (*)
+                        set -- -Db_sanitize=address,undefined "$@"
+                        set -- -Db_pie=true "$@"
+                        set -- -Duser_session=true "$@"
+                        ;;
+                esac
+
+                shift
+                ;;
+        esac
+
+        # Debian doesn't have similar convenience wrappers, but we can use
+        # a cross-file
+        if [ -z "$meson_setup" ] || ! command -v "$meson_setup" >/dev/null; then
+            meson_setup="meson setup"
+
+            if [ -n "$cross_file" ]; then
+                set -- --cross-file="$cross_file" "$@"
+            fi
+        fi
+
+        # openSUSE's mingw*-meson wrappers are designed for self-contained
+        # package building, so they include --wrap-mode=nodownload. Switch
+        # the wrap mode back, so we can use wraps.
+        set -- "$@" --wrap=default
+
+        $meson_setup "$@" "$srcdir"
+        meson compile -v
+        [ "$ci_test" = no ] || meson test
+        DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
         ;;
 esac

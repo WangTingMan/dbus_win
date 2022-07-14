@@ -10,36 +10,23 @@ check_include_file(alloca.h     HAVE_ALLOCA_H)
 check_include_file(byteswap.h     HAVE_BYTESWAP_H)
 check_include_file(crt/externs.h     HAVE_CRT_EXTERNS_H)
 check_include_file(dirent.h     HAVE_DIRENT_H)  # dbus-sysdeps-util.c
-check_include_file(dlfcn.h     HAVE_DLFCN_H)
-check_include_file(execinfo.h     HAVE_EXECINFO_H)
 check_include_file(errno.h     HAVE_ERRNO_H)    # dbus-sysdeps.c
-check_include_file(expat.h     HAVE_EXPAT_H)
-check_include_file(grp.h        HAVE_GRP_H)     # dbus-sysdeps-util-win.c
 check_include_file(inttypes.h     HAVE_INTTYPES_H)   # dbus-pipe.h
 check_include_file(io.h         HAVE_IO_H)      # internal
 check_include_file(linux/close_range.h HAVE_LINUX_CLOSE_RANGE_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
-check_include_file(memory.h     HAVE_MEMORY_H)
 check_include_file(signal.h     HAVE_SIGNAL_H)
 check_include_file(stdint.h     HAVE_STDINT_H)   # dbus-pipe.h
-check_include_file(stdlib.h     HAVE_STDLIB_H)
 check_include_file(stdio.h      HAVE_STDIO_H)   # dbus-sysdeps.h
-check_include_file(string.h     HAVE_STRING_H)
-check_include_file(strings.h     HAVE_STRINGS_H)
 check_include_file(syslog.h     HAVE_SYSLOG_H)
 check_include_files("stdint.h;sys/types.h;sys/event.h" HAVE_SYS_EVENT_H)
 check_include_file(sys/inotify.h     HAVE_SYS_INOTIFY_H)
 check_include_file(sys/random.h     HAVE_SYS_RANDOM_H)
 check_include_file(sys/resource.h     HAVE_SYS_RESOURCE_H)
-check_include_file(sys/stat.h     HAVE_SYS_STAT_H)
 check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
-check_include_file(sys/types.h     HAVE_SYS_TYPES_H)
-check_include_file(sys/uio.h     HAVE_SYS_UIO_H)
 check_include_file(sys/prctl.h  HAVE_SYS_PRCTL_H)
 check_include_file(sys/syslimits.h    HAVE_SYS_SYSLIMITS_H)   # dbus-sysdeps-unix.c
 check_include_file(sys/time.h   HAVE_SYS_TIME_H)# dbus-sysdeps-win.c
-check_include_file(sys/wait.h   HAVE_SYS_WAIT_H)# dbus-sysdeps-win.c
-check_include_file(time.h       HAVE_TIME_H)    # dbus-sysdeps-win.c
 check_include_file(ws2tcpip.h   HAVE_WS2TCPIP_H)# dbus-sysdeps-win.c
 check_include_file(unistd.h     HAVE_UNISTD_H)  # dbus-sysdeps-util-win.c
 check_include_file(sys/inotify.h DBUS_BUS_ENABLE_INOTIFY)
@@ -75,8 +62,6 @@ check_symbol_exists(getrandom    "sys/random.h"             HAVE_GETRANDOM)
 check_symbol_exists(getrlimit    "sys/resource.h;sys/time.h" HAVE_GETRLIMIT)
 check_symbol_exists(prlimit      "sys/resource.h;sys/time.h" HAVE_PRLIMIT)
 check_symbol_exists(setrlimit    "sys/resource.h;sys/time.h" HAVE_SETRLIMIT)
-check_symbol_exists(vasprintf    "stdio.h"                   HAVE_VASPRINTF)
-check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
 check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
 check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
 check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
@@ -146,32 +131,6 @@ int main() {
     return b;
 }
 " DBUS_USE_SYNC)
-
-CHECK_C_SOURCE_COMPILES("
-#include <sys/types.h>
-#include <dirent.h>
-int main(
-    DIR *dirp;
-    dirp = opendir(\".\");
-    dirfd(dirp);
-    closedir(dirp);
-)
-" HAVE_DIRFD)
-
-if(NOT HAVE_DIRFD)
-    CHECK_C_SOURCE_COMPILES("
-    #include <sys/types.h>
-    #include <dirent.h>
-    int main()
-    {
-        DIR *dirp;
-        int fd;
-        dirp = opendir(\".\");
-        fd = dirp->dd_fd;
-        closedir(dirp);
-    }
-    " HAVE_DDFD)
-endif()
 
 check_type_size("short"     SIZEOF_SHORT)
 check_type_size("int"       SIZEOF_INT)

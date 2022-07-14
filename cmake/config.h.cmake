@@ -101,16 +101,8 @@
 /* Define to 1 if you have dirent.h */
 #cmakedefine   HAVE_DIRENT_H 1
 
-#cmakedefine HAVE_DLFCN_H 1
-
 /* Define to 1 if you have errno.h */
 #cmakedefine   HAVE_ERRNO_H 1
-
-#cmakedefine HAVE_EXECINFO_H 1
-#cmakedefine HAVE_EXPAT_H 1
-
-/* Define to 1 if you have grp.h */
-#cmakedefine   HAVE_GRP_H 1
 
 /* Define to 1 if you have inttypes.h */
 #cmakedefine   HAVE_INTTYPES_H 1
@@ -121,8 +113,6 @@
 /* Define to 1 if you have locale.h */
 #cmakedefine   HAVE_LOCALE_H 1
 
-#cmakedefine HAVE_MEMORY_H 1
-
 /* Define to 1 if you have poll */
 #cmakedefine    HAVE_POLL 1
 
@@ -132,36 +122,21 @@
 /* Define to 1 if you have stdint.h */
 #cmakedefine   HAVE_STDINT_H 1
 
-#cmakedefine HAVE_STDLIB_H 1
-
 /* Define to 1 if you have stdio.h */
 #cmakedefine   HAVE_STDIO_H 1
 
-#cmakedefine HAVE_STRINGS_H 1
-#cmakedefine HAVE_STRING_H 1
 #cmakedefine HAVE_SYSLOG_H 1
 #cmakedefine HAVE_SYS_EVENTS_H 1
 #cmakedefine HAVE_SYS_INOTIFY_H 1
 #cmakedefine HAVE_SYS_PRCTL_H 1
 #cmakedefine HAVE_SYS_RANDOM_H 1
 #cmakedefine HAVE_SYS_RESOURCE_H 1
-#cmakedefine HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have sys/syslimits.h */
 #cmakedefine   HAVE_SYS_SYSLIMITS_H 1
 
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
-
-#cmakedefine HAVE_SYS_TYPES_H 1
-
-#cmakedefine HAVE_SYS_UIO_H 1
-
-/* Define to 1 if you have sys/wait.h */
-#cmakedefine    HAVE_SYS_WAIT_H 1
-
-/* Define to 1 if you have time.h */
-#cmakedefine   HAVE_TIME_H 1
 
 /* Define to 1 if you have unistd.h */
 #cmakedefine   HAVE_UNISTD_H 1
@@ -226,12 +201,6 @@
 
 #cmakedefine HAVE_ACCEPT4 1
 
-/* Have dirfd function */
-#cmakedefine HAVE_DIRFD 1
-
-/* Have the ddfd member of DIR */
-#cmakedefine HAVE_DDFD 1
-
 #cmakedefine HAVE_INOTIFY_INIT1 1
 #cmakedefine HAVE_GETRANDOM 1
 #cmakedefine HAVE_GETRLIMIT 1
@@ -241,16 +210,12 @@
 #cmakedefine HAVE_SETRLIMIT 1
 #cmakedefine HAVE_UNIX_FD_PASSING 1
 #cmakedefine HAVE_SYSTEMD
-#cmakedefine HAVE_VASPRINTF 1
-#cmakedefine HAVE_VSNPRINTF 1
 
 /* Define to use epoll(4) on Linux */
 #cmakedefine DBUS_HAVE_LINUX_EPOLL 1
 
 /* Use the gcc __sync extension */
 #cmakedefine01 DBUS_USE_SYNC
-#cmakedefine HAVE_VASPRINTF 1
-#cmakedefine HAVE_VSNPRINTF 1
 
 #cmakedefine HAVE_SETRESUID 1
 #cmakedefine HAVE_GETRESUID 1
@@ -313,13 +278,6 @@
 #ifndef SIGHUP
 #define SIGHUP	1
 #endif
-
-#cmakedefine DBUS_VERBOSE_C_S 1
-#ifdef DBUS_VERBOSE_C_S
-#define _dbus_verbose_C_S printf
-#else
-#define _dbus_verbose_C_S _dbus_verbose
-#endif 
 
 # if defined(_MSC_VER) && !defined(inline)
 #define inline __inline

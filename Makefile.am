@@ -13,6 +13,7 @@ EXTRA_DIST =			\
 	dbus-1.pc.in		\
 	cleanup-man-pages.sh    \
 	LICENSES/AFL-2.1.txt	\
+	LICENSES/Apache-2.0.txt	\
 	LICENSES/GPL-2.0-or-later.txt	\
 	LICENSES/MIT.txt	\
         NEWS.pre-1-0            \
@@ -27,6 +28,11 @@ EXTRA_DIST =			\
 	bus/CMakeLists.txt \
 	dbus/CMakeLists.txt \
 	doc/CMakeLists.txt \
+	meson.build \
+	meson_options.txt \
+	meson_post_install.py \
+	subprojects/expat.wrap \
+	subprojects/glib.wrap \
 	test/CMakeLists.txt \
 	test/name-test/CMakeLists.txt \
 	tools/CMakeLists.txt \
@@ -36,7 +42,7 @@ EXTRA_DIST =			\
 all-local: Doxyfile
 
 update-authors:
-	( cd $(srcdir) && git shortlog -s -e ) | cut -c 8- | sort > $(srcdir)/AUTHORS
+	cd $(srcdir) && ./maint/update-authors.sh
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--enable-xml-docs \

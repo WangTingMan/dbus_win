@@ -223,3 +223,8 @@ clean-local:
 	rm -rf dbus-docs dbus-docs.tmp
 	rm -f *.1.html
 	rm -f doxygen.stamp
+
+EXTRA_DIST += list-doc-source.py
+EXTRA_DIST += maintainer-upload-docs.sh
+EXTRA_DIST += meson.build
+EXTRA_DIST += meson_post_install.py

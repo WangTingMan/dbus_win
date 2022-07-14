@@ -137,10 +137,7 @@ SUFFIXES = .rc
 .rc.o:
 	$(RC) $< -o $@
 
-nodist_dbus_update_activation_environment_SOURCES = disable-uac.rc
-
-disable-uac.rc: Win32.Manifest
-	echo '1 24 "$<"' > $@
+dbus_update_activation_environment_SOURCES += disable-uac.rc
 endif
 
 EXTRA_DIST = run-with-tmp-session-bus.sh strtoll.c strtoull.c Win32.Manifest
@@ -154,3 +151,8 @@ install-data-local:
 
 installcheck-local:
 	test -d $(DESTDIR)$(localstatedir)/lib/dbus
+
+EXTRA_DIST += build-timestamp.py
+EXTRA_DIST += meson.build
+EXTRA_DIST += meson-compat-install-emptydirs.py
+EXTRA_DIST += meson-compat-install-symlink.py

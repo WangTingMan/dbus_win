@@ -159,6 +159,7 @@ case "$ci_distro" in
             ducktype
             g++
             gcc
+            git
             gnome-desktop-testing
             libapparmor-dev
             libaudit-dev
@@ -168,6 +169,8 @@ case "$ci_distro" in
             libselinux1-dev
             libsystemd-dev
             libx11-dev
+            meson
+            ninja-build
             sudo
             valgrind
             wget
@@ -205,6 +208,7 @@ case "$ci_distro" in
             automake
             cmake
             libtool
+            meson
         )
 
         # docs
@@ -264,14 +268,18 @@ case "$ci_distro" in
                     p=$(zypper lr | grep "windows_mingw_win${bits}" || true)
                     if [ -z "$p" ]; then
                         $zypper ar --refresh --no-gpgcheck \
+                            "https://download.opensuse.org/repositories/windows:/mingw/$repo/windows:mingw.repo"
+                        $zypper ar --refresh --no-gpgcheck \
                             "https://download.opensuse.org/repositories/windows:/mingw:/win${bits}/$repo/windows:mingw:win${bits}.repo"
                     fi
                 )
                 packages=(
                     "${packages[@]}"
                     mingw${bits}-cross-gcc-c++
+                    mingw${bits}-cross-pkgconf
                     mingw${bits}-libexpat-devel
                     mingw${bits}-glib2-devel
+                    mingw${bits}-cross-meson
                 )
                 ;;
 

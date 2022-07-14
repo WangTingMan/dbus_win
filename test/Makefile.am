@@ -610,6 +610,7 @@ in_data = \
 	data/valid-config-files/forbidding.conf.in \
 	data/valid-config-files/incoming-limit.conf.in \
 	data/valid-config-files/limit-containers.conf.in \
+	data/valid-config-files/listen-autolaunch-win.conf.in \
 	data/valid-config-files/max-completed-connections.conf.in \
 	data/valid-config-files/max-connections-per-user.conf.in \
 	data/valid-config-files/max-containers.conf.in \
@@ -849,6 +850,13 @@ $(installable_test_meta_with_config): %_with_config.test: %$(EXEEXT) Makefile
 		echo 'Output=TAP'; \
 		echo 'Exec=env DBUS_TEST_EXEC=$(testexecdir) DBUS_TEST_DATA=$(testexecdir)/data $(testexecdir)/$* --tap'; \
 	) > $@.tmp && mv $@.tmp $@
+
+EXTRA_DIST += data/copy_data_for_tests.py
+EXTRA_DIST += data/installable/meson.build
+EXTRA_DIST += data/meson.build
+EXTRA_DIST += meson.build
+EXTRA_DIST += meta_template.test.in
+EXTRA_DIST += mkdir-m700.py
 
 # Add rules for code-coverage testing, as defined by AX_CODE_COVERAGE
 include $(top_srcdir)/aminclude_static.am

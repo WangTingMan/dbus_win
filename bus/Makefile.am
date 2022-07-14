@@ -220,10 +220,15 @@ endif DBUS_UNIX
 EXTRA_DIST += \
 	dbus.service.in \
 	dbus.socket.in \
+	legacy-config/meson.build \
+	meson.build \
 	systemd-user/dbus.service.in \
 	systemd-user/dbus.socket.in \
+	systemd-user/meson.build \
 	sysusers.d/dbus.conf.in \
+	sysusers.d/meson.build \
 	tmpfiles.d/dbus.conf.in \
+	tmpfiles.d/meson.build \
 	$(NULL)
 
 if HAVE_SYSTEMD
