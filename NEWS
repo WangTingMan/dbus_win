@@ -8,7 +8,31 @@ Feature removal:
   options, which have been deprecated since dbus 1.11.18).
   (dbus#181, fd.o#101629)
 
+Build-time configuration changes:
+
+• Add a Meson build system. This is currently considered experimental,
+  but the intention is for it to replace Autotools and/or CMake in future
+  releases, preferably both. Please test!
+  (dbus!303; Félix Piédallu, Marc-André Lureau, Simon McVittie)
+  · This requires Meson 0.56 or newer, and Python 3.5 or newer.
+  · Expat can be built as a subproject using Meson's "wrap" mechanism,
+    if desired. This should make it considerably easier to build dbus
+    for Windows or other platforms without a library packaging system.
+  · GLib can also be built as a subproject using Meson's "wrap" mechanism,
+    if desired. This should make it considerably easier to build full
+    test coverage on Windows or other platforms without a library
+    packaging system.
+
+• Please note that not all Meson build options correspond 1:1 to how
+  the closest equivalents in Autotools or CMake behave. Distributors
+  and developers evaluating the Meson build should check that they are
+  configuring dbus the way they intend to.
+
 Enhancements:
+
+• D-Bus Specification 0.39:
+  · Document how to represent internationalized domain names in D-Bus
+    names (dbus!324, Simon McVittie)
 
 • Speed up closing file descriptors for subprocesses by using
   closefrom() or close_range() where available
@@ -21,6 +45,9 @@ Enhancements:
 • Detect programming errors with Windows mutexes if assertions are
   enabled, similar to what we already did for pthreads mutexes
   (dbus#369, Ralf Habacker)
+
+• Move license text into LICENSES, and start to use SPDX markers
+  (Simon McVittie, Ralf Habacker)
 
 Fixes:
 
@@ -65,6 +92,10 @@ Fixes:
   · When a CMake project uses an Autotools-built libdbus in a
     non-standard prefix, find dbus-arch-deps.h successfully
     (dbus#314, Simon McVittie)
+  · Don't include generated XML catalog in source releases
+    (dbus!317, Jan Tojnar)
+  · Improve robustness of detecting gcc __sync atomic builtins
+    (dbus!320, Alex Richardson)
 
 • CMake build system fixes:
   · Detect endianness correctly, fixing interoperability with other D-Bus
@@ -74,6 +105,7 @@ Fixes:
   · When building for Unix, install session and system bus setup
     in the intended locations
     (dbus!267, dbus!297; Ralf Habacker, Alex Richardson)
+  · Detect setresuid() and getresuid() (dbus!319, Alex Richardson)
   · Detect backtrace() on FreeBSD (dbus!281, Alex Richardson)
   · Don't include headers from parent directory (dbus!282, Alex Richardson)
   · Fix -Wunused-command-line-argument on FreeBSD
@@ -85,8 +117,13 @@ Fixes:
   · Improve compiler warning detection (dbus#387, Ralf Habacker)
   · Allow TEST_SOCKET_DIR to be overridden (dbus!295, Ralf Habacker)
   · Fix detection of atomic operations (dbus!306, Alex Richardson)
+  · Use DWARF 2 instead of STABS for debug symbols on Windows, for
+    compatibility with newer gcc versions (dbus!323, Marc-André Lureau)
 
 Tests and CI enhancements:
+
+• Add an automated test for Windows autolaunching
+  (dbus#235, Ralf Habacker)
 
 • Avoid compiler warnings in test code
   (dbus#383, dbus!274, dbus!275; Simon McVittie, Ralf Habacker)
