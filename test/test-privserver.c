@@ -127,6 +127,9 @@ main (int argc, char *argv[])
   testdata = dbus_new (TestServiceData, 1);
   testdata->loop = _dbus_loop_new ();
 
+  if (testdata->loop == NULL)
+    die ("out of memory");
+
   session = dbus_bus_get (DBUS_BUS_SESSION, &error);
   if (!session)
     die ("couldn't access session bus");
