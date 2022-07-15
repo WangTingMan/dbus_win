@@ -51,6 +51,13 @@ struct TestServiceData
 };
 
 static void
+test_service_data_free (TestServiceData *self)
+{
+  dbus_free (self->private_addr);
+  dbus_free (self);
+}
+
+static void
 new_connection_callback (DBusServer     *server,
                          DBusConnection *new_connection,
                          void           *data)
@@ -160,7 +167,7 @@ main (int argc, char *argv[])
 
   _dbus_loop_unref (loop);
 
-  dbus_free (testdata);
+  test_service_data_free (testdata);
 
   return 0;
 }
