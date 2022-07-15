@@ -5783,13 +5783,27 @@
           variable. If that variable is not set, applications should try
           to connect to the well-known address
           <literal>unix:path=/var/run/dbus/system_bus_socket</literal>.
-          <footnote>
-            <para>
-              The D-Bus reference implementation actually honors the
-              <literal>$(localstatedir)</literal> configure option
-              for this address, on both client and server side.
-            </para>
-          </footnote>
+          Implementations of the well-known system bus should listen on
+          an address that will result in that connection being successful.
+        </para>
+        <para>
+          On systems where <filename>/var/run/</filename> is known to be
+          synonymous with <filename>/run/</filename> (such as most Linux
+          operating system distributions), implementations might prefer
+          to make use of that knowledge to connect to or listen on
+          <literal>unix:path=/run/dbus/system_bus_socket</literal> instead,
+          which has some minor technical advantages, particularly during
+          early startup and late shutdown.
+        </para>
+        <para>
+          In practice, implementations of D-Bus often have build-time
+          configuration options for the system bus address, whose defaults
+          often depend on other build-time options such as the installation
+          prefix (in particular, this is the case for dbus, the reference
+          implementation of D-Bus).
+          Distributors intending to provide access to the well-known
+          system bus should verify that they are using an interoperable
+          address.
         </para>
         <para>
           On Unix systems, the system bus should default to searching
