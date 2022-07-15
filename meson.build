@@ -38,10 +38,6 @@ arch_config = configuration_data()
 # Non-quoted variables
 data_config = configuration_data()
 
-# Those will be checked for compiler compatibility and added at the end
-compile_args = []
-link_args = []
-
 install_emptydirs = []
 install_symlinks = []
 
@@ -148,6 +144,21 @@ else
 endif
 data_config.set('DBUS_SESSION_CONF_MAYBE_AUTH_EXTERNAL', conf_maybe_external)
 
+###############################################################################
+# Functionally necessary compiler arguments
+# Note that these must be set up before we do any checks like
+# cc.has_header_symbol, otherwise we'll fail to find symbols that only exist
+# when a particular feature-test macro like _GNU_SOURCE is defined.
+
+compile_args = [
+    '-D_GNU_SOURCE',
+]
+
+# dbus makes assumptions about aliasing that Standard C does not guarantee,
+# particularly in DBusString.
+# See https://gitlab.freedesktop.org/dbus/dbus/-/issues/4
+compile_args += ['-fno-strict-aliasing']
+
 if host_os.contains('solaris')
     compile_args += [
         # Solaris' C library apparently needs these runes to be threadsafe...
@@ -158,6 +169,25 @@ if host_os.contains('solaris')
         ' -D_XOPEN_SOURCE=500',
     ]
 endif
+
+dbus_static_flags = ( get_option('default_library') == 'static'
+    ? '-DDBUS_STATIC_BUILD'
+    : []
+)
+compile_args += dbus_static_flags
+
+if cc.get_id() != 'msvc'
+    compile_args += [
+          # On Windows, we expect to be using msvcrt.dll-compatible printf
+          # (%I64u instead of %llu)
+          '-D__USE_MINGW_ANSI_STDIO=0',
+    ]
+endif
+
+compile_args_c = cc.get_supported_arguments(compile_args)
+compile_args_cpp = cpp.get_supported_arguments(compile_args)
+add_project_arguments(compile_args_c, language: 'c')
+add_project_arguments(compile_args_cpp, language: 'cpp')
 
 if host_machine.endian() == 'big'
   config.set('WORDS_BIGENDIAN', 1)
@@ -283,7 +313,10 @@ data_config.set('top_builddir', meson.project_build_root())
 
 
 threads = dependency('threads')
-config.set('HAVE_MONOTONIC_CLOCK', cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC'))
+config.set(
+    'HAVE_MONOTONIC_CLOCK',
+    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c),
+)
 
 glib = dependency(
     'glib-2.0', version: '>=2.40',
@@ -328,7 +361,7 @@ config.set('HAVE_APPARMOR_2_10', apparmor.version().version_compare('>=2.10'))
 if get_option('inotify').disabled()
     use_inotify = false
 else
-    use_inotify = cc.has_header('sys/inotify.h')
+    use_inotify = cc.has_header('sys/inotify.h', args: compile_args_c)
     if get_option('inotify').enabled() and not use_inotify
         error('inotify support requested but not found')
     endif
@@ -338,8 +371,12 @@ if get_option('epoll').disabled()
     use_linux_epoll = false
 else
     use_linux_epoll = (
-      cc.has_header('sys/epoll.h') and
-      cc.has_function('epoll_create1', prefix: '#include <sys/epoll.h>')
+      cc.has_header('sys/epoll.h', args: compile_args_c) and
+      cc.has_function(
+          'epoll_create1',
+          prefix: '#include <sys/epoll.h>',
+          args: compile_args_c,
+      )
     )
     if get_option('epoll').enabled() and not use_linux_epoll
         error('epoll support requested but not found')
@@ -351,8 +388,12 @@ if get_option('kqueue').disabled()
     use_kqueue = false
 else
     use_kqueue = (
-      cc.has_header('sys/event.h') and
-      cc.has_function('kqueue', prefix: '#include <sys/event.h>')
+      cc.has_header('sys/event.h', args: compile_args_c) and
+      cc.has_function(
+          'kqueue',
+          prefix: '#include <sys/event.h>',
+          args: compile_args_c,
+      )
     )
     if get_option('kqueue').enabled() and not use_kqueue
         error('kqueue support requested but not found')
@@ -364,7 +405,7 @@ if get_option('launchd').disabled()
     use_launchd = false
 else
     launchctl = find_program('launchctl', required: get_option('launchd'))
-    use_launchd = cc.has_header('launch.h') and launchctl.found()
+    use_launchd = cc.has_header('launch.h', args: compile_args_c) and launchctl.found()
     if get_option('launchd').enabled() and not use_launchd
         error('launchd support requested but not found')
     endif
@@ -467,7 +508,7 @@ int main() {
     adt_user_context = ADT_USER;
     return 0;
 }
-''')
+''', args: compile_args_c)
 config.set('HAVE_ADT', adt_api_check)
 if adt_api_check
     adt_libs = cc.find_library('bsm')
@@ -484,7 +525,7 @@ int main() {
     static int x = SCM_RIGHTS;
     return 0;
 }
-''')
+''', args: compile_args_c)
 config.set('HAVE_UNIX_FD_PASSING', has_scm_rights)
 
 valgrind = dependency(
@@ -562,7 +603,7 @@ check_functions = [
 
 foreach function : check_functions
     macro = 'HAVE_' + function.underscorify().to_upper()
-    config.set(macro, cc.has_function(function) ? 1 : false)
+    config.set(macro, cc.has_function(function, args: compile_args_c) ? 1 : false)
 endforeach
 
 check_headers = [
@@ -591,12 +632,12 @@ check_headers = [
 
 foreach header : check_headers
     macro = 'HAVE_' + header.underscorify().to_upper()
-    config.set(macro, cc.has_header(header) ? 1 : false)
+    config.set(macro, cc.has_header(header, args: compile_args_c) ? 1 : false)
 endforeach
 
 execinfo = cc.find_library('execinfo', required: false)
-have_backtrace = (cc.has_header('execinfo.h')
-    and cc.has_function('backtrace', dependencies: execinfo)
+have_backtrace = (cc.has_header('execinfo.h', args: compile_args_c)
+    and cc.has_function('backtrace', dependencies: execinfo, args: compile_args_c)
 )
 config.set('HAVE_BACKTRACE', have_backtrace)
 
@@ -633,8 +674,8 @@ int main()
 }
 '''
 
-has_va_copy = cc.links(va_copy_check.format('va_copy'))
-has___va_copy = cc.links(va_copy_check.format('__va_copy'))
+has_va_copy = cc.links(va_copy_check.format('va_copy'), args: compile_args_c)
+has___va_copy = cc.links(va_copy_check.format('__va_copy'), args: compile_args_c)
 
 if has_va_copy
     va_copy = 'va_copy'
@@ -661,34 +702,61 @@ config.set10(
       int b = __sync_sub_and_fetch (&a, 4);
       return b;
     }
-    ''')
+    ''', args: compile_args_c)
 )
 
-config.set10('HAVE_DECL_ENVIRON', cc.has_header_symbol('unistd.h', 'environ'))
+config.set10(
+    'HAVE_DECL_ENVIRON',
+    cc.has_header_symbol('unistd.h', 'environ', args: compile_args_c),
+)
 config.set10('HAVE_DECL_LOG_PERROR',
-    cc.has_header_symbol('syslog.h', 'LOG_PERROR')
+    cc.has_header_symbol('syslog.h', 'LOG_PERROR', args: compile_args_c),
 )
 config.set10('HAVE_DECL_MSG_NOSIGNAL',
-    cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL')
+    cc.has_header_symbol(
+        'sys/socket.h',
+        'MSG_NOSIGNAL',
+        args: compile_args_c,
+    ),
 )
 config.set('HAVE_SOCKLEN_T',
-    cc.has_type('socklen_t', prefix: '#include <sys/socket.h>')
+    cc.has_type(
+        'socklen_t',
+        prefix: '#include <sys/socket.h>',
+        args: compile_args_c,
+    )
 )
 config.set('HAVE_CMSGCRED',
-    cc.has_type('struct cmsgcred', prefix: '#include <sys/socket.h>')
+    cc.has_type(
+        'struct cmsgcred',
+        prefix: '#include <sys/socket.h>',
+        args: compile_args_c,
+    )
 )
 
 config.set('HAVE_WRITEV',
-    cc.has_header_symbol('sys/uio.h', 'writev')
+    cc.has_header_symbol(
+        'sys/uio.h',
+        'writev',
+        args: compile_args_c,
+    )
 )
 
 config.set('HAVE_UNPCBID',
-    cc.has_member('struct unpcbid', 'unp_pid', prefix: '#include <sys/un.h>')
+    cc.has_member(
+        'struct unpcbid',
+        'unp_pid',
+        prefix: '#include <sys/un.h>',
+        args: compile_args_c,
+    )
 )
 
 
 ###############################################################################
 # Project options
+
+warning_args = []
+link_args = []
 
 # Verbose mode
 verbose_mode = get_option('verbose_mode')
@@ -711,7 +779,7 @@ if asserts
 endif
 
 if not asserts
-    compile_args += [
+    warning_args += [
         '-Wno-unused-but-set-variable',
         '-Wno-unused-variable',
         '-Wno-unused-function',
@@ -730,13 +798,6 @@ config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
 
 windows_output_debug = get_option('windows_output_debug_string')
 config.set('DBUS_USE_OUTPUT_DEBUG_STRING', windows_output_debug)
-
-dbus_static_flags = ( get_option('default_library') == 'static'
-    ? '-DDBUS_STATIC_BUILD'
-    : []
-)
-compile_args += dbus_static_flags
-
 
 # DBUS_ENABLE_EMBEDDED_TESTS controls unit tests built in to .c files
 # and some stuff in the test/ subdir.
@@ -957,13 +1018,16 @@ config.set('DBUS_COMPILATION', true)
 exe_ext = platform_windows ? '.exe' : ''
 config.set_quoted('DBUS_EXEEXT', exe_ext)
 
-compile_args_c = []
-compile_args += [
-    '-D_GNU_SOURCE',
-]
+compile_warnings = []
+compile_warnings_c = []
+
+# -fno-common makes the linker more strict: on some systems the linker
+# is *always* this strict, so we want to behave like that everywhere.
+# We treat this like a warning, since that's basically how we're using it.
+compile_warnings += ['-fno-common']
 
 if cc.get_id() == 'msvc'
-  compile_args += [
+  compile_warnings += [
       # once
       '/wo4018', # 'expression' : signed/unsigned mismatch
       # disabled
@@ -982,27 +1046,70 @@ if cc.get_id() == 'msvc'
       '/we4133', # 'type' : incompatible types - from 'type1' to 'type2'
   ]
 else
-  compile_args += [
+  compile_warnings += [
+      # These warnings are intentionally disabled:
+      # - missing field initializers being implicitly 0 is a feature,
+      #   not a bug
+      # - -Wunused-parameter is annoying when writing callbacks that follow
+      #   a fixed signature but do not necessarily need all of its parameters
       '-Wno-missing-field-initializers',
       '-Wno-unused-parameter',
+
+      # General warnings for both C and C++
+      # TODO: Some of these are probably redundant with Meson's warning_level
+      '-Warray-bounds',
+      '-Wcast-align',
       '-Wchar-subscripts',
+      '-Wdouble-promotion',
+      '-Wduplicated-branches',
+      '-Wduplicated-cond',
       '-Wfloat-equal',
-      # On Windows, we expect to be using msvcrt.dll-compatible printf
-      # (%I64u instead of %llu)
-      '-D__USE_MINGW_ANSI_STDIO=0',
+      '-Wformat-nonliteral',
+      '-Wformat-security',
+      '-Wformat=2',
+      '-Winit-self',
+      '-Winline',
+      '-Wlogical-op',
+      '-Wmissing-declarations',
+      '-Wmissing-format-attribute',
+      '-Wmissing-include-dirs',
+      '-Wmissing-noreturn',
+      '-Wnull-dereference',
+      '-Wpacked',
+      '-Wpointer-arith',
+      '-Wredundant-decls',
+      '-Wrestrict',
+      '-Wreturn-type',
+      '-Wshadow',
+      '-Wsign-compare',
+      '-Wstrict-aliasing',
+      '-Wswitch-default',
+      '-Wswitch-enum',
+      '-Wundef',
+      '-Wunused-but-set-variable',
+      '-Wwrite-strings',
   ]
 
-  compile_args_c += [
+  compile_warnings_c += [
+      # Extra warnings just for C
+      '-Wdeclaration-after-statement',
+      '-Wimplicit-function-declaration',
+      '-Wjump-misses-init',
+      '-Wmissing-prototypes',
+      '-Wnested-externs',
+      '-Wold-style-definition',
       '-Wpointer-sign',
+      '-Wstrict-prototypes',
   ]
 endif
 
-compile_args_c  = cc .get_supported_arguments(compile_args + compile_args_c)
-compile_args_cpp= cpp.get_supported_arguments(compile_args)
-link_args       = cc.get_supported_link_arguments(link_args)
-add_project_arguments(compile_args_c, language: 'c')
-add_project_arguments(compile_args_cpp, language: 'cpp')
-add_project_link_arguments(link_args, language: [ 'c', 'cpp' ])
+compile_warnings_c = cc.get_supported_arguments(compile_warnings + compile_warnings_c)
+compile_warnings_cpp = cpp.get_supported_arguments(compile_warnings)
+add_project_arguments(compile_warnings_c, language: 'c')
+add_project_arguments(compile_warnings_cpp, language: 'cpp')
+
+link_args = cc.get_supported_link_arguments(link_args)
+add_project_link_arguments(link_args, language: ['c', 'cpp'])
 
 root_include = include_directories('.')
 
@@ -1111,8 +1218,8 @@ summary_dict = {
     'datadir':                  data_config.get('EXPANDED_DATADIR'),
     'source code location':     meson.project_source_root(),
     'compiler':                 cc.get_id(),
-    'cflags':                   compile_args_c,
-    'cxxflags':                 compile_args_cpp,
+    'cflags':                   compile_args_c + compile_warnings_c,
+    'cxxflags':                 compile_args_cpp + compile_warnings_cpp,
     'ldflags':                  (link_args.length() == 0) ? '[]' : link_args,
     '64-bit int':               arch_config.get('DBUS_INT64_TYPE'),
     '32-bit int':               arch_config.get('DBUS_INT32_TYPE'),
