@@ -1055,12 +1055,51 @@ else
       '-Wno-missing-field-initializers',
       '-Wno-unused-parameter',
 
+      # General warnings for both C and C++
+      # TODO: Some of these are probably redundant with Meson's warning_level
+      '-Warray-bounds',
+      '-Wcast-align',
       '-Wchar-subscripts',
+      '-Wdouble-promotion',
+      '-Wduplicated-branches',
+      '-Wduplicated-cond',
       '-Wfloat-equal',
+      '-Wformat-nonliteral',
+      '-Wformat-security',
+      '-Wformat=2',
+      '-Winit-self',
+      '-Winline',
+      '-Wlogical-op',
+      '-Wmissing-declarations',
+      '-Wmissing-format-attribute',
+      '-Wmissing-include-dirs',
+      '-Wmissing-noreturn',
+      '-Wnull-dereference',
+      '-Wpacked',
+      '-Wpointer-arith',
+      '-Wredundant-decls',
+      '-Wrestrict',
+      '-Wreturn-type',
+      '-Wshadow',
+      '-Wsign-compare',
+      '-Wstrict-aliasing',
+      '-Wswitch-default',
+      '-Wswitch-enum',
+      '-Wundef',
+      '-Wunused-but-set-variable',
+      '-Wwrite-strings',
   ]
 
   compile_warnings_c += [
+      # Extra warnings just for C
+      '-Wdeclaration-after-statement',
+      '-Wimplicit-function-declaration',
+      '-Wjump-misses-init',
+      '-Wmissing-prototypes',
+      '-Wnested-externs',
+      '-Wold-style-definition',
       '-Wpointer-sign',
+      '-Wstrict-prototypes',
   ]
 endif
 
