@@ -466,6 +466,28 @@ dbus_bool_t _dbus_get_local_machine_uuid_encoded (DBusString *uuid_str,
 #define _DBUS_STRINGIFY(x) #x
 #define _DBUS_FILE_LINE __FILE__ ":" _DBUS_STRINGIFY(__LINE__)
 
+#ifndef __has_feature
+# define __has_feature(x) 0
+#endif
+
+/* MSVC defines __SANITIZE_ADDRESS__, but does not provide the special
+ * builtins associated with it. */
+#if ((defined(__SANITIZE_ADDRESS__) || __has_feature(address_sanitizer)) && \
+     !defined(_MSC_VER))
+# include <sanitizer/lsan_interface.h>
+/* Defined if we are building with AddressSanitizer */
+# define _DBUS_ADDRESS_SANITIZER
+/* Ignore memory allocations until the next _DBUS_END_IGNORE_LEAKS when
+ * checking for memory leaks */
+# define _DBUS_BEGIN_IGNORE_LEAKS __lsan_disable ()
+/* End the scope of a previous _DBUS_BEGIN_IGNORE_LEAKS */
+# define _DBUS_END_IGNORE_LEAKS __lsan_enable ()
+#else
+# undef _DBUS_ADDRESS_SANITIZER
+# define _DBUS_BEGIN_IGNORE_LEAKS do { } while (0)
+# define _DBUS_END_IGNORE_LEAKS do { } while (0)
+#endif
+
 DBUS_END_DECLS
 
 #endif /* DBUS_INTERNALS_H */
