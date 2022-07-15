@@ -78,7 +78,7 @@ if embedded_tests
                 test_exe,
             ],
             env: test_env,
-            protocol: 'tap',
+            protocol: test_protocol,
             suite: suites,
             timeout: timeout,
         )
@@ -89,14 +89,14 @@ if embedded_tests
         test('run-test',
             find_program('run-test.sh'),
             env: test_env,
-            protocol: 'tap',
+            protocol: test_protocol,
             suite: 'name-test',
         )
 
         test('run-test-systemserver',
             find_program('run-test-systemserver.sh'),
             env: test_env,
-            protocol: 'tap',
+            protocol: test_protocol,
             suite: 'name-test',
         )
     endif
