@@ -5036,36 +5036,52 @@ bus_dispatch_test_conf_fail (const DBusString *test_data_dir,
 }
 #endif
 
+#ifdef ENABLE_TRADITIONAL_ACTIVATION
 dbus_bool_t
-bus_dispatch_test (const char *test_data_dir_cstr)
+bus_test_normal_activation (const char *test_data_dir_cstr)
 {
   DBusString test_data_dir;
 
   _dbus_string_init_const (&test_data_dir, test_data_dir_cstr);
 
-#ifdef ENABLE_TRADITIONAL_ACTIVATION
-  /* run normal activation tests */
-  _dbus_verbose ("Normal activation tests\n");
   if (!bus_dispatch_test_conf (&test_data_dir,
-  			       "valid-config-files/debug-allow-all.conf", FALSE))
+                               "valid-config-files/debug-allow-all.conf", FALSE))
     return FALSE;
-
-#ifndef DBUS_WIN
-  /* run launch-helper activation tests */
-  _dbus_verbose ("Launch helper activation tests\n");
-  if (!bus_dispatch_test_conf (&test_data_dir,
-  			       "valid-config-files-system/debug-allow-all-pass.conf", TRUE))
-    return FALSE;
-
-  /* run select launch-helper activation tests on broken service files */
-  if (!bus_dispatch_test_conf_fail (&test_data_dir,
-  			            "valid-config-files-system/debug-allow-all-fail.conf"))
-    return FALSE;
-#endif
-#endif
 
   return TRUE;
 }
+
+#ifndef DBUS_WIN
+dbus_bool_t
+bus_test_helper_activation (const char *test_data_dir_cstr)
+{
+  DBusString test_data_dir;
+
+  _dbus_string_init_const (&test_data_dir, test_data_dir_cstr);
+
+  if (!bus_dispatch_test_conf (&test_data_dir,
+                               "valid-config-files-system/debug-allow-all-pass.conf", TRUE))
+    return FALSE;
+
+  return TRUE;
+}
+
+dbus_bool_t
+bus_test_failed_helper_activation (const char *test_data_dir_cstr)
+{
+  DBusString test_data_dir;
+
+  _dbus_string_init_const (&test_data_dir, test_data_dir_cstr);
+
+  /* run select launch-helper activation tests on broken service files */
+  if (!bus_dispatch_test_conf_fail (&test_data_dir,
+                                    "valid-config-files-system/debug-allow-all-fail.conf"))
+    return FALSE;
+
+  return TRUE;
+}
+#endif  /* !DBUS_WIN */
+#endif  /* ENABLE_TRADITIONAL_ACTIVATION */
 
 dbus_bool_t
 bus_dispatch_sha1_test (const char *test_data_dir_cstr)

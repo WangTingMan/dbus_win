@@ -24,7 +24,11 @@
 #include <config.h>
 #include "test/bus/common.h"
 
-static DBusTestCase test = { "dispatch", bus_dispatch_test };
+static DBusTestCase test =
+{
+  "failed-helper-activation",
+  bus_test_failed_helper_activation
+};
 
 int
 main (int argc, char **argv)

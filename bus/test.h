@@ -36,7 +36,9 @@
 typedef dbus_bool_t (* BusConnectionForeachFunction) (DBusConnection *connection,
                                                       void           *data);
 
-dbus_bool_t bus_dispatch_test         (const char                   *test_data_dir_cstr);
+dbus_bool_t bus_test_normal_activation (const char                  *test_data_dir_cstr);
+dbus_bool_t bus_test_helper_activation (const char                  *test_data_dir_cstr);
+dbus_bool_t bus_test_failed_helper_activation (const char           *test_data_dir_cstr);
 dbus_bool_t bus_dispatch_sha1_test    (const char                   *test_data_dir_cstr);
 dbus_bool_t bus_config_parser_test    (const char                   *test_data_dir_cstr);
 dbus_bool_t bus_config_parser_trivial_test (const char              *test_data_dir_cstr);

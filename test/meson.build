@@ -242,14 +242,6 @@ if embedded_tests
             'suite': ['slow'],
         },
         {
-            'name': 'bus-dispatch',
-            'srcs': [ 'bus/dispatch.c', 'bus/common.c' ],
-            'link': [ libdbus_testutils, libdbus_daemon_internal, ],
-            'install': false,
-            'suite': ['slow'],
-            'timeout': 3000,
-        },
-        {
             'name': 'marshal-recursive',
             'srcs': [
                 'internals/dbus-marshal-recursive-util.c',
@@ -273,8 +265,35 @@ if embedded_tests
         },
     ]
 
+    if use_traditional_activation
+        tests += [
+            {
+                'name': 'bus-normal-activation',
+                'srcs': [ 'bus/normal-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+                'suite': ['slow'],
+                'timeout': 1000,
+            },
+        ]
+    endif
+
     if use_traditional_activation and platform_unix
         tests += [
+            {
+                'name': 'bus-failed-helper-activation',
+                'srcs': [ 'bus/failed-helper-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+            },
+            {
+                'name': 'bus-helper-activation',
+                'srcs': [ 'bus/helper-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+                'suite': ['slow'],
+                'timeout': 1000,
+            },
             {
                 'name': 'bus-launch-helper-oom',
                 'srcs': [ 'bus/launch-helper-oom.c' ],
