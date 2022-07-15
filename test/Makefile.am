@@ -199,19 +199,19 @@ test_bus_system_LDADD = \
 	libdbus-testutils.la \
 	$(NULL)
 
-test_bus_SOURCES = bus/main.c
+test_bus_SOURCES = bus/main.c bus/common.c bus/common.h
 test_bus_LDADD = \
 	$(top_builddir)/bus/libdbus-daemon-internal.la \
 	libdbus-testutils.la \
 	$(NULL)
 
-test_bus_dispatch_SOURCES = bus/dispatch.c
+test_bus_dispatch_SOURCES = bus/dispatch.c bus/common.c bus/common.h
 test_bus_dispatch_LDADD = \
 	$(top_builddir)/bus/libdbus-daemon-internal.la \
 	libdbus-testutils.la \
 	$(NULL)
 
-test_bus_dispatch_sha1_SOURCES = bus/dispatch-sha1.c
+test_bus_dispatch_sha1_SOURCES = bus/dispatch-sha1.c bus/common.c bus/common.h
 test_bus_dispatch_sha1_LDADD = \
 	$(top_builddir)/bus/libdbus-daemon-internal.la \
 	libdbus-testutils.la \

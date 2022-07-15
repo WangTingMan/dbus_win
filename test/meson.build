@@ -230,20 +230,20 @@ if embedded_tests
     tests += [
         {
             'name': 'bus',
-            'srcs': [ 'bus/main.c' ],
+            'srcs': [ 'bus/main.c', 'bus/common.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
         },
         {
             'name': 'bus-dispatch-sha1',
-            'srcs': [ 'bus/dispatch-sha1.c' ],
+            'srcs': [ 'bus/dispatch-sha1.c', 'bus/common.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
             'suite': ['slow'],
         },
         {
             'name': 'bus-dispatch',
-            'srcs': [ 'bus/dispatch.c' ],
+            'srcs': [ 'bus/dispatch.c', 'bus/common.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
             'suite': ['slow'],
