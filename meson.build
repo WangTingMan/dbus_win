@@ -313,7 +313,10 @@ data_config.set('top_builddir', meson.project_build_root())
 
 
 threads = dependency('threads')
-config.set('HAVE_MONOTONIC_CLOCK', cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC'))
+config.set(
+    'HAVE_MONOTONIC_CLOCK',
+    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c),
+)
 
 glib = dependency(
     'glib-2.0', version: '>=2.40',
@@ -358,7 +361,7 @@ config.set('HAVE_APPARMOR_2_10', apparmor.version().version_compare('>=2.10'))
 if get_option('inotify').disabled()
     use_inotify = false
 else
-    use_inotify = cc.has_header('sys/inotify.h')
+    use_inotify = cc.has_header('sys/inotify.h', args: compile_args_c)
     if get_option('inotify').enabled() and not use_inotify
         error('inotify support requested but not found')
     endif
@@ -368,8 +371,12 @@ if get_option('epoll').disabled()
     use_linux_epoll = false
 else
     use_linux_epoll = (
-      cc.has_header('sys/epoll.h') and
-      cc.has_function('epoll_create1', prefix: '#include <sys/epoll.h>')
+      cc.has_header('sys/epoll.h', args: compile_args_c) and
+      cc.has_function(
+          'epoll_create1',
+          prefix: '#include <sys/epoll.h>',
+          args: compile_args_c,
+      )
     )
     if get_option('epoll').enabled() and not use_linux_epoll
         error('epoll support requested but not found')
@@ -381,8 +388,12 @@ if get_option('kqueue').disabled()
     use_kqueue = false
 else
     use_kqueue = (
-      cc.has_header('sys/event.h') and
-      cc.has_function('kqueue', prefix: '#include <sys/event.h>')
+      cc.has_header('sys/event.h', args: compile_args_c) and
+      cc.has_function(
+          'kqueue',
+          prefix: '#include <sys/event.h>',
+          args: compile_args_c,
+      )
     )
     if get_option('kqueue').enabled() and not use_kqueue
         error('kqueue support requested but not found')
@@ -394,7 +405,7 @@ if get_option('launchd').disabled()
     use_launchd = false
 else
     launchctl = find_program('launchctl', required: get_option('launchd'))
-    use_launchd = cc.has_header('launch.h') and launchctl.found()
+    use_launchd = cc.has_header('launch.h', args: compile_args_c) and launchctl.found()
     if get_option('launchd').enabled() and not use_launchd
         error('launchd support requested but not found')
     endif
@@ -497,7 +508,7 @@ int main() {
     adt_user_context = ADT_USER;
     return 0;
 }
-''')
+''', args: compile_args_c)
 config.set('HAVE_ADT', adt_api_check)
 if adt_api_check
     adt_libs = cc.find_library('bsm')
@@ -514,7 +525,7 @@ int main() {
     static int x = SCM_RIGHTS;
     return 0;
 }
-''')
+''', args: compile_args_c)
 config.set('HAVE_UNIX_FD_PASSING', has_scm_rights)
 
 valgrind = dependency(
@@ -592,7 +603,7 @@ check_functions = [
 
 foreach function : check_functions
     macro = 'HAVE_' + function.underscorify().to_upper()
-    config.set(macro, cc.has_function(function) ? 1 : false)
+    config.set(macro, cc.has_function(function, args: compile_args_c) ? 1 : false)
 endforeach
 
 check_headers = [
@@ -621,12 +632,12 @@ check_headers = [
 
 foreach header : check_headers
     macro = 'HAVE_' + header.underscorify().to_upper()
-    config.set(macro, cc.has_header(header) ? 1 : false)
+    config.set(macro, cc.has_header(header, args: compile_args_c) ? 1 : false)
 endforeach
 
 execinfo = cc.find_library('execinfo', required: false)
-have_backtrace = (cc.has_header('execinfo.h')
-    and cc.has_function('backtrace', dependencies: execinfo)
+have_backtrace = (cc.has_header('execinfo.h', args: compile_args_c)
+    and cc.has_function('backtrace', dependencies: execinfo, args: compile_args_c)
 )
 config.set('HAVE_BACKTRACE', have_backtrace)
 
@@ -663,8 +674,8 @@ int main()
 }
 '''
 
-has_va_copy = cc.links(va_copy_check.format('va_copy'))
-has___va_copy = cc.links(va_copy_check.format('__va_copy'))
+has_va_copy = cc.links(va_copy_check.format('va_copy'), args: compile_args_c)
+has___va_copy = cc.links(va_copy_check.format('__va_copy'), args: compile_args_c)
 
 if has_va_copy
     va_copy = 'va_copy'
@@ -691,29 +702,53 @@ config.set10(
       int b = __sync_sub_and_fetch (&a, 4);
       return b;
     }
-    ''')
+    ''', args: compile_args_c)
 )
 
-config.set10('HAVE_DECL_ENVIRON', cc.has_header_symbol('unistd.h', 'environ'))
+config.set10(
+    'HAVE_DECL_ENVIRON',
+    cc.has_header_symbol('unistd.h', 'environ', args: compile_args_c),
+)
 config.set10('HAVE_DECL_LOG_PERROR',
-    cc.has_header_symbol('syslog.h', 'LOG_PERROR')
+    cc.has_header_symbol('syslog.h', 'LOG_PERROR', args: compile_args_c),
 )
 config.set10('HAVE_DECL_MSG_NOSIGNAL',
-    cc.has_header_symbol('sys/socket.h', 'MSG_NOSIGNAL')
+    cc.has_header_symbol(
+        'sys/socket.h',
+        'MSG_NOSIGNAL',
+        args: compile_args_c,
+    ),
 )
 config.set('HAVE_SOCKLEN_T',
-    cc.has_type('socklen_t', prefix: '#include <sys/socket.h>')
+    cc.has_type(
+        'socklen_t',
+        prefix: '#include <sys/socket.h>',
+        args: compile_args_c,
+    )
 )
 config.set('HAVE_CMSGCRED',
-    cc.has_type('struct cmsgcred', prefix: '#include <sys/socket.h>')
+    cc.has_type(
+        'struct cmsgcred',
+        prefix: '#include <sys/socket.h>',
+        args: compile_args_c,
+    )
 )
 
 config.set('HAVE_WRITEV',
-    cc.has_header_symbol('sys/uio.h', 'writev')
+    cc.has_header_symbol(
+        'sys/uio.h',
+        'writev',
+        args: compile_args_c,
+    )
 )
 
 config.set('HAVE_UNPCBID',
-    cc.has_member('struct unpcbid', 'unp_pid', prefix: '#include <sys/un.h>')
+    cc.has_member(
+        'struct unpcbid',
+        'unp_pid',
+        prefix: '#include <sys/un.h>',
+        args: compile_args_c,
+    )
 )
 
 
