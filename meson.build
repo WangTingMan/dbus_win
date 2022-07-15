@@ -154,6 +154,11 @@ compile_args = [
     '-D_GNU_SOURCE',
 ]
 
+# dbus makes assumptions about aliasing that Standard C does not guarantee,
+# particularly in DBusString.
+# See https://gitlab.freedesktop.org/dbus/dbus/-/issues/4
+compile_args += ['-fno-strict-aliasing']
+
 if host_os.contains('solaris')
     compile_args += [
         # Solaris' C library apparently needs these runes to be threadsafe...
