@@ -38,10 +38,6 @@ arch_config = configuration_data()
 # Non-quoted variables
 data_config = configuration_data()
 
-# Those will be checked for compiler compatibility and added at the end
-compile_args = []
-link_args = []
-
 install_emptydirs = []
 install_symlinks = []
 
@@ -148,6 +144,16 @@ else
 endif
 data_config.set('DBUS_SESSION_CONF_MAYBE_AUTH_EXTERNAL', conf_maybe_external)
 
+###############################################################################
+# Functionally necessary compiler arguments
+# Note that these must be set up before we do any checks like
+# cc.has_header_symbol, otherwise we'll fail to find symbols that only exist
+# when a particular feature-test macro like _GNU_SOURCE is defined.
+
+compile_args = [
+    '-D_GNU_SOURCE',
+]
+
 if host_os.contains('solaris')
     compile_args += [
         # Solaris' C library apparently needs these runes to be threadsafe...
@@ -158,6 +164,25 @@ if host_os.contains('solaris')
         ' -D_XOPEN_SOURCE=500',
     ]
 endif
+
+dbus_static_flags = ( get_option('default_library') == 'static'
+    ? '-DDBUS_STATIC_BUILD'
+    : []
+)
+compile_args += dbus_static_flags
+
+if cc.get_id() != 'msvc'
+    compile_args += [
+          # On Windows, we expect to be using msvcrt.dll-compatible printf
+          # (%I64u instead of %llu)
+          '-D__USE_MINGW_ANSI_STDIO=0',
+    ]
+endif
+
+compile_args_c = cc.get_supported_arguments(compile_args)
+compile_args_cpp = cpp.get_supported_arguments(compile_args)
+add_project_arguments(compile_args_c, language: 'c')
+add_project_arguments(compile_args_cpp, language: 'cpp')
 
 if host_machine.endian() == 'big'
   config.set('WORDS_BIGENDIAN', 1)
@@ -690,6 +715,9 @@ config.set('HAVE_UNPCBID',
 ###############################################################################
 # Project options
 
+warning_args = []
+link_args = []
+
 # Verbose mode
 verbose_mode = get_option('verbose_mode')
 config.set('DBUS_ENABLE_VERBOSE_MODE', verbose_mode)
@@ -711,7 +739,7 @@ if asserts
 endif
 
 if not asserts
-    compile_args += [
+    warning_args += [
         '-Wno-unused-but-set-variable',
         '-Wno-unused-variable',
         '-Wno-unused-function',
@@ -730,13 +758,6 @@ config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
 
 windows_output_debug = get_option('windows_output_debug_string')
 config.set('DBUS_USE_OUTPUT_DEBUG_STRING', windows_output_debug)
-
-dbus_static_flags = ( get_option('default_library') == 'static'
-    ? '-DDBUS_STATIC_BUILD'
-    : []
-)
-compile_args += dbus_static_flags
-
 
 # DBUS_ENABLE_EMBEDDED_TESTS controls unit tests built in to .c files
 # and some stuff in the test/ subdir.
@@ -957,13 +978,11 @@ config.set('DBUS_COMPILATION', true)
 exe_ext = platform_windows ? '.exe' : ''
 config.set_quoted('DBUS_EXEEXT', exe_ext)
 
-compile_args_c = []
-compile_args += [
-    '-D_GNU_SOURCE',
-]
+compile_warnings = []
+compile_warnings_c = []
 
 if cc.get_id() == 'msvc'
-  compile_args += [
+  compile_warnings += [
       # once
       '/wo4018', # 'expression' : signed/unsigned mismatch
       # disabled
@@ -982,27 +1001,25 @@ if cc.get_id() == 'msvc'
       '/we4133', # 'type' : incompatible types - from 'type1' to 'type2'
   ]
 else
-  compile_args += [
+  compile_warnings += [
       '-Wno-missing-field-initializers',
       '-Wno-unused-parameter',
       '-Wchar-subscripts',
       '-Wfloat-equal',
-      # On Windows, we expect to be using msvcrt.dll-compatible printf
-      # (%I64u instead of %llu)
-      '-D__USE_MINGW_ANSI_STDIO=0',
   ]
 
-  compile_args_c += [
+  compile_warnings_c += [
       '-Wpointer-sign',
   ]
 endif
 
-compile_args_c  = cc .get_supported_arguments(compile_args + compile_args_c)
-compile_args_cpp= cpp.get_supported_arguments(compile_args)
-link_args       = cc.get_supported_link_arguments(link_args)
-add_project_arguments(compile_args_c, language: 'c')
-add_project_arguments(compile_args_cpp, language: 'cpp')
-add_project_link_arguments(link_args, language: [ 'c', 'cpp' ])
+compile_warnings_c = cc.get_supported_arguments(compile_warnings + compile_warnings_c)
+compile_warnings_cpp = cpp.get_supported_arguments(compile_warnings)
+add_project_arguments(compile_warnings_c, language: 'c')
+add_project_arguments(compile_warnings_cpp, language: 'cpp')
+
+link_args = cc.get_supported_link_arguments(link_args)
+add_project_link_arguments(link_args, language: ['c', 'cpp'])
 
 root_include = include_directories('.')
 
@@ -1111,8 +1128,8 @@ summary_dict = {
     'datadir':                  data_config.get('EXPANDED_DATADIR'),
     'source code location':     meson.project_source_root(),
     'compiler':                 cc.get_id(),
-    'cflags':                   compile_args_c,
-    'cxxflags':                 compile_args_cpp,
+    'cflags':                   compile_args_c + compile_warnings_c,
+    'cxxflags':                 compile_args_cpp + compile_warnings_cpp,
     'ldflags':                  (link_args.length() == 0) ? '[]' : link_args,
     '64-bit int':               arch_config.get('DBUS_INT64_TYPE'),
     '32-bit int':               arch_config.get('DBUS_INT32_TYPE'),
