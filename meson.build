@@ -986,6 +986,11 @@ config.set_quoted('DBUS_EXEEXT', exe_ext)
 compile_warnings = []
 compile_warnings_c = []
 
+# -fno-common makes the linker more strict: on some systems the linker
+# is *always* this strict, so we want to behave like that everywhere.
+# We treat this like a warning, since that's basically how we're using it.
+compile_warnings += ['-fno-common']
+
 if cc.get_id() == 'msvc'
   compile_warnings += [
       # once
