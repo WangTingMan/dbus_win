@@ -348,6 +348,10 @@ static const struct {
                                     DBusError        *error);
 } open_funcs[] = {
   { _dbus_transport_open_socket },
+  { _dbus_transport_open_unix_socket },
+#ifndef _WIN32
+  { _dbus_transport_open_unixexec },
+#endif
   { _dbus_transport_open_platform_specific },
   { _dbus_transport_open_autolaunch }
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS

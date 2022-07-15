@@ -5181,9 +5181,9 @@ bus_unix_fds_passing_test (const char *test_data_dir_cstr)
                                 DBUS_TYPE_INVALID))
     _dbus_test_fatal ("Failed to attach fds.");
 
-  if (!_dbus_close_socket (one[0], &error))
+  if (!_dbus_close_socket (&one[0], &error))
     _dbus_test_fatal ("Failed to close pipe #1 ");
-  if (!_dbus_close_socket (two[0], &error))
+  if (!_dbus_close_socket (&two[0], &error))
     _dbus_test_fatal ("Failed to close pipe #2 ");
 
   if (!(dbus_connection_can_send_type(foo, DBUS_TYPE_UNIX_FD)))
@@ -5250,9 +5250,9 @@ bus_unix_fds_passing_test (const char *test_data_dir_cstr)
   if (read(two[1].fd, &r, 1) != 1 || r != 'Z')
     _dbus_test_fatal ("Failed to read value from pipe.");
 
-  if (!_dbus_close_socket (one[1], &error))
+  if (!_dbus_close_socket (&one[1], &error))
     _dbus_test_fatal ("Failed to close pipe #1 ");
-  if (!_dbus_close_socket (two[1], &error))
+  if (!_dbus_close_socket (&two[1], &error))
     _dbus_test_fatal ("Failed to close pipe #2 ");
 
   _dbus_verbose ("Disconnecting foo\n");

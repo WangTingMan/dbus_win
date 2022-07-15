@@ -39,7 +39,13 @@ DBusTransportOpenResult _dbus_transport_open_socket        (DBusAddressEntry  *e
                                                             DBusTransport    **transport_p,
                                                             DBusError         *error);
 
+DBusTransport* _dbus_transport_new_for_domain_socket (const char       *path,
+                                                      dbus_bool_t       abstract,
+                                                      DBusError        *error);
 
+DBusTransportOpenResult _dbus_transport_open_unix_socket   (DBusAddressEntry  *entry,
+                                                            DBusTransport    **transport_p,
+                                                            DBusError         *error);
 
 DBUS_END_DECLS
 

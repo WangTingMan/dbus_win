@@ -23,7 +23,6 @@
 
 #include <config.h>
 #include "dbus-server.h"
-#include "dbus-server-unix.h"
 #include "dbus-server-socket.h"
 #include "dbus-string.h"
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
@@ -527,6 +526,7 @@ static const struct {
                                    DBusError        *error);
 } listen_funcs[] = {
   { _dbus_server_listen_socket }
+  , { _dbus_server_listen_unix_socket }
   , { _dbus_server_listen_platform_specific }
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
   , { _dbus_server_listen_debug_pipe }

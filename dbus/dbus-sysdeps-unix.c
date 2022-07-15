@@ -293,22 +293,34 @@ static dbus_bool_t
 _dbus_open_unix_socket (int              *fd,
                         DBusError        *error)
 {
-  return _dbus_open_socket(fd, PF_UNIX, SOCK_STREAM, 0, error);
+  return _dbus_open_socket(fd, AF_UNIX, SOCK_STREAM, 0, error);
 }
 
 /**
- * Closes a socket. Should not be used on non-socket
- * file descriptors or handles.
+ * Closes a socket and invalidates it. Should not be used on non-socket file
+ * descriptors or handles.
+ *
+ * If an error is detected, this function returns #FALSE and sets the error, but
+ * the socket is still closed and invalidated. Callers can use the error in a
+ * diagnostic message, but should not retry closing the socket.
  *
  * @param fd the socket
  * @param error return location for an error
  * @returns #FALSE if error is set
  */
 dbus_bool_t
-_dbus_close_socket (DBusSocket        fd,
+_dbus_close_socket (DBusSocket       *fd,
                     DBusError        *error)
 {
-  return _dbus_close (fd.fd, error);
+  dbus_bool_t rv;
+
+  _dbus_assert (fd != NULL);
+  _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+
+  rv = _dbus_close (fd->fd, error);
+  _dbus_socket_invalidate (fd);
+
+  return rv;
 }
 
 /**
@@ -923,21 +935,6 @@ _dbus_write_two (int               fd,
 #endif /* !HAVE_WRITEV */
 }
 
-#define _DBUS_MAX_SUN_PATH_LENGTH 99
-
-/**
- * @def _DBUS_MAX_SUN_PATH_LENGTH
- *
- * Maximum length of the path to a UNIX domain socket,
- * sockaddr_un::sun_path member. POSIX requires that all systems
- * support at least 100 bytes here, including the nul termination.
- * We use 99 for the max value to allow for the nul.
- *
- * We could probably also do sizeof (addr.sun_path)
- * but this way we are the same on all platforms
- * which is probably a good idea.
- */
-
 /**
  * Creates a socket and connects it to the UNIX domain socket at the
  * given path.  The connection fd is returned, and is set up as
@@ -952,14 +949,14 @@ _dbus_write_two (int               fd,
  * @param path the path to UNIX domain socket
  * @param abstract #TRUE to use abstract namespace
  * @param error return location for error code
- * @returns connection file descriptor or -1 on error
+ * @returns a valid socket on success or an invalid socket on error
  */
-int
+DBusSocket
 _dbus_connect_unix_socket (const char     *path,
                            dbus_bool_t     abstract,
                            DBusError      *error)
 {
-  int fd;
+  DBusSocket fd = DBUS_SOCKET_INIT;
   size_t path_len;
   struct sockaddr_un addr;
   _DBUS_STATIC_ASSERT (sizeof (addr.sun_path) > _DBUS_MAX_SUN_PATH_LENGTH);
@@ -970,10 +967,10 @@ _dbus_connect_unix_socket (const char     *path,
                  path, abstract);
 
 
-  if (!_dbus_open_unix_socket (&fd, error))
+  if (!_dbus_open_unix_socket (&fd.fd, error))
     {
       _DBUS_ASSERT_ERROR_IS_SET(error);
-      return -1;
+      return fd;
     }
   _DBUS_ASSERT_ERROR_IS_CLEAR(error);
 
@@ -991,8 +988,8 @@ _dbus_connect_unix_socket (const char     *path,
         {
           dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
                       "Abstract socket name too long\n");
-          _dbus_close (fd, NULL);
-          return -1;
+          _dbus_close_socket (&fd, NULL);
+          return fd;
 	}
 
       strncpy (&addr.sun_path[1], path, sizeof (addr.sun_path) - 2);
@@ -1000,8 +997,8 @@ _dbus_connect_unix_socket (const char     *path,
 #else /* !__linux__ */
       dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
                       "Operating system does not support abstract socket namespace\n");
-      _dbus_close (fd, NULL);
-      return -1;
+      _dbus_close_socket (&fd, NULL);
+      return fd;
 #endif /* !__linux__ */
     }
   else
@@ -1010,30 +1007,30 @@ _dbus_connect_unix_socket (const char     *path,
         {
           dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
                       "Socket name too long\n");
-          _dbus_close (fd, NULL);
-          return -1;
+          _dbus_close_socket (&fd, NULL);
+          return fd;
 	}
 
       strncpy (addr.sun_path, path, sizeof (addr.sun_path) - 1);
     }
 
-  if (connect (fd, (struct sockaddr*) &addr, _DBUS_STRUCT_OFFSET (struct sockaddr_un, sun_path) + path_len) < 0)
+  if (connect (fd.fd, (struct sockaddr*) &addr, _DBUS_STRUCT_OFFSET (struct sockaddr_un, sun_path) + path_len) < 0)
     {
       dbus_set_error (error,
                       _dbus_error_from_errno (errno),
                       "Failed to connect to socket %s: %s",
                       path, _dbus_strerror (errno));
 
-      _dbus_close (fd, NULL);
-      return -1;
+      _dbus_close_socket (&fd, NULL);
+      return fd;
     }
 
-  if (!_dbus_set_fd_nonblocking (fd, error))
+  if (!_dbus_set_fd_nonblocking (fd.fd, error))
     {
       _DBUS_ASSERT_ERROR_IS_SET (error);
 
-      _dbus_close (fd, NULL);
-      return -1;
+      _dbus_close_socket (&fd, NULL);
+      return fd;
     }
 
   return fd;
@@ -1049,13 +1046,14 @@ _dbus_connect_unix_socket (const char     *path,
  * @param argv the argument list for the process to execute.
  * argv[0] typically is identical to the path of the executable
  * @param error return location for error code
- * @returns connection file descriptor or -1 on error
+ * @returns a valid socket on success or an invalid socket on error
  */
-int
+DBusSocket
 _dbus_connect_exec (const char     *path,
                     char *const    argv[],
                     DBusError      *error)
 {
+  DBusSocket s = DBUS_SOCKET_INIT;
   int fds[2];
   pid_t pid;
   int retval;
@@ -1081,7 +1079,8 @@ _dbus_connect_exec (const char     *path,
                       _dbus_error_from_errno (errno),
                       "Failed to create socket pair: %s",
                       _dbus_strerror (errno));
-      return -1;
+      _dbus_assert (!_dbus_socket_is_valid (s));
+      return s;
     }
 
   if (!cloexec_done)
@@ -1104,7 +1103,8 @@ _dbus_connect_exec (const char     *path,
                       path, _dbus_strerror (errno));
       close (fds[0]);
       close (fds[1]);
-      return -1;
+      _dbus_assert (!_dbus_socket_is_valid (s));
+      return s;
     }
 
   if (pid == 0)
@@ -1139,10 +1139,12 @@ _dbus_connect_exec (const char     *path,
       _DBUS_ASSERT_ERROR_IS_SET (error);
 
       close (fds[0]);
-      return -1;
+      _dbus_assert (!_dbus_socket_is_valid (s));
+      return s;
     }
 
-  return fds[0];
+  s.fd = fds[0];
+  return s;
 }
 
 /**
@@ -1160,13 +1162,14 @@ _dbus_connect_exec (const char     *path,
  * @param path the socket name
  * @param abstract #TRUE to use abstract namespace
  * @param error return location for errors
- * @returns the listening file descriptor or -1 on error
+ * @returns a valid socket on success or an invalid socket on error
  */
-int
+DBusSocket
 _dbus_listen_unix_socket (const char     *path,
                           dbus_bool_t     abstract,
                           DBusError      *error)
 {
+  DBusSocket s = DBUS_SOCKET_INIT;
   int listen_fd;
   struct sockaddr_un addr;
   size_t path_len;
@@ -1180,7 +1183,7 @@ _dbus_listen_unix_socket (const char     *path,
   if (!_dbus_open_unix_socket (&listen_fd, error))
     {
       _DBUS_ASSERT_ERROR_IS_SET(error);
-      return -1;
+      return s;
     }
   _DBUS_ASSERT_ERROR_IS_CLEAR(error);
 
@@ -1202,7 +1205,7 @@ _dbus_listen_unix_socket (const char     *path,
           dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
                       "Abstract socket name too long\n");
           _dbus_close (listen_fd, NULL);
-          return -1;
+          return s;
 	}
 
       strncpy (&addr.sun_path[1], path, sizeof (addr.sun_path) - 2);
@@ -1211,7 +1214,7 @@ _dbus_listen_unix_socket (const char     *path,
       dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
                       "Operating system does not support abstract socket namespace\n");
       _dbus_close (listen_fd, NULL);
-      return -1;
+      return s;
 #endif /* !__linux__ */
     }
   else
@@ -1239,8 +1242,8 @@ _dbus_listen_unix_socket (const char     *path,
           dbus_set_error (error, DBUS_ERROR_BAD_ADDRESS,
                       "Socket name too long\n");
           _dbus_close (listen_fd, NULL);
-          return -1;
-	}
+          return s;
+        }
 
       strncpy (addr.sun_path, path, sizeof (addr.sun_path) - 1);
     }
@@ -1251,7 +1254,7 @@ _dbus_listen_unix_socket (const char     *path,
                       "Failed to bind socket \"%s\": %s",
                       path, _dbus_strerror (errno));
       _dbus_close (listen_fd, NULL);
-      return -1;
+      return s;
     }
 
   if (listen (listen_fd, SOMAXCONN /* backlog */) < 0)
@@ -1260,14 +1263,14 @@ _dbus_listen_unix_socket (const char     *path,
                       "Failed to listen on socket \"%s\": %s",
                       path, _dbus_strerror (errno));
       _dbus_close (listen_fd, NULL);
-      return -1;
+      return s;
     }
 
   if (!_dbus_set_fd_nonblocking (listen_fd, error))
     {
       _DBUS_ASSERT_ERROR_IS_SET (error);
       _dbus_close (listen_fd, NULL);
-      return -1;
+      return s;
     }
 
   /* Try opening up the permissions, but if we can't, just go ahead
@@ -1276,7 +1279,8 @@ _dbus_listen_unix_socket (const char     *path,
   if (!abstract && chmod (path, 0777) < 0)
     _dbus_warn ("Could not set mode 0777 on socket %s", path);
 
-  return listen_fd;
+  s.fd = listen_fd;
+  return s;
 }
 
 /**
@@ -1491,7 +1495,6 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
                       _dbus_error_from_gai (res, errno),
                       "Failed to lookup host/port: \"%s:%s\": %s (%d)",
                       host, port, gai_strerror(res), res);
-      _dbus_socket_invalidate (&fd);
       goto out;
     }
 
@@ -1509,8 +1512,7 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
       if (connect (fd.fd, (struct sockaddr*) tmp->ai_addr, tmp->ai_addrlen) < 0)
         {
           saved_errno = errno;
-          _dbus_close (fd.fd, NULL);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
 
           connect_error = dbus_new0 (DBusError, 1);
 
@@ -1557,16 +1559,14 @@ _dbus_connect_tcp_socket_with_nonce (const char     *host,
 
       if (!ret)
         {
-          _dbus_close (fd.fd, NULL);
-          _dbus_socket_invalidate (&fd);
+          _dbus_close_socket (&fd, NULL);
           goto out;
         }
     }
 
   if (!_dbus_set_fd_nonblocking (fd.fd, error))
     {
-      _dbus_close (fd.fd, NULL);
-      _dbus_socket_invalidate (&fd);
+      _dbus_close_socket (&fd, NULL);
       goto out;
     }
 

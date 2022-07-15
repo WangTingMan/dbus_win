@@ -387,11 +387,8 @@ close_reload_pipe (DBusWatch **watch)
     _dbus_watch_unref (*watch);
     *watch = NULL;
 
-    _dbus_close_socket (reload_pipe[RELOAD_READ_END], NULL);
-    _dbus_socket_invalidate (&reload_pipe[RELOAD_READ_END]);
-
-    _dbus_close_socket (reload_pipe[RELOAD_WRITE_END], NULL);
-    _dbus_socket_invalidate (&reload_pipe[RELOAD_WRITE_END]);
+    _dbus_close_socket (&reload_pipe[RELOAD_READ_END], NULL);
+    _dbus_close_socket (&reload_pipe[RELOAD_WRITE_END], NULL);
 }
 #endif /* DBUS_UNIX */
 

@@ -194,8 +194,7 @@ _dbus_accept_with_noncefile (DBusSocket listen_fd, const DBusNonceFile *noncefil
 
   if (do_check_nonce(fd, &nonce, NULL) != TRUE) {
     _dbus_verbose ("nonce check failed. Closing socket.\n");
-    _dbus_close_socket(fd, NULL);
-    _dbus_socket_invalidate (&fd);
+    _dbus_close_socket (&fd, NULL);
     goto out;
   }
 

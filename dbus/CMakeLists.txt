@@ -89,7 +89,6 @@ set(DBUS_LIB_HEADERS
     dbus-resources.h
     dbus-server-debug-pipe.h
     dbus-server-protected.h
-    dbus-server-unix.h
     dbus-sha.h
     dbus-timeout.h
     dbus-threads.h
@@ -209,7 +208,6 @@ else(WIN32)
         dbus-userdb.c
     )
     set(DBUS_SHARED_HEADERS ${DBUS_SHARED_HEADERS}
-        dbus-server-unix.h
         dbus-transport-unix.h
         dbus-sysdeps-unix.h
         dbus-userdb.h

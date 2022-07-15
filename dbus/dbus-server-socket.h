@@ -43,6 +43,9 @@ DBusServer* _dbus_server_new_for_tcp_socket       (const char       *host,
                                                    const char       *family,
                                                    DBusError        *error,
                                                    dbus_bool_t      use_nonce);
+DBusServer* _dbus_server_new_for_dir              (const char       *dir,
+                                                   dbus_bool_t       use_abstract,
+                                                   DBusError        *error);
 DBusServerListenResult _dbus_server_listen_socket (DBusAddressEntry  *entry,
                                                    DBusServer       **server_p,
                                                    DBusError         *error);
@@ -51,6 +54,9 @@ DBusServerListenResult _dbus_server_listen_socket (DBusAddressEntry  *entry,
 void _dbus_server_socket_own_filename (DBusServer *server,
                                        char       *filename);
 
+DBusServer* _dbus_server_new_for_domain_socket (const char       *path,
+                                                dbus_bool_t       abstract,
+                                                DBusError        *error);
 DBUS_END_DECLS
 
 #endif /* DBUS_SERVER_SOCKET_H */

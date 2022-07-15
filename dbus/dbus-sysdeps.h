@@ -212,7 +212,7 @@ dbus_bool_t _dbus_set_socket_nonblocking (DBusSocket      fd,
                                           DBusError      *error);
 
 DBUS_PRIVATE_EXPORT
-dbus_bool_t _dbus_close_socket     (DBusSocket        fd,
+dbus_bool_t _dbus_close_socket     (DBusSocket       *fd,
                                     DBusError        *error);
 DBUS_PRIVATE_EXPORT
 int         _dbus_read_socket      (DBusSocket        fd,
@@ -561,6 +561,18 @@ typedef struct
 dbus_bool_t _dbus_stat             (const DBusString *filename,
                                     DBusStat         *statbuf,
                                     DBusError        *error);
+
+DBusSocket _dbus_connect_unix_socket (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
+DBusSocket _dbus_listen_unix_socket  (const char     *path,
+                                      dbus_bool_t     abstract,
+                                      DBusError      *error);
+
+DBusSocket _dbus_connect_exec (const char     *path,
+                               char *const    argv[],
+                               DBusError      *error);
+
 DBUS_PRIVATE_EXPORT
 dbus_bool_t _dbus_socketpair (DBusSocket       *fd1,
                               DBusSocket       *fd2,
@@ -717,6 +729,20 @@ void _dbus_combine_tcp_errors (DBusList **sources,
                                const char *host,
                                const char *port,
                                DBusError *dest);
+
+/**
+ * @def _DBUS_MAX_SUN_PATH_LENGTH
+ *
+ * Maximum length of the path to a UNIX domain socket,
+ * sockaddr_un::sun_path member. POSIX requires that all systems
+ * support at least 100 bytes here, including the nul termination.
+ * We use 99 for the max value to allow for the nul.
+ *
+ * We could probably also do sizeof (addr.sun_path)
+ * but this way we are the same on all platforms
+ * which is probably a good idea.
+ */
+#define _DBUS_MAX_SUN_PATH_LENGTH 99
 
 /** @} */
 

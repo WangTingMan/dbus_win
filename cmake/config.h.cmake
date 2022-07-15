@@ -94,6 +94,7 @@
 #cmakedefine GLIB_VERSION_MAX_ALLOWED  @GLIB_VERSION_MAX_ALLOWED@
 
 // headers
+#cmakedefine HAVE_AFUNIX_H 1
 #cmakedefine HAVE_ALLOCA_H 1
 #cmakedefine HAVE_BYTESWAP_H 1
 #cmakedefine HAVE_CRT_EXTERNS_H 1
