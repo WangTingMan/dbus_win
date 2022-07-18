@@ -1,8 +1,8 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-/* test-main.c  main() for make check
- *
+/*
  * Copyright 2003-2009 Red Hat, Inc.
- * Copyright 2011-2018 Collabora Ltd.
+ * Copyright 2011-2022 Collabora Ltd.
+ * SPDX-License-Identifier: AFL-2.1 or GPL-2-or-later
  *
  * Licensed under the Academic Free License version 2.1
  *
@@ -19,24 +19,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
  */
 
 #include <config.h>
-#include "test/bus/common.h"
 
-static DBusTestCase tests[] =
+#include "bus/audit.h"
+#include "bus/selinux.h"
+
+#include "test/bus/common.h"
+#include "test/test-utils.h"
+
+#ifndef DBUS_ENABLE_EMBEDDED_TESTS
+#error This file is only relevant for the embedded tests
+#endif
+
+static void
+test_pre_hook (void)
 {
-  { "expire-list", bus_expire_list_test },
-  { "config-parser", bus_config_parser_test },
-  { "signals", bus_signals_test },
-  { "activation-service-reload", bus_activation_service_reload_test },
-  { "unix-fds-passing", bus_unix_fds_passing_test },
-  { NULL }
-};
+}
+
+static void
+test_post_hook (void)
+{
+  if (_dbus_getenv ("DBUS_TEST_SELINUX"))
+    bus_selinux_shutdown ();
+
+  bus_audit_shutdown ();
+}
 
 int
-main (int argc, char **argv)
+bus_test_main (int                  argc,
+               char               **argv,
+               size_t               n_tests,
+               const DBusTestCase  *tests)
 {
-  return bus_test_main (argc, argv, _DBUS_N_ELEMENTS (tests), tests);
+  return _dbus_test_main (argc, argv, n_tests, tests,
+                          (DBUS_TEST_FLAGS_CHECK_MEMORY_LEAKS |
+                           DBUS_TEST_FLAGS_CHECK_FD_LEAKS |
+                           DBUS_TEST_FLAGS_REQUIRE_DATA),
+                          test_pre_hook, test_post_hook);
 }

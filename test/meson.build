@@ -230,24 +230,16 @@ if embedded_tests
     tests += [
         {
             'name': 'bus',
-            'srcs': [ 'bus/main.c' ],
+            'srcs': [ 'bus/main.c', 'bus/common.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
         },
         {
             'name': 'bus-dispatch-sha1',
-            'srcs': [ 'bus/dispatch-sha1.c' ],
+            'srcs': [ 'bus/dispatch-sha1.c', 'bus/common.c' ],
             'link': [ libdbus_testutils, libdbus_daemon_internal, ],
             'install': false,
             'suite': ['slow'],
-        },
-        {
-            'name': 'bus-dispatch',
-            'srcs': [ 'bus/dispatch.c' ],
-            'link': [ libdbus_testutils, libdbus_daemon_internal, ],
-            'install': false,
-            'suite': ['slow'],
-            'timeout': 3000,
         },
         {
             'name': 'marshal-recursive',
@@ -273,8 +265,35 @@ if embedded_tests
         },
     ]
 
+    if use_traditional_activation
+        tests += [
+            {
+                'name': 'bus-normal-activation',
+                'srcs': [ 'bus/normal-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+                'suite': ['slow'],
+                'timeout': 1000,
+            },
+        ]
+    endif
+
     if use_traditional_activation and platform_unix
         tests += [
+            {
+                'name': 'bus-failed-helper-activation',
+                'srcs': [ 'bus/failed-helper-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+            },
+            {
+                'name': 'bus-helper-activation',
+                'srcs': [ 'bus/helper-activation.c', 'bus/common.c' ],
+                'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+                'install': false,
+                'suite': ['slow'],
+                'timeout': 1000,
+            },
             {
                 'name': 'bus-launch-helper-oom',
                 'srcs': [ 'bus/launch-helper-oom.c' ],

@@ -1,6 +1,5 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-/* test-main.c  main() for make check
- *
+/*
  * Copyright 2003-2009 Red Hat, Inc.
  * Copyright 2011-2018 Collabora Ltd.
  *
@@ -25,18 +24,10 @@
 #include <config.h>
 #include "test/bus/common.h"
 
-static DBusTestCase tests[] =
-{
-  { "expire-list", bus_expire_list_test },
-  { "config-parser", bus_config_parser_test },
-  { "signals", bus_signals_test },
-  { "activation-service-reload", bus_activation_service_reload_test },
-  { "unix-fds-passing", bus_unix_fds_passing_test },
-  { NULL }
-};
+static DBusTestCase test = { "helper-activation", bus_test_helper_activation };
 
 int
 main (int argc, char **argv)
 {
-  return bus_test_main (argc, argv, _DBUS_N_ELEMENTS (tests), tests);
+  return bus_test_main (argc, argv, 1, &test);
 }

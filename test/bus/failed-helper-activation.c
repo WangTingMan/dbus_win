@@ -22,41 +22,16 @@
  */
 
 #include <config.h>
+#include "test/bus/common.h"
 
-#include "bus/test.h"
-
-#include <dbus/dbus-test-tap.h>
-
-#include "bus/audit.h"
-#include "bus/selinux.h"
-#include "test/test-utils.h"
-
-#ifndef DBUS_ENABLE_EMBEDDED_TESTS
-#error This file is only relevant for the embedded tests
-#endif
-
-static void
-test_pre_hook (void)
+static DBusTestCase test =
 {
-}
-
-static void
-test_post_hook (void)
-{
-  if (_dbus_getenv ("DBUS_TEST_SELINUX"))
-    bus_selinux_shutdown ();
-
-  bus_audit_shutdown ();
-}
-
-static DBusTestCase test = { "dispatch", bus_dispatch_test };
+  "failed-helper-activation",
+  bus_test_failed_helper_activation
+};
 
 int
 main (int argc, char **argv)
 {
-  return _dbus_test_main (argc, argv, 1, &test,
-                          (DBUS_TEST_FLAGS_CHECK_MEMORY_LEAKS |
-                           DBUS_TEST_FLAGS_CHECK_FD_LEAKS |
-                           DBUS_TEST_FLAGS_REQUIRE_DATA),
-                          test_pre_hook, test_post_hook);
+  return bus_test_main (argc, argv, 1, &test);
 }
