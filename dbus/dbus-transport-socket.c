@@ -1507,9 +1507,6 @@ _dbus_transport_open_socket(DBusAddressEntry  *entry,
  * Creates a new transport for the given Unix domain socket
  * path. This creates a client-side of a transport.
  *
- * @todo once we add a way to escape paths in a dbus
- * address, this function needs to do escaping.
- *
  * @param path the path to the domain socket.
  * @param abstract #TRUE to use abstract socket namespace
  * @param error address where an error can be returned.
@@ -1523,6 +1520,7 @@ _dbus_transport_new_for_domain_socket (const char     *path,
   DBusSocket fd = DBUS_SOCKET_INIT;
   DBusTransport *transport;
   DBusString address;
+  DBusString unescaped_path;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
@@ -1532,11 +1530,13 @@ _dbus_transport_new_for_domain_socket (const char     *path,
       return NULL;
     }
 
+  _dbus_string_init_const (&unescaped_path, path);
+
   if ((abstract &&
        !_dbus_string_append (&address, "unix:abstract=")) ||
       (!abstract &&
        !_dbus_string_append (&address, "unix:path=")) ||
-      !_dbus_string_append (&address, path))
+      !_dbus_address_append_escaped (&address, &unescaped_path))
     {
       dbus_set_error (error, DBUS_ERROR_NO_MEMORY, NULL);
       goto failed_0;
