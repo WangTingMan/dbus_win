@@ -83,12 +83,6 @@
 # define DBUS_ENABLE_X11_AUTOLAUNCH 1
 #endif
 
-/* A 'va_copy' style function */
-#cmakedefine DBUS_VA_COPY @DBUS_VA_COPY@
-
-/* for msvc */
-#define _DBUS_VA_COPY_ASSIGN(a1,a2) { a1 = a2; }
-
 #cmakedefine DBUS_WITH_GLIB 1
 #cmakedefine GLIB_VERSION_MIN_REQUIRED @GLIB_VERSION_MIN_REQUIRED@
 #cmakedefine GLIB_VERSION_MAX_ALLOWED  @GLIB_VERSION_MAX_ALLOWED@

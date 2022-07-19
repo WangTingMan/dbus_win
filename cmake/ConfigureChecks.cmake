@@ -81,51 +81,6 @@ epoll_create1 (EPOLL_CLOEXEC);
 }" DBUS_HAVE_LINUX_EPOLL)
 
 CHECK_C_SOURCE_COMPILES("
-#include <stdarg.h>
-#include <stdlib.h>
-static void f (int i, ...) {
-    va_list args1, args2;
-    va_start (args1, i);
-    va_copy (args2, args1);
-    if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-      exit (1);
-    va_end (args1); va_end (args2);
-}
-int main() {
-    f (0, 42);
-    return 0;
-}
-"  HAVE_VA_COPY)
-
-CHECK_C_SOURCE_COMPILES("
-#include <stdarg.h>
-#include <stdlib.h>
-static void f (int i, ...) {
-    va_list args1, args2;
-    va_start (args1, i);
-    __va_copy (args2, args1);
-    if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-      exit (1);
-    va_end (args1); va_end (args2);
-}
-int main() {
-    f (0, 42);
-    return 0;
-}
-"  HAVE___VA_COPY)
-
-if(HAVE_VA_COPY)
-    set(DBUS_VA_COPY va_copy CACHE STRING "va_copy function")
-elseif(HAVE___VA_COPY)
-    set(DBUS_VA_COPY __va_copy CACHE STRING "va_copy function")
-elseif(MSVC)
-    # this is used for msvc < 2013
-    set(DBUS_VA_COPY _DBUS_VA_COPY_ASSIGN)
-else()
-    message(FATAL_ERROR "dbus requires an ISO C99-compatible va_copy() macro, or a similar __va_copy(), or MSVC >= 2010")
-endif()
-
-CHECK_C_SOURCE_COMPILES("
 int main() {
     int a = 4;
     int b = __sync_sub_and_fetch(&a, 4);

@@ -744,7 +744,7 @@ int _dbus_printf_string_upper_bound (const char *format,
   va_list args_copy;
 
   bufsize = sizeof (buf);
-  DBUS_VA_COPY (args_copy, args);
+  va_copy (args_copy, args);
   len = _vsnprintf (buf, bufsize - 1, format, args_copy);
   va_end (args_copy);
 
@@ -759,7 +759,7 @@ int _dbus_printf_string_upper_bound (const char *format,
       if (p == NULL)
         return -1;
 
-      DBUS_VA_COPY (args_copy, args);
+      va_copy (args_copy, args);
       len = _vsnprintf (p, bufsize - 1, format, args_copy);
       va_end (args_copy);
       free (p);
@@ -4249,7 +4249,7 @@ _dbus_logv (DBusSystemLogSeverity  severity,
     {
       DBusString out = _DBUS_STRING_INIT_INVALID;
       const char *message = NULL;
-      DBUS_VA_COPY (tmp, args);
+      va_copy (tmp, args);
 
       if (!_dbus_string_init (&out))
         goto out;
@@ -4276,7 +4276,7 @@ out:
 
   if (log_flags & DBUS_LOG_FLAGS_STDERR)
     {
-      DBUS_VA_COPY (tmp, args);
+      va_copy (tmp, args);
       fprintf (stderr, "%s[%lu]: %s: ", log_tag, _dbus_pid_for_log (), s);
       vfprintf (stderr, msg, tmp);
       fprintf (stderr, "\n");
