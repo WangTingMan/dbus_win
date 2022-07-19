@@ -13,7 +13,7 @@ Build-time configuration changes:
 • Add a Meson build system. This is currently considered experimental,
   but the intention is for it to replace Autotools and/or CMake in future
   releases, preferably both. Please test!
-  (dbus!303; Félix Piédallu, Marc-André Lureau, Simon McVittie)
+  (dbus!303, dbus!325; Félix Piédallu, Marc-André Lureau, Simon McVittie)
   · This requires Meson 0.56 or newer, and Python 3.5 or newer.
   · Expat can be built as a subproject using Meson's "wrap" mechanism,
     if desired. This should make it considerably easier to build dbus
@@ -24,9 +24,10 @@ Build-time configuration changes:
     packaging system.
 
 • Please note that not all Meson build options correspond 1:1 to how
-  the closest equivalents in Autotools or CMake behave. Distributors
-  and developers evaluating the Meson build should check that they are
-  configuring dbus the way they intend to.
+  the closest equivalents in Autotools or CMake behave, and the Meson
+  build options are subject to change.
+  Distributors and developers evaluating the Meson build should check
+  that they are configuring dbus the way they intend to.
 
 Enhancements:
 
@@ -34,9 +35,14 @@ Enhancements:
   · Document how to represent internationalized domain names in D-Bus
     names (dbus!324, Simon McVittie)
 
-• Speed up closing file descriptors for subprocesses by using
+• On Unix, speed up closing file descriptors for subprocesses by using
   closefrom() or close_range() where available
   (dbus#278; rim, Simon McVittie)
+
+• On Windows, dbus can now use AF_UNIX sockets, not just TCP.
+  This requires Windows 10 build 17063 or later at runtime,
+  and either Windows 10 SDK 17063 or mingw-w64 version 9.0.0 or later
+  at compile-time. (dbus!249, Marc-André Lureau)
 
 • Teach dbus-send to handle variants in containers: arrays of variants,
   variant values in dictionaries, and nested variants
@@ -65,6 +71,12 @@ Fixes:
 • Improve dbus-launch --autolaunch so it can pick up an existing bus from
   Linux XDG_RUNTIME_DIR or macOS launchd, even if X11 autolaunching was
   disabled (dbus#385, dbus#392; Simon McVittie, Alex Richardson)
+
+• Correctly escape AF_UNIX socket paths when converting them to D-Bus
+  address strings (dbus#405, Marc-André Lureau)
+
+• On Linux, don't log warnings if oom_score_adj is read-only but does not
+  need to be changed (dbus!291, Simon McVittie)
 
 • Slightly improve error-handling for inotify
   (dbus!235, Simon McVittie)
@@ -127,6 +139,15 @@ Tests and CI enhancements:
 
 • Avoid compiler warnings in test code
   (dbus#383, dbus!274, dbus!275; Simon McVittie, Ralf Habacker)
+
+• Avoid LeakSanitizer warnings in test code
+  (dbus!326, Simon McVittie)
+
+• Speed up a particularly slow unit test by a factor of 30
+  (dbus!328, Simon McVittie)
+
+• On Unix, skip tests that switch uid if run in a container that is
+  unable to do so, instead of failing (dbus#407, Simon McVittie)
 
 • Gitlab-CI improvements
   (dbus#383, dbus#388, dbus!262, dbus!288, dbus!292, dbus!296, dbus!299,
