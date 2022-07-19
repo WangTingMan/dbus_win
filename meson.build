@@ -617,7 +617,6 @@ check_headers = [
     'linux/close_range.h',
     'locale.h',
     'signal.h',
-    'stdint.h',
     'syslog.h',
     'sys/prctl.h',
     'sys/random.h',

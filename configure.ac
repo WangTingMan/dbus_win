@@ -419,7 +419,6 @@ errno.h
 linux/close_range.h
 locale.h
 signal.h
-stdint.h
 sys/prctl.h
 sys/random.h
 sys/resource.h

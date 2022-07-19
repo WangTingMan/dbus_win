@@ -114,9 +114,6 @@
 /* Define to 1 if you have signal.h */
 #cmakedefine   HAVE_SIGNAL_H 1
 
-/* Define to 1 if you have stdint.h */
-#cmakedefine   HAVE_STDINT_H 1
-
 /* Define to 1 if you have stdio.h */
 #cmakedefine   HAVE_STDIO_H 1
 

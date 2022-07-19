@@ -25,9 +25,7 @@
 #ifndef DBUS_PIPE_H
 #define DBUS_PIPE_H
 
-#ifdef HAVE_STDINT_H
 #include <stdint.h>
-#endif
 
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
