@@ -595,8 +595,6 @@ check_functions = [
     'setresuid',
     'setrlimit',
     'socketpair',
-    'strtoll',
-    'strtoull',
     'unsetenv',
     'usleep',
 ]

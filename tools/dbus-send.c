@@ -27,18 +27,6 @@
 #include <dbus/dbus.h>
 #include "dbus/dbus-internals.h"
 
-#ifndef HAVE_STRTOLL
-#undef strtoll
-#define strtoll mystrtoll
-#include "strtoll.c"
-#endif
-
-#ifndef HAVE_STRTOULL
-#undef strtoull
-#define strtoull mystrtoull
-#include "strtoull.c"
-#endif
-
 #ifdef DBUS_WINCE
 #ifndef strdup
 #define strdup _strdup

@@ -185,12 +185,6 @@
 /* Define to 1 if you have localeconv */
 #cmakedefine   HAVE_LOCALECONV 1
 
-/* Define to 1 if you have strtoll */
-#cmakedefine   HAVE_STRTOLL 1
-
-/* Define to 1 if you have strtoull */
-#cmakedefine   HAVE_STRTOULL 1
-
 /* Define to 1 if you have pip2 */
 #cmakedefine   HAVE_PIPE2 1
 
@@ -256,12 +250,6 @@
 #  define gid_t int
 # else
    typedef int mode_t;
-#  if !defined(_WIN32_WCE)
-#    define strtoll _strtoi64
-#    define strtoull _strtoui64
-#    define HAVE_STRTOLL 1
-#    define HAVE_STRTOULL 1
-#  endif
 # endif
 #endif	// defined(_WIN32) || defined(_WIN64)
 

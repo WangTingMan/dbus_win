@@ -403,8 +403,6 @@ setlocale
 setresuid
 setrlimit
 socketpair
-strtoll
-strtoull
 unsetenv
 usleep
 ])

@@ -50,8 +50,6 @@ check_symbol_exists(socketpair   "sys/socket.h"     HAVE_SOCKETPAIR)         #  
 check_symbol_exists(setlocale    "locale.h"         HAVE_SETLOCALE)          #  dbus-test-main.c
 check_symbol_exists(localeconv   "locale.h"         HAVE_LOCALECONV)         #  dbus-sysdeps.c
 check_symbol_exists(poll         "poll.h"           HAVE_POLL)               #  dbus-sysdeps-unix.c
-check_symbol_exists(strtoll      "stdlib.h"         HAVE_STRTOLL)            #  dbus-send.c
-check_symbol_exists(strtoull     "stdlib.h"         HAVE_STRTOULL)           #  dbus-send.c
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(pipe2        "fcntl.h;unistd.h"         HAVE_PIPE2)
 check_symbol_exists(accept4      "sys/socket.h"             HAVE_ACCEPT4)
