@@ -1,6 +1,13 @@
 dbus 1.15.0 (UNRELEASED)
 ========================
 
+Dependencies:
+
+• dbus now requires either a C99 compiler (such as gcc or clang),
+  or Microsoft Visual Studio 2015 or later. Some workarounds for
+  pre-C99 environments are currently still present, but we plan to
+  remove them during this development cycle.
+
 Feature removal:
 
 • Remove support for the obsolete pam_console and pam_foreground modules
