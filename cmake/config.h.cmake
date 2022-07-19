@@ -255,7 +255,6 @@
 #  define uid_t int
 #  define gid_t int
 # else
-#  define snprintf _snprintf
    typedef int mode_t;
 #  if !defined(_WIN32_WCE)
 #    define strtoll _strtoi64
