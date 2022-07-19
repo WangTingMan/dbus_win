@@ -280,10 +280,6 @@
 #define SIGHUP	1
 #endif
 
-# if defined(_MSC_VER) && !defined(inline)
-#define inline __inline
-#endif
-
 #ifdef DBUS_WIN
 #define FD_SETSIZE @FD_SETSIZE@
 #endif
