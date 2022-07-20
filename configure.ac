@@ -101,7 +101,6 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
 AC_ISC_POSIX
 AC_HEADER_STDC
-AC_C_INLINE
 AM_PROG_LIBTOOL
 AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
@@ -404,8 +403,6 @@ setlocale
 setresuid
 setrlimit
 socketpair
-strtoll
-strtoull
 unsetenv
 usleep
 ])
@@ -422,7 +419,6 @@ errno.h
 linux/close_range.h
 locale.h
 signal.h
-stdint.h
 sys/prctl.h
 sys/random.h
 sys/resource.h
@@ -567,59 +563,6 @@ esac
 # As a GNU extension, glibc declares environ in unistd.h, which is one of
 # the AC_INCLUDES_DEFAULT.
 AC_CHECK_DECLS([environ])
-
-dnl **********************************
-dnl *** va_copy checks (from GLib) ***
-dnl **********************************
-dnl we currently check for all three va_copy possibilities, so we get
-dnl all results in config.log for bug reports.
-AC_CACHE_CHECK([for an implementation of va_copy()],dbus_cv_va_copy,[
-	AC_LINK_IFELSE([AC_LANG_SOURCE([#include <stdarg.h>
-#include <stdlib.h>
-	static void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	va_copy (args2, args1);
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}])],
-	[dbus_cv_va_copy=yes],
-	[dbus_cv_va_copy=no])
-])
-AC_CACHE_CHECK([for an implementation of __va_copy()],dbus_cv___va_copy,[
-	AC_LINK_IFELSE([AC_LANG_SOURCE([#include <stdarg.h>
-#include <stdlib.h>
-	static void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	__va_copy (args2, args1);
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}])],
-	[dbus_cv___va_copy=yes],
-	[dbus_cv___va_copy=no])
-])
-
-if test "x$dbus_cv_va_copy" = "xyes"; then
-  dbus_va_copy_func=va_copy
-else if test "x$dbus_cv___va_copy" = "xyes"; then
-  dbus_va_copy_func=__va_copy
-fi
-fi
-
-AS_IF([test -n "$dbus_va_copy_func"],
-  [AC_DEFINE_UNQUOTED([DBUS_VA_COPY], [$dbus_va_copy_func], [A 'va_copy' style function])],
-  [AC_MSG_ERROR([dbus requires an ISO C99-compatible va_copy() macro, or a compatible __va_copy(), or MSVC >= 2010 and CMake])])
 
 #### Atomic integers
 

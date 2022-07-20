@@ -595,8 +595,6 @@ check_functions = [
     'setresuid',
     'setrlimit',
     'socketpair',
-    'strtoll',
-    'strtoull',
     'unsetenv',
     'usleep',
 ]
@@ -619,7 +617,6 @@ check_headers = [
     'linux/close_range.h',
     'locale.h',
     'signal.h',
-    'stdint.h',
     'syslog.h',
     'sys/prctl.h',
     'sys/random.h',
@@ -641,56 +638,6 @@ have_backtrace = (cc.has_header('execinfo.h', args: compile_args_c)
     and cc.has_function('backtrace', dependencies: execinfo, args: compile_args_c)
 )
 config.set('HAVE_BACKTRACE', have_backtrace)
-
-
-# **********************************
-# *** va_copy checks (from GLib) ***
-# **********************************
-# we currently check for all three va_copy possibilities, so we get
-# all results in config.log for bug reports.
-
-# Can't use cc.has_function here because va_copy is not
-# exactly a function
-va_copy_check = '''
-#include <stdarg.h>
-#include <stdlib.h>
-
-static void f (int i, ...)
-{
-  va_list args1, args2;
-  va_start (args1, i);
-  @0@ (args2, args1);
-
-  if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-    exit (1);
-
-  va_end (args1);
-  va_end (args2);
-}
-
-int main()
-{
-  f (0, 42);
-  return 0;
-}
-'''
-
-has_va_copy = cc.links(va_copy_check.format('va_copy'), args: compile_args_c)
-has___va_copy = cc.links(va_copy_check.format('__va_copy'), args: compile_args_c)
-
-if has_va_copy
-    va_copy = 'va_copy'
-elif has___va_copy
-    va_copy = '__va_copy'
-elif cc.get_id() == 'msvc'
-    va_copy = '_DBUS_VA_COPY_ASSIGN'
-    config.set('_DBUS_VA_COPY_ASSIGN(a1,a2)', '{ a1 = a2; }')
-else
-    error('dbus requires an ISO C99-compatible va_copy() macro, '
-        + 'or a compatible __va_copy()')
-endif
-config.set('DBUS_VA_COPY', va_copy)
-
 
 # Can't use cc.has_function here because atomic operations are not
 # exactly functions

@@ -17,7 +17,6 @@ check_include_file(io.h         HAVE_IO_H)      # internal
 check_include_file(linux/close_range.h HAVE_LINUX_CLOSE_RANGE_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(signal.h     HAVE_SIGNAL_H)
-check_include_file(stdint.h     HAVE_STDINT_H)   # dbus-pipe.h
 check_include_file(stdio.h      HAVE_STDIO_H)   # dbus-sysdeps.h
 check_include_file(syslog.h     HAVE_SYSLOG_H)
 check_include_files("stdint.h;sys/types.h;sys/event.h" HAVE_SYS_EVENT_H)
@@ -50,8 +49,6 @@ check_symbol_exists(socketpair   "sys/socket.h"     HAVE_SOCKETPAIR)         #  
 check_symbol_exists(setlocale    "locale.h"         HAVE_SETLOCALE)          #  dbus-test-main.c
 check_symbol_exists(localeconv   "locale.h"         HAVE_LOCALECONV)         #  dbus-sysdeps.c
 check_symbol_exists(poll         "poll.h"           HAVE_POLL)               #  dbus-sysdeps-unix.c
-check_symbol_exists(strtoll      "stdlib.h"         HAVE_STRTOLL)            #  dbus-send.c
-check_symbol_exists(strtoull     "stdlib.h"         HAVE_STRTOULL)           #  dbus-send.c
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(pipe2        "fcntl.h;unistd.h"         HAVE_PIPE2)
 check_symbol_exists(accept4      "sys/socket.h"             HAVE_ACCEPT4)
@@ -79,51 +76,6 @@ CHECK_C_SOURCE_COMPILES("
 int main() {
 epoll_create1 (EPOLL_CLOEXEC);
 }" DBUS_HAVE_LINUX_EPOLL)
-
-CHECK_C_SOURCE_COMPILES("
-#include <stdarg.h>
-#include <stdlib.h>
-static void f (int i, ...) {
-    va_list args1, args2;
-    va_start (args1, i);
-    va_copy (args2, args1);
-    if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-      exit (1);
-    va_end (args1); va_end (args2);
-}
-int main() {
-    f (0, 42);
-    return 0;
-}
-"  HAVE_VA_COPY)
-
-CHECK_C_SOURCE_COMPILES("
-#include <stdarg.h>
-#include <stdlib.h>
-static void f (int i, ...) {
-    va_list args1, args2;
-    va_start (args1, i);
-    __va_copy (args2, args1);
-    if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-      exit (1);
-    va_end (args1); va_end (args2);
-}
-int main() {
-    f (0, 42);
-    return 0;
-}
-"  HAVE___VA_COPY)
-
-if(HAVE_VA_COPY)
-    set(DBUS_VA_COPY va_copy CACHE STRING "va_copy function")
-elseif(HAVE___VA_COPY)
-    set(DBUS_VA_COPY __va_copy CACHE STRING "va_copy function")
-elseif(MSVC)
-    # this is used for msvc < 2013
-    set(DBUS_VA_COPY _DBUS_VA_COPY_ASSIGN)
-else()
-    message(FATAL_ERROR "dbus requires an ISO C99-compatible va_copy() macro, or a similar __va_copy(), or MSVC >= 2010")
-endif()
 
 CHECK_C_SOURCE_COMPILES("
 int main() {

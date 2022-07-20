@@ -83,12 +83,6 @@
 # define DBUS_ENABLE_X11_AUTOLAUNCH 1
 #endif
 
-/* A 'va_copy' style function */
-#cmakedefine DBUS_VA_COPY @DBUS_VA_COPY@
-
-/* for msvc */
-#define _DBUS_VA_COPY_ASSIGN(a1,a2) { a1 = a2; }
-
 #cmakedefine DBUS_WITH_GLIB 1
 #cmakedefine GLIB_VERSION_MIN_REQUIRED @GLIB_VERSION_MIN_REQUIRED@
 #cmakedefine GLIB_VERSION_MAX_ALLOWED  @GLIB_VERSION_MAX_ALLOWED@
@@ -119,9 +113,6 @@
 
 /* Define to 1 if you have signal.h */
 #cmakedefine   HAVE_SIGNAL_H 1
-
-/* Define to 1 if you have stdint.h */
-#cmakedefine   HAVE_STDINT_H 1
 
 /* Define to 1 if you have stdio.h */
 #cmakedefine   HAVE_STDIO_H 1
@@ -191,12 +182,6 @@
 /* Define to 1 if you have localeconv */
 #cmakedefine   HAVE_LOCALECONV 1
 
-/* Define to 1 if you have strtoll */
-#cmakedefine   HAVE_STRTOLL 1
-
-/* Define to 1 if you have strtoull */
-#cmakedefine   HAVE_STRTOULL 1
-
 /* Define to 1 if you have pip2 */
 #cmakedefine   HAVE_PIPE2 1
 
@@ -261,14 +246,7 @@
 #  define uid_t int
 #  define gid_t int
 # else
-#  define snprintf _snprintf
    typedef int mode_t;
-#  if !defined(_WIN32_WCE)
-#    define strtoll _strtoi64
-#    define strtoull _strtoui64
-#    define HAVE_STRTOLL 1
-#    define HAVE_STRTOULL 1
-#  endif
 # endif
 #endif	// defined(_WIN32) || defined(_WIN64)
 
@@ -278,10 +256,6 @@
 
 #ifndef SIGHUP
 #define SIGHUP	1
-#endif
-
-# if defined(_MSC_VER) && !defined(inline)
-#define inline __inline
 #endif
 
 #ifdef DBUS_WIN

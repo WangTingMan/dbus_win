@@ -140,7 +140,7 @@ SUFFIXES = .rc
 dbus_update_activation_environment_SOURCES += disable-uac.rc
 endif
 
-EXTRA_DIST = run-with-tmp-session-bus.sh strtoll.c strtoull.c Win32.Manifest
+EXTRA_DIST = run-with-tmp-session-bus.sh Win32.Manifest
 CLEANFILES = 				\
 	run-with-tmp-session-bus.conf \
 	$(nodist_dbus_update_activation_environment_SOURCES)

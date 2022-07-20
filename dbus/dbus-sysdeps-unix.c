@@ -3825,7 +3825,7 @@ _dbus_printf_string_upper_bound (const char *format,
   int len;
   va_list args_copy;
 
-  DBUS_VA_COPY (args_copy, args);
+  va_copy (args_copy, args);
   len = vsnprintf (static_buf, bufsize, format, args_copy);
   va_end (args_copy);
 
@@ -3843,7 +3843,7 @@ _dbus_printf_string_upper_bound (const char *format,
        * or the real length could be coincidentally the same. Which is it?
        * If vsnprintf returns the truncated length, we'll go to the slow
        * path. */
-      DBUS_VA_COPY (args_copy, args);
+      va_copy (args_copy, args);
 
       if (vsnprintf (static_buf, 1, format, args_copy) == 1)
         len = -1;
@@ -3864,7 +3864,7 @@ _dbus_printf_string_upper_bound (const char *format,
       if (buf == NULL)
         return -1;
 
-      DBUS_VA_COPY (args_copy, args);
+      va_copy (args_copy, args);
       len = vsnprintf (buf, bufsize, format, args_copy);
       va_end (args_copy);
 
@@ -5097,7 +5097,7 @@ _dbus_logv (DBusSystemLogSeverity  severity,
             _dbus_assert_not_reached ("invalid log severity");
         }
 
-      DBUS_VA_COPY (tmp, args);
+      va_copy (tmp, args);
       vsyslog (flags, msg, tmp);
       va_end (tmp);
     }
@@ -5107,7 +5107,7 @@ _dbus_logv (DBusSystemLogSeverity  severity,
   if (log_flags & DBUS_LOG_FLAGS_STDERR)
 #endif
     {
-      DBUS_VA_COPY (tmp, args);
+      va_copy (tmp, args);
       fprintf (stderr, "%s[" DBUS_PID_FORMAT "]: ", syslog_tag, _dbus_getpid ());
       vfprintf (stderr, msg, tmp);
       fputc ('\n', stderr);

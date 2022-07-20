@@ -41,8 +41,6 @@
 #include "dbus-marshal-basic.h" /* probably should be removed by moving the usage of DBUS_TYPE
                                  * into the marshaling-related files
                                  */
-/* for DBUS_VA_COPY */
-#include "dbus-sysdeps.h"
 
 /**
  * @defgroup DBusString DBusString class
@@ -1112,7 +1110,7 @@ _dbus_string_append_printf_valist  (DBusString        *str,
 
   DBUS_STRING_PREAMBLE (str);
 
-  DBUS_VA_COPY (args_copy, args);
+  va_copy (args_copy, args);
 
   /* Measure the message length without terminating nul */
   len = _dbus_printf_string_upper_bound (format, args);
