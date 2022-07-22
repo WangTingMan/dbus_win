@@ -138,6 +138,9 @@ Fixes:
   · Fix detection of atomic operations (dbus!306, Alex Richardson)
   · Use DWARF 2 instead of STABS for debug symbols on Windows, for
     compatibility with newer gcc versions (dbus!323, Marc-André Lureau)
+  · Fix use of paths relative to the dbus project directory when dbus is
+    vendored into a larger CMake project (dbus!332, Jordan Williams)
+
 
 Tests and CI enhancements:
 
