@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.4)
+
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
@@ -6,20 +8,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
 project(dbus)
-
-# we need to be up to date
-cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
-if(COMMAND cmake_policy)
-    cmake_policy(SET CMP0003 NEW)
-endif()
-
-if(CMAKE_MAJOR_VERSION GREATER 2)
-    cmake_policy(SET CMP0026 NEW)
-    if(CMAKE_MAJOR_VERSION GREATER 4 OR CMAKE_MINOR_VERSION GREATER 1)
-        cmake_policy(SET CMP0053 NEW)
-        cmake_policy(SET CMP0054 NEW)
-    endif()
-endif()
 
 option(DBUS_BUILD_TESTS "enable unit test code" ON)
 

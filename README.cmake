@@ -2,7 +2,7 @@ This file describes how to compile dbus using the cmake build system
 
 Requirements
 ------------
-- cmake version >= 2.6.0 see http://www.cmake.org
+- cmake version >= 3.4 see http://www.cmake.org
 - installed libexpat see http://sourceforge.net/projects/expat/ 
     unsupported RelWithDebInfo builds could be fetched 
     from http://sourceforge.net/projects/kde-windows/files/expat/
