@@ -242,7 +242,7 @@ set(TESTDIRS
 )
 
 foreach(DIR ${TESTDIRS})
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DIR})
+    file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/${DIR})
 endforeach()
 
 ### copy tests to builddir so that generated tests and static tests 
@@ -287,5 +287,5 @@ foreach(FILE_TYPE *.conf.in *.service.in)
 endforeach()
 
 message(STATUS "Copying generated bus config files to test directory${HINT}")
-dbus_configure_file(../bus/session.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files/session.conf @ONLY)
-dbus_configure_file(../bus/system.conf.in ${CMAKE_BINARY_DIR}/test/data/valid-config-files-system/system.conf @ONLY)
+dbus_configure_file(../bus/session.conf.in ${PROJECT_BINARY_DIR}/test/data/valid-config-files/session.conf @ONLY)
+dbus_configure_file(../bus/system.conf.in ${PROJECT_BINARY_DIR}/test/data/valid-config-files-system/system.conf @ONLY)

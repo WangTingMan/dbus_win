@@ -12,8 +12,8 @@ if(DOXYGEN_EXECUTABLE)
 endif()
 
 if(DBUS_ENABLE_DOXYGEN_DOCS)
-    set(top_srcdir ${CMAKE_SOURCE_DIR})
-    set(top_builddir ${CMAKE_BINARY_DIR})
+    set(top_srcdir ${PROJECT_SOURCE_DIR})
+    set(top_builddir ${PROJECT_BINARY_DIR})
     if(WIN32)
         set(DBUS_GENERATE_MAN NO)
     else()
@@ -35,15 +35,15 @@ if(DBUS_ENABLE_DOXYGEN_DOCS)
         set(DOXYGEN_GENERATE_QHP NO)
         set(DBUS_ENABLE_QTHELP_DOCS OFF PARENT_SCOPE)
     endif()
-    configure_file(../Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile )
-    file(GLOB dbus_files "${CMAKE_SOURCE_DIR}/dbus/*.[ch]*")
+    configure_file(../Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile )
+    file(GLOB dbus_files "${PROJECT_SOURCE_DIR}/dbus/*.[ch]*")
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
-        DEPENDS ${CMAKE_SOURCE_DIR}/Doxyfile.in  ${CMAKE_BINARY_DIR}/Doxyfile ${dbus_files}
+        DEPENDS ${PROJECT_SOURCE_DIR}/Doxyfile.in  ${PROJECT_BINARY_DIR}/Doxyfile ${dbus_files}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/api/html
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/api/man
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/api/xml
-        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+        COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
         COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
@@ -149,10 +149,10 @@ macro(COPYDIR _src _type)
     foreach(FILE_TYPE ${_type})
         foreach(DIR ${_src})
             file(GLOB FILES "${DIR}/${FILE_TYPE}" )
-            file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DIR})
+            file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/${DIR})
             foreach(FILE ${FILES})
                 get_filename_component(FILENAME ${FILE} NAME)
-                set(TARGET ${CMAKE_BINARY_DIR}/${DIR}/${FILENAME})
+                set(TARGET ${PROJECT_BINARY_DIR}/${DIR}/${FILENAME})
                 configure_file(${FILE} ${TARGET} COPYONLY)
                 if(CONFIG_VERBOSE)
                     message("FROM: ${FILE}\nTO: ${TARGET}\n")

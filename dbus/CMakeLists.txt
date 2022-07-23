@@ -97,7 +97,7 @@ set(DBUS_LIB_HEADERS
     dbus-transport-protected.h
     dbus-uuidgen.h
     dbus-watch.h
-    ${CMAKE_BINARY_DIR}/config.h
+    ${PROJECT_BINARY_DIR}/config.h
 )
 if(UNIX)
     set(DBUS_LIB_HEADERS ${DBUS_LIB_HEADERS}
