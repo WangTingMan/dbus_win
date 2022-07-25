@@ -19,7 +19,7 @@
 # SOFTWARE.
 
 project('dbus',
-    'c', 'cpp',
+    'c',
     version: '1.14.99',
     meson_version: '>=0.56',
 )
@@ -27,7 +27,6 @@ project('dbus',
 project_url = 'https://gitlab.freedesktop.org/dbus/dbus'
 
 cc = meson.get_compiler('c')
-cpp = meson.get_compiler('cpp')
 
 windows = import('windows')
 pkgconfig = import('pkgconfig')
@@ -86,6 +85,15 @@ python = find_program('python3')
 host_os = host_machine.system()
 
 platform_windows = host_os.contains('windows')
+
+if platform_windows
+    # On Windows, we use C++ constructors to initialize global locks
+    using_cpp = true
+    add_languages('cpp', required: true)
+    cpp = meson.get_compiler('cpp')
+else
+    using_cpp = false
+endif
 
 platform_cygwin = host_os.contains('cygwin')
 
@@ -185,9 +193,12 @@ if cc.get_id() != 'msvc'
 endif
 
 compile_args_c = cc.get_supported_arguments(compile_args)
-compile_args_cpp = cpp.get_supported_arguments(compile_args)
 add_project_arguments(compile_args_c, language: 'c')
-add_project_arguments(compile_args_cpp, language: 'cpp')
+
+if using_cpp
+    compile_args_cpp = cpp.get_supported_arguments(compile_args)
+    add_project_arguments(compile_args_cpp, language: 'cpp')
+endif
 
 if host_machine.endian() == 'big'
   config.set('WORDS_BIGENDIAN', 1)
@@ -1052,12 +1063,16 @@ else
 endif
 
 compile_warnings_c = cc.get_supported_arguments(compile_warnings + compile_warnings_c)
-compile_warnings_cpp = cpp.get_supported_arguments(compile_warnings)
 add_project_arguments(compile_warnings_c, language: 'c')
-add_project_arguments(compile_warnings_cpp, language: 'cpp')
 
 link_args = cc.get_supported_link_arguments(link_args)
-add_project_link_arguments(link_args, language: ['c', 'cpp'])
+add_project_link_arguments(link_args, language: ['c'])
+
+if using_cpp
+    compile_warnings_cpp = cpp.get_supported_arguments(compile_warnings)
+    add_project_arguments(compile_warnings_cpp, language: 'cpp')
+    add_project_link_arguments(link_args, language: ['cpp'])
+endif
 
 root_include = include_directories('.')
 
@@ -1167,7 +1182,15 @@ summary_dict = {
     'source code location':     meson.project_source_root(),
     'compiler':                 cc.get_id(),
     'cflags':                   compile_args_c + compile_warnings_c,
-    'cxxflags':                 compile_args_cpp + compile_warnings_cpp,
+}
+
+if using_cpp
+    summary_dict += {
+        'cxxflags':             compile_args_cpp + compile_warnings_cpp,
+    }
+endif
+
+summary_dict += {
     'ldflags':                  (link_args.length() == 0) ? '[]' : link_args,
     '64-bit int':               arch_config.get('DBUS_INT64_TYPE'),
     '32-bit int':               arch_config.get('DBUS_INT32_TYPE'),
