@@ -8,6 +8,10 @@ Dependencies:
   pre-C99 environments are currently still present, but we plan to
   remove them during this development cycle.
 
+• Building with CMake now requires CMake ≥ 3.4.
+
+• Building with Meson requires Meson ≥ 0.56 and Python ≥ 3.5.
+
 Feature removal:
 
 • Remove support for the obsolete pam_console and pam_foreground modules
