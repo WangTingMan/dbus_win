@@ -553,16 +553,20 @@ become_other_user (TestUser user,
 }
 
 /* Undo the effect of a successful call to become_other_user() */
+#if defined(HAVE_GETRESUID) && defined(HAVE_SETRESUID) && defined(__linux__)
 static void
 back_to_root (void)
 {
-#if defined(HAVE_GETRESUID) && defined(HAVE_SETRESUID) && defined(__linux__)
-  if (setresuid (0, 0, 0) != 0)
-    g_error ("setresuid(0, 0, 0): %s", g_strerror (errno));
-#else
-  g_error ("become_other_user() cannot succeed on this platform");
-#endif
+  if (setresuid(0, 0, 0) != 0)
+    g_error ("setresuid(0, 0, 0): %s", g_strerror(errno));
 }
+#else
+_DBUS_GNUC_NORETURN static void
+back_to_root (void)
+{
+  g_error ("become_other_user() cannot succeed on this platform");
+}
+#endif
 
 /*
  * Raise G_IO_ERROR_NOT_SUPPORTED if the requested user is impossible.
