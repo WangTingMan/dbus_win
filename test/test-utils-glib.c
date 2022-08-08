@@ -91,7 +91,7 @@ can_become_user_or_skip (uid_t uid)
         {
           /* make sure we report failure even if errno is wrong */
           if (errno == 0)
-            errno = ENODATA;
+            errno = EPERM;
 
           _exit (errno);
         }
