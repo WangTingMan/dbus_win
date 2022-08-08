@@ -176,6 +176,10 @@ maybe_fail_tests () {
 NOCONFIGURE=1 ./autogen.sh
 
 # clean up directories from possible previous builds
+if [ -z "$builddir" ]; then
+  echo "ERROR: builddir environment variable must be set!"
+  exit 1
+fi
 rm -rf "$builddir"
 rm -rf ci-build-dist
 rm -rf src-from-dist
