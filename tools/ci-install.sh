@@ -323,6 +323,7 @@ case "$ci_distro" in
             libtool
             libX11
             libxslt
+            pkgconf
             xmlto
         )
         $sudo pkg install -y "${packages[@]}"

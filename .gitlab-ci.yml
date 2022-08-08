@@ -72,7 +72,7 @@ variables:
     BUILD_OS: freebsd
     BUILD_ARCH: "x86_64"
     FDO_DISTRIBUTION_VERSION: '13.0'
-    FDO_DISTRIBUTION_TAG: '2022-08-08.0'  # Bump this version on every ci-install.sh change
+    FDO_DISTRIBUTION_TAG: '2022-08-08.1'  # Bump this version on every ci-install.sh change
     FDO_REPO_SUFFIX: "$BUILD_OS/$BUILD_ARCH"
 
 .cmake-common:
