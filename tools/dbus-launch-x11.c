@@ -335,7 +335,7 @@ x11_get_address (char **paddress, pid_t *pid, long *wid)
                                    XA_CARDINAL, &type, &format, &items, &after,
                                    (unsigned char **) &data);
       if (result == Success && type != None && after == 0 && data != NULL && format == 32)
-        *pid = (pid_t) *(long*) data;
+        *pid = (pid_t) *(long*) (void*) data;
       XFree (data);
     }
 
