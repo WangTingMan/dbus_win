@@ -461,4 +461,13 @@ freebsd cmake release:
     # massively increases the VM image (and therefore container) size.
     CI_BUILD_ARGS: "-DDBUS_ENABLE_DOXYGEN_DOCS=OFF -DDBUS_ENABLE_XML_DOCS=ON -DCMAKE_BUILD_TYPE=Release"
 
+freebsd autotools:
+  extends: .build-env-freebsd
+  variables:
+    ci_buildsys: "autotools"
+    # We don't build doxygen documentation, so the make dbus-docs.tar.xz target
+    # is not available. Set ci_variant to avoid building that target.
+    ci_variant: "production-no-upload-docs"
+    CI_BUILD_ARGS: "--enable-xml-docs"
+
 # vim:set sw=2 sts=2 et:
