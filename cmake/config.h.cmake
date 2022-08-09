@@ -151,9 +151,6 @@
 #cmakedefine HAVE_SYS_RESOURCE_H 1
 #cmakedefine HAVE_SYS_STAT_H 1
 
-/* Define to 1 if you have sys/syslimits.h */
-#cmakedefine   HAVE_SYS_SYSLIMITS_H 1
-
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
 

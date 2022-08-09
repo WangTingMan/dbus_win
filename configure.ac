@@ -424,7 +424,6 @@ stdint.h
 sys/prctl.h
 sys/random.h
 sys/resource.h
-sys/syslimits.h
 sys/time.h
 unistd.h
 ws2tcpip.h

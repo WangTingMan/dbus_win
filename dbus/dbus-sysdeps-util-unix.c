@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/stat.h>
 #ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
@@ -54,10 +55,6 @@
 
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
-#endif
-
-#ifdef HAVE_SYS_SYSLIMITS_H
-#include <sys/syslimits.h>
 #endif
 
 #ifdef HAVE_SYSTEMD

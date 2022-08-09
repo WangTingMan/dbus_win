@@ -34,7 +34,6 @@ check_include_file(sys/stat.h     HAVE_SYS_STAT_H)
 check_include_file(sys/types.h     HAVE_SYS_TYPES_H)
 check_include_file(sys/uio.h     HAVE_SYS_UIO_H)
 check_include_file(sys/prctl.h  HAVE_SYS_PRCTL_H)
-check_include_file(sys/syslimits.h    HAVE_SYS_SYSLIMITS_H)   # dbus-sysdeps-unix.c
 check_include_file(sys/time.h   HAVE_SYS_TIME_H)# dbus-sysdeps-win.c
 check_include_file(sys/wait.h   HAVE_SYS_WAIT_H)# dbus-sysdeps-win.c
 check_include_file(time.h       HAVE_TIME_H)    # dbus-sysdeps-win.c
