@@ -127,7 +127,7 @@ init_wine() {
 : "${ci_test_fatal:=yes}"
 
 # ci_variant:
-# One of debug, reduced, legacy, production
+# One of debug, reduced, legacy, production, production-no-upload-docs
 : "${ci_variant:=production}"
 
 # ci_runtime:
@@ -376,9 +376,11 @@ case "$ci_buildsys" in
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls )
 
-        ${make} -C doc dbus-docs.tar.xz
-        tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
-        ( cd DESTDIR/dbus-docs && find . -ls )
+        if [ "$ci_variant" != "production-no-upload-docs" ]; then
+            ${make} -C doc dbus-docs.tar.xz
+            tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
+            ( cd DESTDIR/dbus-docs && find . -ls )
+        fi
 
         if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
             sudo ${make} install
