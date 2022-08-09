@@ -633,7 +633,6 @@ check_headers = [
     'sys/random.h',
     'sys/resource.h',
     'sys/syscall.h',
-    'sys/syslimits.h',
     'sys/time.h',
     'unistd.h',
     'ws2tcpip.h',

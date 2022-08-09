@@ -423,7 +423,6 @@ sys/prctl.h
 sys/random.h
 sys/resource.h
 sys/syscall.h
-sys/syslimits.h
 sys/time.h
 unistd.h
 winsock2.h
