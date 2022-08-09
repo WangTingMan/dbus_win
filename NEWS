@@ -168,6 +168,9 @@ Tests and CI enhancements:
   dbus!301;
   Ralf Habacker, Simon McVittie, Alex Richardson)
 
+• Added FreeBSD Gitlab-CI build jobs
+  (dbus!280, Alex Richardson)
+
 dbus 1.14.0 (2022-02-28)
 ========================
 
