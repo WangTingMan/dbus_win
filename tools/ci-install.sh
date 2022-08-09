@@ -320,6 +320,7 @@ case "$ci_distro" in
             expat
             glib
             git
+            gmake
             libtool
             libX11
             libxslt

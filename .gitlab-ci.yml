@@ -415,7 +415,7 @@ freebsd image:
     # ones starting with ci_ to ci-build.sh manually. This works because
     # $(env | grep "ci_.*=") is evaluated on the current host not in the VM.
     # We also have to forward builddir since this is required by ci-build.sh.
-    - /app/vmctl exec "cd $CI_PROJECT_NAME && env builddir=$builddir $(echo $(env | grep "ci_.*=")) bash -x ./tools/ci-build.sh $CI_BUILD_ARGS"
+    - /app/vmctl exec "cd $CI_PROJECT_NAME && env make=gmake builddir=$builddir $(echo $(env | grep "ci_.*=")) bash -x ./tools/ci-build.sh $CI_BUILD_ARGS"
     # Copy build artifacts from the VM for archiving/JUnit XML display
     - mkdir -p "$builddir"
     - scp -v "vm:$CI_PROJECT_NAME/$builddir/config.h" . || true

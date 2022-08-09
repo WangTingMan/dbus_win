@@ -260,7 +260,10 @@ case "$ci_host" in
         ;;
 esac
 
-make="make -j${ci_parallel} V=1 VERBOSE=1"
+# Allow overriding make (e.g. on FreeBSD it has to be set to gmake)
+: "${make:=make}"
+export MAKE=${make}
+make="${make} -j${ci_parallel} V=1 VERBOSE=1"
 
 case "$ci_buildsys" in
     (autotools)
