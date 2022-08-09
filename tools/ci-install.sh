@@ -324,7 +324,10 @@ case "$ci_distro" in
             libtool
             libX11
             libxslt
+            meson
+            ninja
             pkgconf
+            python3
             xmlto
         )
         $sudo pkg install -y "${packages[@]}"
