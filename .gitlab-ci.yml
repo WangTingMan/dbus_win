@@ -404,7 +404,6 @@ freebsd image:
     ci_parallel: "${FDO_CI_CONCURRENT:-2}"
     ci_distro: "$BUILD_OS"
     ci_suite: "$FDO_DISTRIBUTION_VERSION"
-    ci_test_fatal: "no" # One undiagnosed test failure in test-fdpass
   script:
     # Start the VM and copy our workspace to the VM
     - /app/vmctl start
