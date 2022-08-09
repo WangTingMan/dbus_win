@@ -438,6 +438,10 @@ freebsd image:
   needs:
     - job: "freebsd image"
       artifacts: false
+  variables:
+    # Don't install with sudo (since we are already building as root and sudo
+    # is not currently installed on the CI image).
+    ci_sudo: "no"
 
 freebsd cmake debug:
   extends:
