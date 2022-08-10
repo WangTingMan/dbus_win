@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright © 2015-2016 Collabora Ltd.
 # Copyright © 2020 Ralf Habacker <ralf.habacker@freenet.de>
@@ -127,7 +127,7 @@ init_wine() {
 : "${ci_test_fatal:=yes}"
 
 # ci_variant:
-# One of debug, reduced, legacy, production
+# One of debug, reduced, legacy, production, production-no-upload-docs
 : "${ci_variant:=production}"
 
 # ci_runtime:
@@ -176,6 +176,10 @@ maybe_fail_tests () {
 NOCONFIGURE=1 ./autogen.sh
 
 # clean up directories from possible previous builds
+if [ -z "$builddir" ]; then
+  echo "ERROR: builddir environment variable must be set!"
+  exit 1
+fi
 rm -rf "$builddir"
 rm -rf ci-build-dist
 rm -rf src-from-dist
@@ -256,7 +260,10 @@ case "$ci_host" in
         ;;
 esac
 
-make="make -j${ci_parallel} V=1 VERBOSE=1"
+# Allow overriding make (e.g. on FreeBSD it has to be set to gmake)
+: "${make:=make}"
+export MAKE=${make}
+make="${make} -j${ci_parallel} V=1 VERBOSE=1"
 
 case "$ci_buildsys" in
     (autotools)
@@ -369,9 +376,11 @@ case "$ci_buildsys" in
         ${make} install DESTDIR=$(pwd)/DESTDIR
         ( cd DESTDIR && find . -ls )
 
-        ${make} -C doc dbus-docs.tar.xz
-        tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
-        ( cd DESTDIR/dbus-docs && find . -ls )
+        if [ "$ci_variant" != "production-no-upload-docs" ]; then
+            ${make} -C doc dbus-docs.tar.xz
+            tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
+            ( cd DESTDIR/dbus-docs && find . -ls )
+        fi
 
         if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
             sudo ${make} install

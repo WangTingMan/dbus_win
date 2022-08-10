@@ -4741,12 +4741,6 @@ _dbus_socket_can_pass_unix_fd (DBusSocket fd)
 #endif
 }
 
-static void
-close_ignore_error (int fd)
-{
-  close (fd);
-}
-
 /*
  * Similar to Solaris fdwalk(3), but without the ability to stop iteration,
  * and may call func for integers that are not actually valid fds.
@@ -4812,6 +4806,25 @@ act_on_fds_3_and_up (void (*func) (int fd))
     func (i);
 }
 
+/* Some library implementations of closefrom() are not async-signal-safe,
+ * and we call _dbus_close_all() after forking, so we only do this on
+ * operating systems where we know that closefrom() is a system call */
+#if defined(HAVE_CLOSEFROM) && ( \
+    defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__) || \
+    defined(__sun__) && defined(F_CLOSEFROM) \
+)
+#define CLOSEFROM_SIGNAL_SAFE 1
+#else
+#define CLOSEFROM_SIGNAL_SAFE 0
+static void
+close_ignore_error (int fd)
+{
+  close (fd);
+}
+#endif
+
 /**
  * Closes all file descriptors except the first three (i.e. stdin,
  * stdout, stderr).
@@ -4824,15 +4837,7 @@ _dbus_close_all (void)
     return;
 #endif
 
-  /* Some library implementations of closefrom() are not async-signal-safe,
-   * and we call _dbus_close_all() after forking, so we only do this on
-   * operating systems where we know that closefrom() is a system call */
-#if defined(HAVE_CLOSEFROM) && ( \
-    defined(__FreeBSD__) || \
-    defined(__NetBSD__) || \
-    defined(__OpenBSD__) || \
-    defined(__sun__) && defined(F_CLOSEFROM) \
-)
+#if CLOSEFROM_SIGNAL_SAFE
   closefrom (3);
 #else
   act_on_fds_3_and_up (close_ignore_error);

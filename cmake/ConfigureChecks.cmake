@@ -25,7 +25,6 @@ check_include_file(sys/random.h     HAVE_SYS_RANDOM_H)
 check_include_file(sys/resource.h     HAVE_SYS_RESOURCE_H)
 check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
 check_include_file(sys/prctl.h  HAVE_SYS_PRCTL_H)
-check_include_file(sys/syslimits.h    HAVE_SYS_SYSLIMITS_H)   # dbus-sysdeps-unix.c
 check_include_file(sys/time.h   HAVE_SYS_TIME_H)# dbus-sysdeps-win.c
 check_include_file(ws2tcpip.h   HAVE_WS2TCPIP_H)# dbus-sysdeps-win.c
 check_include_file(unistd.h     HAVE_UNISTD_H)  # dbus-sysdeps-util-win.c
