@@ -101,6 +101,9 @@ dbus_util_sources = [
 ]
 
 if platform_windows
+    # On Windows, we use C++ constructors to initialize global locks
+    assert(using_cpp)
+
     dbus_lib_sources += [
         'dbus-init-win.cpp',
         'dbus-server-win.c',
