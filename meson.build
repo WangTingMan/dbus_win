@@ -927,6 +927,7 @@ if test_socket_dir == ''
 endif
 test_listen = platform_unix ? 'unix:tmpdir=' + test_socket_dir : 'tcp:host=localhost'
 config.set_quoted('TEST_LISTEN', test_listen)
+config.set_quoted('DBUS_TEST_SOCKET_DIR', test_socket_dir)
 data_config.set('TEST_LISTEN', test_listen)
 
 session_socket_dir = get_option('session_socket_dir')
