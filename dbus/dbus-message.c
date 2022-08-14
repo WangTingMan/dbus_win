@@ -2090,8 +2090,12 @@ _dbus_message_iter_init_common (DBusMessage         *message,
   /* If this static assertion fails, it means the DBusMessageIter struct
    * is not "packed", which might result in "iter = other_iter" not copying
    * every byte. */
+#if DBUS_SIZEOF_VOID_P > 8
+  _DBUS_STATIC_ASSERT (sizeof (DBusMessageIter) == 16 * sizeof (void *));
+#else
   _DBUS_STATIC_ASSERT (sizeof (DBusMessageIter) ==
       4 * sizeof (void *) + sizeof (dbus_uint32_t) + 9 * sizeof (int));
+#endif
 
   /* Since the iterator will read or write who-knows-what from the
    * message, we need to get in the right byte order

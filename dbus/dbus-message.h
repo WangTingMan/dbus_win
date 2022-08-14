@@ -59,7 +59,10 @@ typedef struct DBusMessageIter DBusMessageIter;
  * DBusMessageIter struct; contains no public fields. 
  */
 struct DBusMessageIter
-{ 
+{
+#if DBUS_SIZEOF_VOID_P > 8
+  void *dummy[16];      /**< Don't use this */
+#else
   void *dummy1;         /**< Don't use this */
   void *dummy2;         /**< Don't use this */
   dbus_uint32_t dummy3; /**< Don't use this */
@@ -74,12 +77,24 @@ struct DBusMessageIter
   int pad1;             /**< Don't use this */
   void *pad2;           /**< Don't use this */
   void *pad3;           /**< Don't use this */
+#endif
 };
 
 /**
  * A message iterator for which dbus_message_iter_abandon_container_if_open()
  * is the only valid operation.
  */
+#if DBUS_SIZEOF_VOID_P > 8
+#define DBUS_MESSAGE_ITER_INIT_CLOSED \
+{ \
+  { \
+    NULL, NULL, NULL, NULL, \
+    NULL, NULL, NULL, NULL, \
+    NULL, NULL, NULL, NULL, \
+    NULL, NULL, NULL, NULL \
+  } \
+}
+#else
 #define DBUS_MESSAGE_ITER_INIT_CLOSED \
 { \
   NULL, /* dummy1 */ \
@@ -97,6 +112,7 @@ struct DBusMessageIter
   NULL, /* pad2 */ \
   NULL /* pad3 */ \
 }
+#endif
 
 DBUS_EXPORT
 DBusMessage* dbus_message_new               (int          message_type);
