@@ -276,6 +276,8 @@ foreach type : int_types
     endif
 endforeach
 
+arch_config.set('DBUS_SIZEOF_VOID_P', cc.sizeof('void *'))
+
 ###############################################################################
 # Dependencies
 
@@ -1195,6 +1197,7 @@ summary_dict += {
     '64-bit int':               arch_config.get('DBUS_INT64_TYPE'),
     '32-bit int':               arch_config.get('DBUS_INT32_TYPE'),
     '16-bit int':               arch_config.get('DBUS_INT16_TYPE'),
+    'pointer size':             arch_config.get('DBUS_SIZEOF_VOID_P'),
     'xsltproc':                 xsltproc.found() ? xsltproc.full_path() : '',
     'Doxygen':                  doxygen.found() ? doxygen.full_path() : '',
     'ducktype':                 ducktype.found() ? ducktype.full_path() : '',

@@ -429,13 +429,17 @@ winsock2.h
 ws2tcpip.h
 ])
 
+#### Pointer size
+AC_CHECK_SIZEOF(void *)
+DBUS_SIZEOF_VOID_P=$ac_cv_sizeof_void_p
+AC_SUBST(DBUS_SIZEOF_VOID_P)
+
 #### Integer sizes
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(void *)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(__int64)
 
@@ -1706,6 +1710,7 @@ echo "
 	64-bit int:		  ${DBUS_INT64_TYPE}
 	32-bit int:		  ${DBUS_INT32_TYPE}
 	16-bit int:		  ${DBUS_INT16_TYPE}
+	pointer size:		  ${DBUS_SIZEOF_VOID_P}
         Doxygen:                  ${DOXYGEN:-not found}
         xmlto:                    ${XMLTO:-not found}
         ducktype:                 ${DUCKTYPE:-not found}
