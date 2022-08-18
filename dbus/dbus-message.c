@@ -2675,7 +2675,7 @@ _dbus_message_iter_abandon_signature (DBusMessageRealIter *real)
   dbus_free (str);
 }
 
-#ifndef DBUS_DISABLE_CHECKS
+#if defined(DBUS_ENABLE_CHECKS) || defined(DBUS_ENABLE_ASSERT)
 static dbus_bool_t
 _dbus_message_iter_append_check (DBusMessageRealIter *iter)
 {
@@ -2690,7 +2690,7 @@ _dbus_message_iter_append_check (DBusMessageRealIter *iter)
 
   return TRUE;
 }
-#endif /* DBUS_DISABLE_CHECKS */
+#endif
 
 #ifdef HAVE_UNIX_FD_PASSING
 static int *
