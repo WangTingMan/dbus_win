@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="libdbus_SOURCES">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="libdbus_SOURCES\DBUS_LIB_SOURCES">
+      <UniqueIdentifier>{9db69c55-d267-4b4f-9cc2-5cc3e8cd3627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libdbus_SOURCES\DBUS_LIB_HEADERS">
+      <UniqueIdentifier>{07b65a44-0254-4b28-92dc-5b936a3275ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libdbus_SOURCES\DBUS_SHARED_SOURCES">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="libdbus_SOURCES\DBUS_SHARED_HEADERS">
+      <UniqueIdentifier>{34441615-9172-4d46-8368-2be2d1d4c2f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\dbus\dbus-address.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-auth.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-bus.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-connection.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-credentials.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-errors.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-keyring.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-marshal-byteswap.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-marshal-header.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-marshal-recursive.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-marshal-validate.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-message.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-misc.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-nonce.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-object-tree.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-pending-call.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-resources.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-server.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-server-debug-pipe.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-server-socket.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-sha.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-signature.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-syntax.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-threads.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-timeout.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-transport.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-transport-socket.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-watch.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-server-win.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-transport-win.c">
+      <Filter>libdbus_SOURCES\DBUS_LIB_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-dataslot.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-file.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-hash.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-internals.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-list.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-marshal-basic.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-memory.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-mempool.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-pipe.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-string.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-sysdeps.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-file-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-init-win.cpp">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-pipe-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-util-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-thread-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-string-util.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-test-tap.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\dbus\dbus-watch.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-transport-win.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-transport-socket.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-transport.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-timeout.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-threads.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-syntax.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-signature.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-sha.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-server-win.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-server-socket.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-server-debug-pipe.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-server.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-resources.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-pending-call.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-object-tree.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-nonce.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-misc.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-message.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-marshal-validate.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-marshal-recursive.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-marshal-header.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-marshal-byteswap.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-keyring.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-errors.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-credentials.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-connection.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-bus.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-auth.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-address.h">
+      <Filter>libdbus_SOURCES\DBUS_LIB_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-sysdeps.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-string.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-pipe.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-mempool.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-memory.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-marshal-basic.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-list.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-internals.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-hash.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-file.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-dataslot.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-sysdeps-win.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dbus\dbus-test-tap.h">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_HEADERS</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

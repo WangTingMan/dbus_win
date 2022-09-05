@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\dbus\dbus-address.c" />
+    <ClCompile Include="..\..\dbus\dbus-auth.c" />
+    <ClCompile Include="..\..\dbus\dbus-bus.c" />
+    <ClCompile Include="..\..\dbus\dbus-connection.c" />
+    <ClCompile Include="..\..\dbus\dbus-credentials.c" />
+    <ClCompile Include="..\..\dbus\dbus-dataslot.c" />
+    <ClCompile Include="..\..\dbus\dbus-errors.c" />
+    <ClCompile Include="..\..\dbus\dbus-file-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-file.c" />
+    <ClCompile Include="..\..\dbus\dbus-hash.c" />
+    <ClCompile Include="..\..\dbus\dbus-init-win.cpp" />
+    <ClCompile Include="..\..\dbus\dbus-internals.c" />
+    <ClCompile Include="..\..\dbus\dbus-keyring.c" />
+    <ClCompile Include="..\..\dbus\dbus-list.c" />
+    <ClCompile Include="..\..\dbus\dbus-marshal-basic.c" />
+    <ClCompile Include="..\..\dbus\dbus-marshal-byteswap.c" />
+    <ClCompile Include="..\..\dbus\dbus-marshal-header.c" />
+    <ClCompile Include="..\..\dbus\dbus-marshal-recursive.c" />
+    <ClCompile Include="..\..\dbus\dbus-marshal-validate.c" />
+    <ClCompile Include="..\..\dbus\dbus-memory.c" />
+    <ClCompile Include="..\..\dbus\dbus-mempool.c" />
+    <ClCompile Include="..\..\dbus\dbus-message.c" />
+    <ClCompile Include="..\..\dbus\dbus-misc.c" />
+    <ClCompile Include="..\..\dbus\dbus-nonce.c" />
+    <ClCompile Include="..\..\dbus\dbus-object-tree.c" />
+    <ClCompile Include="..\..\dbus\dbus-pending-call.c" />
+    <ClCompile Include="..\..\dbus\dbus-pipe-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-pipe.c" />
+    <ClCompile Include="..\..\dbus\dbus-resources.c" />
+    <ClCompile Include="..\..\dbus\dbus-server-debug-pipe.c" />
+    <ClCompile Include="..\..\dbus\dbus-server-socket.c" />
+    <ClCompile Include="..\..\dbus\dbus-server-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-server.c" />
+    <ClCompile Include="..\..\dbus\dbus-sha.c" />
+    <ClCompile Include="..\..\dbus\dbus-signature.c" />
+    <ClCompile Include="..\..\dbus\dbus-string-util.c" />
+    <ClCompile Include="..\..\dbus\dbus-string.c" />
+    <ClCompile Include="..\..\dbus\dbus-syntax.c" />
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-thread-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-util-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-sysdeps-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-sysdeps.c" />
+    <ClCompile Include="..\..\dbus\dbus-test-tap.c" />
+    <ClCompile Include="..\..\dbus\dbus-threads.c" />
+    <ClCompile Include="..\..\dbus\dbus-timeout.c" />
+    <ClCompile Include="..\..\dbus\dbus-transport-socket.c" />
+    <ClCompile Include="..\..\dbus\dbus-transport-win.c" />
+    <ClCompile Include="..\..\dbus\dbus-transport.c" />
+    <ClCompile Include="..\..\dbus\dbus-watch.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\dbus\dbus-address.h" />
+    <ClInclude Include="..\..\dbus\dbus-auth.h" />
+    <ClInclude Include="..\..\dbus\dbus-bus.h" />
+    <ClInclude Include="..\..\dbus\dbus-connection.h" />
+    <ClInclude Include="..\..\dbus\dbus-credentials.h" />
+    <ClInclude Include="..\..\dbus\dbus-dataslot.h" />
+    <ClInclude Include="..\..\dbus\dbus-errors.h" />
+    <ClInclude Include="..\..\dbus\dbus-file.h" />
+    <ClInclude Include="..\..\dbus\dbus-hash.h" />
+    <ClInclude Include="..\..\dbus\dbus-internals.h" />
+    <ClInclude Include="..\..\dbus\dbus-keyring.h" />
+    <ClInclude Include="..\..\dbus\dbus-list.h" />
+    <ClInclude Include="..\..\dbus\dbus-marshal-basic.h" />
+    <ClInclude Include="..\..\dbus\dbus-marshal-byteswap.h" />
+    <ClInclude Include="..\..\dbus\dbus-marshal-header.h" />
+    <ClInclude Include="..\..\dbus\dbus-marshal-recursive.h" />
+    <ClInclude Include="..\..\dbus\dbus-marshal-validate.h" />
+    <ClInclude Include="..\..\dbus\dbus-memory.h" />
+    <ClInclude Include="..\..\dbus\dbus-mempool.h" />
+    <ClInclude Include="..\..\dbus\dbus-message.h" />
+    <ClInclude Include="..\..\dbus\dbus-misc.h" />
+    <ClInclude Include="..\..\dbus\dbus-nonce.h" />
+    <ClInclude Include="..\..\dbus\dbus-object-tree.h" />
+    <ClInclude Include="..\..\dbus\dbus-pending-call.h" />
+    <ClInclude Include="..\..\dbus\dbus-pipe.h" />
+    <ClInclude Include="..\..\dbus\dbus-resources.h" />
+    <ClInclude Include="..\..\dbus\dbus-server-debug-pipe.h" />
+    <ClInclude Include="..\..\dbus\dbus-server-socket.h" />
+    <ClInclude Include="..\..\dbus\dbus-server-win.h" />
+    <ClInclude Include="..\..\dbus\dbus-server.h" />
+    <ClInclude Include="..\..\dbus\dbus-sha.h" />
+    <ClInclude Include="..\..\dbus\dbus-signature.h" />
+    <ClInclude Include="..\..\dbus\dbus-string.h" />
+    <ClInclude Include="..\..\dbus\dbus-syntax.h" />
+    <ClInclude Include="..\..\dbus\dbus-sysdeps-win.h" />
+    <ClInclude Include="..\..\dbus\dbus-sysdeps.h" />
+    <ClInclude Include="..\..\dbus\dbus-test-tap.h" />
+    <ClInclude Include="..\..\dbus\dbus-threads.h" />
+    <ClInclude Include="..\..\dbus\dbus-timeout.h" />
+    <ClInclude Include="..\..\dbus\dbus-transport-socket.h" />
+    <ClInclude Include="..\..\dbus\dbus-transport-win.h" />
+    <ClInclude Include="..\..\dbus\dbus-transport.h" />
+    <ClInclude Include="..\..\dbus\dbus-watch.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{7c448251-78b1-4809-949c-a12196797eed}</ProjectGuid>
+    <RootNamespace>dbus1</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)..\..;$(ProjectDir)..\config;$(ProjectDir)..\expat_binary;$(IncludePath)</IncludePath>
+    <TargetName>dbus-1-3</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DBUS1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DBUS1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;DBUS1_EXPORTS;_WINDOWS;_USRDLL;DBUS_COMPILATION;dbus_1_EXPORTS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;DBUS_ENABLE_EMBEDDED_TESTS;DBUS_ENABLE_MODULAR_TESTS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>Ws2_32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;DBUS1_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
