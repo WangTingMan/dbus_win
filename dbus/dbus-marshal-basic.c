@@ -1193,6 +1193,10 @@ _dbus_marshal_skip_basic (const DBusString      *str,
       _dbus_assert_not_reached ("not a basic type");
       break;
     }
+
+  /* We had better still be in-bounds at this point (pointing either into
+   * the content of the string, or 1 past the logical length of the string) */
+  _dbus_assert (*pos <= _dbus_string_get_length (str));
 }
 
 /**
@@ -1230,6 +1234,10 @@ _dbus_marshal_skip_array (const DBusString  *str,
 
   /* Skip the actual array data */
   *pos = i + array_len;
+
+  /* We had better still be in-bounds at this point (pointing either into
+   * the content of the string, or 1 past the logical length of the string) */
+  _dbus_assert (*pos <= _dbus_string_get_length (str));
 }
 
 /**
