@@ -192,25 +192,41 @@ esac
 if [ "$ci_local_packages" = yes ]; then
     case "$ci_host" in
         (*-w64-mingw32)
-            mirror=https://repo.msys2.org/mingw/${ci_host%%-*}
+            cpu="${ci_host%%-*}"
+            mirror="https://repo.msys2.org/mingw/$cpu"
             dep_prefix=$(pwd)/${ci_host}-prefix
+            # clean install dir, if present
+            rm -rf ${dep_prefix}
             install -d "${dep_prefix}"
+            wget -O files.lst ${mirror}
+            sed 's,^<a href=",,g;s,">.*$,,g' files.lst | grep -v "\.db" | grep -v "\.files" | grep ".*zst$" | sort > filenames.lst
             packages=(
-                bzip2-1.0.8-2
-                expat-2.2.10-1
-                gcc-libs-10.2.0-6
-                gettext-0.19.8.1-10
-                glib2-2.66.4-1
-                iconv-1.16-2
-                libffi-3.3-2
-                libiconv-1.16-2
-                libwinpthread-git-8.0.0.5906.c9a21571-1
-                pcre-8.44-2
-                zlib-1.2.11-8
+                bzip2
+                expat
+                gcc-libs
+                gettext
+                glib2
+                iconv
+                libffi
+                libiconv
+                libwinpthread-git
+                pcre
+                pcre2
+                zlib
             )
             for pkg in "${packages[@]}" ; do
-                wget ${mirror}/mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
-                tar -C ${dep_prefix} --strip-components=1 -xvf mingw-w64-${ci_host%%-*}-${pkg}-any.pkg.tar.zst
+                filename=$(grep -F "mingw-w64-${cpu}-${pkg}-" filenames.lst | tail -1)
+                if [ -z ${filename} ]; then
+                    echo "could not find filename for package '${pkg}'"
+                    exit 1
+                fi
+                # Remove previously downloaded file, which can happen
+                # when run locally
+                if [ -f ${filename} ]; then
+                    rm -rf ${filename}
+                fi
+                wget ${mirror}/${filename}
+                tar -C ${dep_prefix} --strip-components=1 -xvf ${filename}
             done
 
             # limit access rights
