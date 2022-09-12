@@ -403,6 +403,8 @@ AM_TESTS_ENVIRONMENT = \
 	export DBUS_TEST_EXEC=@abs_top_builddir@/test; \
 	export DBUS_TEST_HOMEDIR=@abs_top_builddir@/dbus; \
 	export DBUS_TEST_UNINSTALLED=1; \
+	export G_TEST_BUILDDIR=@abs_builddir@; \
+	export G_TEST_SRCDIR=@abs_srcdir@; \
 	export HOME=@abs_top_builddir@/dbus; \
 	$(NULL)
 
