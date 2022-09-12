@@ -726,6 +726,16 @@ static_data = \
 	data/invalid-config-files/send-and-receive.conf \
 	data/invalid-config-files/unknown-limit.conf \
 	data/invalid-messages/boolean-has-no-value.message-raw \
+	data/invalid-messages/fixed-array-not-divisible.message-raw \
+	data/invalid-messages/fixed-array-not-divisible.message-raw.hex \
+	data/invalid-messages/issue418.message-raw \
+	data/invalid-messages/issue418.message-raw.hex \
+	data/invalid-messages/mis-nested-sig.message-raw \
+	data/invalid-messages/mis-nested-sig.message-raw.hex \
+	data/invalid-messages/truncated-variant-sig.message-raw \
+	data/invalid-messages/truncated-variant-sig.message-raw.hex \
+	data/invalid-messages/zero-length-variant-sig.message-raw \
+	data/invalid-messages/zero-length-variant-sig.message-raw.hex \
 	data/sha-1/Readme.txt \
 	data/sha-1/bit-hashes.sha1 \
 	data/sha-1/bit-messages.sha1 \
