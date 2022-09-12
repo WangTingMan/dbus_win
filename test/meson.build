@@ -101,7 +101,7 @@ xdgdir = custom_target('gen-xdgdir',
 
 installed_tests = []
 
-if meson.version().version_compare('>=0.63')
+if meson.version().version_compare('>=0.63') and meson.version().version_compare('<0.63.1')
     # Work around https://github.com/mesonbuild/meson/issues/10577
     test_protocol = 'exitcode'
 else
