@@ -43,12 +43,14 @@ test_env = environment()
 
 test_env.set('DBUS_TOP_SRCDIR',     meson.project_source_root())
 test_env.set('DBUS_TEST_SRCDIR',    meson.current_source_dir())
+test_env.set('G_TEST_SRCDIR',       meson.current_source_dir())
 
 test_env.set('DBUS_TOP_BUILDDIR',   meson.project_build_root())
 test_env.set('DBUS_TEST_HOMEDIR',   meson.project_build_root() / 'dbus')
 test_env.set('HOME',                meson.project_build_root() / 'dbus')
 # Tests in bus/config-parser.c rely on this specific value
 test_env.set('DBUS_TEST_BUILDDIR',  meson.current_build_dir())
+test_env.set('G_TEST_BUILDDIR',     meson.current_build_dir())
 test_env.set('DBUS_TEST_EXEC',      meson.current_build_dir())
 test_env.set('DBUS_TEST_DATA',      meson.current_build_dir() / 'data')
 
