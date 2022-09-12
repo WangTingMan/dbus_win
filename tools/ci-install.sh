@@ -192,7 +192,8 @@ esac
 if [ "$ci_local_packages" = yes ]; then
     case "$ci_host" in
         (*-w64-mingw32)
-            mirror=https://repo.msys2.org/mingw/${ci_host%%-*}
+            cpu="${ci_host%%-*}"
+            mirror="https://repo.msys2.org/mingw/$cpu"
             dep_prefix=$(pwd)/${ci_host}-prefix
             # clean install dir, if present
             rm -rf ${dep_prefix}
@@ -200,20 +201,21 @@ if [ "$ci_local_packages" = yes ]; then
             wget -O files.lst ${mirror}
             sed 's,^<a href=",,g;s,">.*$,,g' files.lst | grep -v "\.db" | grep -v "\.files" | grep ".*zst$" | sort > filenames.lst
             packages=(
-                bzip2-1.0
-                expat-2.2
-                gcc-libs-10.2
-                gettext-0.19
-                glib2-2.66
-                iconv-1.16
-                libffi-3.3
-                libiconv-1.16
-                libwinpthread-git-8.0.0
-                pcre-8.44
-                zlib-1.2
+                bzip2
+                expat
+                gcc-libs
+                gettext
+                glib2
+                iconv
+                libffi
+                libiconv
+                libwinpthread-git
+                pcre
+                pcre2
+                zlib
             )
             for pkg in "${packages[@]}" ; do
-                filename=$(grep ${pkg} filenames.lst | tail -1)
+                filename=$(grep -F "mingw-w64-${cpu}-${pkg}-" filenames.lst | tail -1)
                 if [ -z ${filename} ]; then
                     echo "could not find filename for package '${pkg}'"
                     exit 1
