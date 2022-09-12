@@ -503,13 +503,24 @@ validate_body_helper (DBusTypeReader       *reader,
                  */ 
                 if (dbus_type_is_fixed (array_elem_type))
                   {
+                    /* Note that fixed-size types all have sizes equal to
+                     * their alignments, so this is really the item size. */
+                    alignment = _dbus_type_get_alignment (array_elem_type);
+                    _dbus_assert (alignment == 1 || alignment == 2 ||
+                                  alignment == 4 || alignment == 8);
+
+                    /* Because the alignment is a power of 2, this is
+                     * equivalent to: (claimed_len % alignment) != 0,
+                     * but avoids slower integer division */
+                    if ((claimed_len & (alignment - 1)) != 0)
+                      return DBUS_INVALID_ARRAY_LENGTH_INCORRECT;
+
                     /* bools need to be handled differently, because they can
                      * have an invalid value
                      */
                     if (array_elem_type == DBUS_TYPE_BOOLEAN)
                       {
                         dbus_uint32_t v;
-                        alignment = _dbus_type_get_alignment (array_elem_type);
 
                         while (p < array_end)
                           {
