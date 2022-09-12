@@ -495,6 +495,9 @@ validate_body_helper (DBusTypeReader       *reader,
                 _dbus_type_reader_recurse (reader, &sub);
 
                 array_end = p + claimed_len;
+                /* We effectively already checked this, by checking that
+                 * claimed_len <= (end - p) */
+                _dbus_assert (array_end <= end);
 
                 array_elem_type = _dbus_type_reader_get_element_type (reader);
 
