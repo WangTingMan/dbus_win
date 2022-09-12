@@ -68,7 +68,7 @@ Enhancements:
 
 Fixes:
 
-• Portability to CPU architectures with larger-than-64-bit pointers
+• Partial portability to CPU architectures with larger-than-64-bit pointers
   (dbus!318, Alex Richardson)
 
 • Fix build failure on FreeBSD (dbus!277, Alex Richardson)
@@ -108,6 +108,9 @@ Fixes:
 • Silence xmlto warnings when building man pages
   (dbus!312, Marc-André Lureau)
 
+• Fix build failure when checks are disabled but assertions are enabled
+  (dbus#412, Johannes Kauffmann)
+
 • Autotools build system fixes:
   · Don't treat --with-x or --with-x=yes as a request to disable X11,
     fixing a regression in 1.13.20. Instead, require X11 libraries and
@@ -145,7 +148,6 @@ Fixes:
   · Fix use of paths relative to the dbus project directory when dbus is
     vendored into a larger CMake project (dbus!332, Jordan Williams)
 
-
 Tests and CI enhancements:
 
 • Add an automated test for Windows autolaunching
@@ -170,6 +172,9 @@ Tests and CI enhancements:
 
 • Added FreeBSD Gitlab-CI build jobs
   (dbus!280, Alex Richardson)
+
+• Use the latest MSYS2 packages for CI
+  (Ralf Habacker, Simon McVittie)
 
 dbus 1.14.0 (2022-02-28)
 ========================
