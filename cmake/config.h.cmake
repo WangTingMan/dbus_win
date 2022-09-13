@@ -21,6 +21,9 @@
  * should be placed in this file
 */
 
+/* AC_C_BIGENDIAN */
+#cmakedefine WORDS_BIGENDIAN
+
 /* Opt-in to modern APIs and thread-safety for Solaris. In the Autotools
  * build system we do the equivalent of this by appending to CFLAGS
  * in configure.ac */
@@ -148,9 +151,6 @@
 #cmakedefine HAVE_SYS_RESOURCE_H 1
 #cmakedefine HAVE_SYS_STAT_H 1
 
-/* Define to 1 if you have sys/syslimits.h */
-#cmakedefine   HAVE_SYS_SYSLIMITS_H 1
-
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
 
@@ -243,10 +243,12 @@
 #cmakedefine DBUS_HAVE_LINUX_EPOLL 1
 
 /* Use the gcc __sync extension */
-#cmakedefine DBUS_USE_SYNC 1
+#cmakedefine01 DBUS_USE_SYNC
 #cmakedefine HAVE_VASPRINTF 1
 #cmakedefine HAVE_VSNPRINTF 1
 
+#cmakedefine HAVE_SETRESUID 1
+#cmakedefine HAVE_GETRESUID 1
 /* whether -export-dynamic was passed to libtool */
 #cmakedefine DBUS_BUILT_R_DYNAMIC 1
 

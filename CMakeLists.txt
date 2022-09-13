@@ -28,6 +28,10 @@ include(MacrosAutotools)
 autoinit(configure.ac)
 autoversion(dbus)
 
+# replacement for AC_C_BIGENDIAN
+include (TestBigEndian)
+test_big_endian(WORDS_BIGENDIAN)
+
 if(EXISTS ${CMAKE_SOURCE_DIR}/config.h.in)
     autoheaderchecks(${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/cmake/ConfigureChecks.cmake ${CMAKE_SOURCE_DIR}/cmake/config.h.cmake)
 else()
@@ -140,9 +144,13 @@ option(DBUS_DISABLE_ASSERT "Disable assertion checking" OFF)
 option(DBUS_ENABLE_STATS "enable bus daemon usage statistics" OFF)
 option(ENABLE_TRADITIONAL_ACTIVATION "Enable traditional activation (without using systemd)" ON)
 
+find_package(PkgConfig)
+
 if(DBUS_LINUX)
     add_auto_option(ENABLE_SYSTEMD "build with systemd at_console support" AUTO)
-    include(FindPkgConfig)
+    if (NOT PKG_CONFIG_FOUND)
+        message(SEND_ERROR "pkg-config not found, this is required on Linux systems")
+    endif()
     pkg_check_modules(SYSTEMD libsystemd>=209)
     if(NOT SYSTEMD_FOUND)
         pkg_check_modules(SYSTEMD libsystemd-login>=32 libsystemd-daemon>=32 libsystemd-journal>=32)
@@ -373,8 +381,13 @@ endif()
 
 if(UNIX AND NOT DBUS_DISABLE_ASSERT)
     # required for backtrace
-    string(APPEND CMAKE_C_FLAGS_DEBUG " -Wl,--export-dynamic")
-    string(APPEND CMAKE_CXX_FLAGS_DEBUG " -Wl,--export-dynamic")
+    if (APPLE)
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-export_dynamic")
+        string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-export_dynamic")
+    else()
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--export-dynamic")
+        string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--export-dynamic")
+    endif()
     set(DBUS_BUILT_R_DYNAMIC 1)
 endif()
 
@@ -566,8 +579,14 @@ if(MSVC_IDE)
 endif()
 
 #### Find socket directories
+set(DBUS_SESSION_SOCKET_DIR "" CACHE STRING "Default directory for session socket")
 if(UNIX)
-    if(NOT $ENV{TMPDIR} STREQUAL "")
+    if (CMAKE_CROSSCOMPILING)
+        if (NOT DBUS_SESSION_SOCKET_DIR)
+            message(FATAL_ERROR "cannot autodetect session socket directory "
+                    "when crosscompiling, pass -DDBUS_SESSION_SOCKET_DIR=...")
+        endif()
+    elseif(NOT $ENV{TMPDIR} STREQUAL "")
         set(DBUS_SESSION_SOCKET_DIR $ENV{TMPDIR})
     elseif(NOT $ENV{TEMP} STREQUAL "")
         set(DBUS_SESSION_SOCKET_DIR $ENV{TEMP})
@@ -606,10 +625,8 @@ if(WIN32)
 else(WIN32)
     set(DBUS_SESSION_BUS_LISTEN_ADDRESS "unix:tmpdir=${DBUS_SESSION_SOCKET_DIR}" CACHE STRING "session bus default listening address")
     set(DBUS_SESSION_BUS_CONNECT_ADDRESS "autolaunch:" CACHE STRING "session bus fallback address for clients")
-    set(sysconfdir "")
-    set(configdir ${sysconfdir}/dbus-1 )
-    set(DBUS_SYSTEM_CONFIG_FILE  ${configdir}/system.conf)
-    set(DBUS_SESSION_CONFIG_FILE ${configdir}/session.conf)
+    set(DBUS_SYSTEM_CONFIG_FILE  ${DBUS_DATADIR}/dbus-1/system.conf)
+    set(DBUS_SESSION_CONFIG_FILE ${DBUS_DATADIR}/dbus-1/session.conf)
     set(DBUS_USER "messagebus")
     set(DBUS_TEST_USER "nobody")
   # For best security, assume that all non-Windows platforms can do
@@ -622,11 +639,6 @@ set(DBUS_DAEMON_NAME "dbus-daemon" CACHE STRING "The name of the dbus daemon exe
 ########### create config.h ###############
 
 #include(ConfigureChecks.cmake)
-
-# only defined but expected as boolean
-if(DEFINED HAVE_DECL_ENVIRON)
-    set(HAVE_DECL_ENVIRON 1)
-endif()
 
 # compiler definitions
 add_definitions(-DHAVE_CONFIG_H)

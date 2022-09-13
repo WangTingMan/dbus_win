@@ -34,7 +34,6 @@ check_include_file(sys/stat.h     HAVE_SYS_STAT_H)
 check_include_file(sys/types.h     HAVE_SYS_TYPES_H)
 check_include_file(sys/uio.h     HAVE_SYS_UIO_H)
 check_include_file(sys/prctl.h  HAVE_SYS_PRCTL_H)
-check_include_file(sys/syslimits.h    HAVE_SYS_SYSLIMITS_H)   # dbus-sysdeps-unix.c
 check_include_file(sys/time.h   HAVE_SYS_TIME_H)# dbus-sysdeps-win.c
 check_include_file(sys/wait.h   HAVE_SYS_WAIT_H)# dbus-sysdeps-win.c
 check_include_file(time.h       HAVE_TIME_H)    # dbus-sysdeps-win.c
@@ -42,7 +41,9 @@ check_include_file(ws2tcpip.h   HAVE_WS2TCPIP_H)# dbus-sysdeps-win.c
 check_include_file(unistd.h     HAVE_UNISTD_H)  # dbus-sysdeps-util-win.c
 check_include_file(sys/inotify.h DBUS_BUS_ENABLE_INOTIFY)
 
-check_symbol_exists(backtrace    "execinfo.h"       HAVE_BACKTRACE)          #  dbus-sysdeps.c, dbus-sysdeps-win.c
+find_package(Backtrace)  # dbus-sysdeps.c, dbus-sysdeps-win.c
+set(HAVE_BACKTRACE ${Backtrace_FOUND})
+
 check_symbol_exists(getgrouplist "grp.h"            HAVE_GETGROUPLIST)       #  dbus-sysdeps.c
 check_symbol_exists(getpeerucred "ucred.h"          HAVE_GETPEERUCRED)       #  dbus-sysdeps.c, dbus-sysdeps-win.c
 check_symbol_exists(nanosleep    "time.h"           HAVE_NANOSLEEP)          #  dbus-sysdeps.c
@@ -74,6 +75,8 @@ check_symbol_exists(vsnprintf    "stdio.h"                   HAVE_VSNPRINTF)
 check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
 check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
 check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
+check_symbol_exists(setresuid    "unistd.h"                  HAVE_SETRESUID)
+check_symbol_exists(getresuid    "unistd.h"                  HAVE_GETRESUID)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
@@ -135,7 +138,7 @@ CHECK_C_SOURCE_COMPILES("
 int main() {
     int a = 4;
     int b = __sync_sub_and_fetch(&a, 4);
-    exit(b);
+    return b;
 }
 " DBUS_USE_SYNC)
 
