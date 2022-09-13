@@ -1242,10 +1242,10 @@ _dbus_marshal_skip_array (const DBusString  *str,
 
 /**
  * Gets the alignment requirement for the given type;
- * will be 1, 4, or 8.
+ * will be 1, 2, 4, or 8.
  *
  * @param typecode the type
- * @returns alignment of 1, 4, or 8
+ * @returns alignment of 1, 2, 4, or 8
  */
 int
 _dbus_type_get_alignment (int typecode)
