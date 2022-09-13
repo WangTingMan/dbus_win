@@ -62,6 +62,8 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
 
   int element_count;
   DBusList *element_count_stack;
+  char opened_brackets[DBUS_MAXIMUM_TYPE_RECURSION_DEPTH * 2 + 1] = { '\0' };
+  char last_bracket;
 
   result = DBUS_VALID;
   element_count_stack = NULL;
@@ -93,6 +95,10 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
 
   while (p != end)
     {
+      _dbus_assert (struct_depth + dict_entry_depth >= 0);
+      _dbus_assert (struct_depth + dict_entry_depth < _DBUS_N_ELEMENTS (opened_brackets));
+      _dbus_assert (opened_brackets[struct_depth + dict_entry_depth] == '\0');
+
       switch (*p)
         {
         case DBUS_TYPE_BYTE:
@@ -136,6 +142,10 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
               goto out;
             }
 
+          _dbus_assert (struct_depth + dict_entry_depth >= 1);
+          _dbus_assert (struct_depth + dict_entry_depth < _DBUS_N_ELEMENTS (opened_brackets));
+          _dbus_assert (opened_brackets[struct_depth + dict_entry_depth - 1] == '\0');
+          opened_brackets[struct_depth + dict_entry_depth - 1] = DBUS_STRUCT_BEGIN_CHAR;
           break;
 
         case DBUS_STRUCT_END_CHAR:
@@ -151,9 +161,20 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
               goto out;
             }
 
+          _dbus_assert (struct_depth + dict_entry_depth >= 1);
+          _dbus_assert (struct_depth + dict_entry_depth < _DBUS_N_ELEMENTS (opened_brackets));
+          last_bracket = opened_brackets[struct_depth + dict_entry_depth - 1];
+
+          if (last_bracket != DBUS_STRUCT_BEGIN_CHAR)
+            {
+              result = DBUS_INVALID_STRUCT_ENDED_BUT_NOT_STARTED;
+              goto out;
+            }
+
           _dbus_list_pop_last (&element_count_stack);
 
           struct_depth -= 1;
+          opened_brackets[struct_depth + dict_entry_depth] = '\0';
           break;
 
         case DBUS_DICT_ENTRY_BEGIN_CHAR:
@@ -178,6 +199,10 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
               goto out;
             }
 
+          _dbus_assert (struct_depth + dict_entry_depth >= 1);
+          _dbus_assert (struct_depth + dict_entry_depth < _DBUS_N_ELEMENTS (opened_brackets));
+          _dbus_assert (opened_brackets[struct_depth + dict_entry_depth - 1] == '\0');
+          opened_brackets[struct_depth + dict_entry_depth - 1] = DBUS_DICT_ENTRY_BEGIN_CHAR;
           break;
 
         case DBUS_DICT_ENTRY_END_CHAR:
@@ -186,8 +211,19 @@ _dbus_validate_signature_with_reason (const DBusString *type_str,
               result = DBUS_INVALID_DICT_ENTRY_ENDED_BUT_NOT_STARTED;
               goto out;
             }
-            
+
+          _dbus_assert (struct_depth + dict_entry_depth >= 1);
+          _dbus_assert (struct_depth + dict_entry_depth < _DBUS_N_ELEMENTS (opened_brackets));
+          last_bracket = opened_brackets[struct_depth + dict_entry_depth - 1];
+
+          if (last_bracket != DBUS_DICT_ENTRY_BEGIN_CHAR)
+            {
+              result = DBUS_INVALID_DICT_ENTRY_ENDED_BUT_NOT_STARTED;
+              goto out;
+            }
+
           dict_entry_depth -= 1;
+          opened_brackets[struct_depth + dict_entry_depth] = '\0';
 
           element_count = 
             _DBUS_POINTER_TO_INT (_dbus_list_pop_last (&element_count_stack));
