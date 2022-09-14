@@ -82,10 +82,10 @@ struct DBusMemBlock
                         *   when we free the mem pool.
                         */
 
-  /* this is a long so that "elements" is aligned */
-  long used_so_far;     /**< bytes of this block already allocated as elements. */
-  
-  unsigned char elements[];                /**< the block data, actually allocated to required size */
+  /* this is a size_t so that "elements" is aligned */
+  size_t used_so_far;       /**< bytes of this block already allocated as elements. */
+
+  unsigned char elements[]; /**< the block data, actually allocated to required size */
 };
 
 /**
@@ -93,8 +93,8 @@ struct DBusMemBlock
  */
 struct DBusMemPool
 {
-  int element_size;                /**< size of a single object in the pool */
-  int block_size;                  /**< size of most recently allocated block */
+  size_t element_size;             /**< size of a single object in the pool */
+  size_t block_size;               /**< size of most recently allocated block */
   unsigned int zero_elements : 1;  /**< whether to zero-init allocated elements */
 
   DBusFreedElement *free_elements; /**< a free list of elements to recycle */
@@ -153,7 +153,7 @@ _dbus_mem_pool_new (int element_size,
   _dbus_assert (element_size >= (int) sizeof (DBusFreedElement));
 
   /* align the element size to a pointer boundary so we won't get bus
-   * errors under other architectures.  
+   * errors under other architectures.
    */
   pool->element_size = _DBUS_ALIGN_VALUE (element_size, sizeof (void *));
 
@@ -215,7 +215,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
   if (_dbus_disable_mem_pools ())
     {
       DBusMemBlock *block;
-      int alloc_size;
+      size_t alloc_size;
       
       /* This is obviously really silly, but it's
        * debug-mode-only code that is compiled out
@@ -223,9 +223,9 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
        * is a constant expression FALSE so this block
        * should vanish)
        */
-      
+
       alloc_size = sizeof (DBusMemBlock) + pool->element_size;
-      
+
       if (pool->zero_elements)
         block = dbus_malloc0 (alloc_size);
       else
@@ -276,7 +276,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
             {
               /* Need a new block */
               DBusMemBlock *block;
-              int alloc_size;
+              size_t alloc_size;
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
               int saved_counter;
 #endif
@@ -319,9 +319,9 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
               block->next = pool->blocks;
               pool->blocks = block;          
             }
-      
+
           element = &pool->blocks->elements[pool->blocks->used_so_far];
-          
+
           pool->blocks->used_so_far += pool->element_size;
 
           pool->allocated_elements += 1;
