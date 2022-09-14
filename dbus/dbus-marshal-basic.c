@@ -30,19 +30,10 @@
 
 #include <string.h>
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
-# define _DBUS_ASSERT_ALIGNMENT(type, op, val) \
-  _DBUS_STATIC_ASSERT (__extension__ __alignof__ (type) op val)
-# define _DBUS_ASSERT_CMP_ALIGNMENT(left, op, right) \
-  _DBUS_STATIC_ASSERT (__extension__ __alignof__ (left) op __extension__ __alignof__ (right))
-#else
-  /* not gcc, so probably no alignof operator: just use a no-op statement
-   * that's valid in the same contexts */
-# define _DBUS_ASSERT_ALIGNMENT(type, op, val) \
-  _DBUS_STATIC_ASSERT (TRUE)
-# define _DBUS_ASSERT_CMP_ALIGNMENT(left, op, right) \
-  _DBUS_STATIC_ASSERT (TRUE)
-#endif
+#define _DBUS_ASSERT_ALIGNMENT(type, op, val) \
+  _DBUS_STATIC_ASSERT (_DBUS_ALIGNOF (type) op val)
+#define _DBUS_ASSERT_CMP_ALIGNMENT(left, op, right) \
+  _DBUS_STATIC_ASSERT (_DBUS_ALIGNOF (left) op _DBUS_ALIGNOF (right))
 
 /* True by definition, but just for completeness... */
 _DBUS_STATIC_ASSERT (sizeof (char) == 1);
