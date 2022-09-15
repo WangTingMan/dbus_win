@@ -283,6 +283,21 @@ _dbus_assert_error_xor_bool (const DBusError *error,
 #define _DBUS_ALIGN_ADDRESS(this, boundary) \
   ((void*)_DBUS_ALIGN_VALUE(this, boundary))
 
+#define _DBUS_IS_ALIGNED(this, boundary) \
+  ((((size_t) (uintptr_t) (this)) & ((size_t) (boundary) - 1)) == 0)
+
+/**
+ * Aligning a pointer to _DBUS_ALIGNOF(dbus_max_align_t) guarantees that all
+ * scalar types can be loaded/stored from/to such an address without incurring
+ * an alignment fault (or a slow misaligned access).
+ * This is based on C11 max_align_t, but falls back to DBusBasicValue for
+ * older C standards.
+ */
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+typedef max_align_t dbus_max_align_t;
+#else
+typedef DBusBasicValue dbus_max_align_t;
+#endif
 
 DBUS_PRIVATE_EXPORT
 char*       _dbus_strdup                (const char  *str);
