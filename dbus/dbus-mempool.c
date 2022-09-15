@@ -65,22 +65,6 @@ struct DBusFreedElement
   DBusFreedElement *next; /**< next element of the free list */
 };
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#define HAVE_FLEXIBLE_ARRAYS
-#elif defined(__GNUC__) || defined(_MSC_VER)
-#define HAVE_ZERO_LENGTH_ARRAYS
-#endif
-
-/**
- * The dummy size of the variable-length "elements"
- * field in DBusMemBlock
- */
-#if defined(HAVE_FLEXIBLE_ARRAYS) || defined(HAVE_ZERO_LENGTH_ARRAYS)
-#define ELEMENT_PADDING 0
-#else
-#define ELEMENT_PADDING 4
-#endif
-
 /**
  * Typedef for DBusMemBlock so the struct can recursively
  * point to itself.
@@ -101,11 +85,7 @@ struct DBusMemBlock
   /* this is a long so that "elements" is aligned */
   long used_so_far;     /**< bytes of this block already allocated as elements. */
   
-#ifdef HAVE_FLEXIBLE_ARRAYS
   unsigned char elements[];                /**< the block data, actually allocated to required size */
-#else
-  unsigned char elements[ELEMENT_PADDING];
-#endif
 };
 
 /**
@@ -244,8 +224,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
        * should vanish)
        */
       
-      alloc_size = sizeof (DBusMemBlock) - ELEMENT_PADDING +
-        pool->element_size;
+      alloc_size = sizeof (DBusMemBlock) + pool->element_size;
       
       if (pool->zero_elements)
         block = dbus_malloc0 (alloc_size);
@@ -310,7 +289,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
                                  pool->element_size) == 0);
                 }
 
-              alloc_size = sizeof (DBusMemBlock) - ELEMENT_PADDING + pool->block_size;
+              alloc_size = sizeof (DBusMemBlock) + pool->block_size;
 
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
               /* We save/restore the counter, so that memory pools won't
