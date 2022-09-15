@@ -65,11 +65,21 @@ struct DBusFreedElement
   DBusFreedElement *next; /**< next element of the free list */
 };
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define HAVE_FLEXIBLE_ARRAYS
+#elif defined(__GNUC__) || defined(_MSC_VER)
+#define HAVE_ZERO_LENGTH_ARRAYS
+#endif
+
 /**
  * The dummy size of the variable-length "elements"
  * field in DBusMemBlock
  */
+#if defined(HAVE_FLEXIBLE_ARRAYS) || defined(HAVE_ZERO_LENGTH_ARRAYS)
+#define ELEMENT_PADDING 0
+#else
 #define ELEMENT_PADDING 4
+#endif
 
 /**
  * Typedef for DBusMemBlock so the struct can recursively
@@ -91,7 +101,11 @@ struct DBusMemBlock
   /* this is a long so that "elements" is aligned */
   long used_so_far;     /**< bytes of this block already allocated as elements. */
   
-  unsigned char elements[ELEMENT_PADDING]; /**< the block data, actually allocated to required size */
+#ifdef HAVE_FLEXIBLE_ARRAYS
+  unsigned char elements[];                /**< the block data, actually allocated to required size */
+#else
+  unsigned char elements[ELEMENT_PADDING];
+#endif
 };
 
 /**
