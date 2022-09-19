@@ -111,6 +111,10 @@ Fixes:
 • Fix build failure when checks are disabled but assertions are enabled
   (dbus#412, Johannes Kauffmann)
 
+• Use C99 flexible arrays in the memory pool implementation for better
+  support for modern compilers
+  (dbus!343, dbus!344; Alex Richardson, Simon McVittie)
+
 • Autotools build system fixes:
   · Don't treat --with-x or --with-x=yes as a request to disable X11,
     fixing a regression in 1.13.20. Instead, require X11 libraries and
@@ -164,6 +168,10 @@ Tests and CI enhancements:
 
 • On Unix, skip tests that switch uid if run in a container that is
   unable to do so, instead of failing (dbus#407, Simon McVittie)
+
+• On Unix, consistently create test sockets in DBUS_TEST_SOCKET_DIR and
+  not the build directory, allowing the build directory to be mounted with
+  a non-POSIX filesystem (dbus!334, Alex Richardson)
 
 • Gitlab-CI improvements
   (dbus#383, dbus#388, dbus!262, dbus!288, dbus!292, dbus!296, dbus!299,
