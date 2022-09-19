@@ -286,6 +286,9 @@ DBUS_EXPORT
 void               dbus_connection_set_allow_anonymous          (DBusConnection             *connection,
                                                                  dbus_bool_t                 value);
 DBUS_EXPORT
+void               dbus_connection_set_builtin_filters_enabled  (DBusConnection             *connection,
+                                                                 dbus_bool_t                 value);
+DBUS_EXPORT
 void               dbus_connection_set_route_peer_messages      (DBusConnection             *connection,
                                                                  dbus_bool_t                 value);
 
