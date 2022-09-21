@@ -46,6 +46,8 @@ typedef unsigned @DBUS_INT32_TYPE@ dbus_uint32_t;
 typedef @DBUS_INT16_TYPE@ dbus_int16_t;
 typedef unsigned @DBUS_INT16_TYPE@ dbus_uint16_t;
 
+#define DBUS_SIZEOF_VOID_P @DBUS_SIZEOF_VOID_P@
+
 /* This is not really arch-dependent, but it's not worth
  * creating an additional generated header just for this
  */

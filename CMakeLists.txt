@@ -735,6 +735,7 @@ message("        cxxflags release:         ${CMAKE_CXX_FLAGS_RELEASE}          "
 message("        64-bit int:               ${DBUS_INT64_TYPE}                  ")
 message("        32-bit int:               ${DBUS_INT32_TYPE}                  ")
 message("        16-bit int:               ${DBUS_INT16_TYPE}                  ")
+message("        pointer size:             ${DBUS_SIZEOF_VOID_P}               ")
 message("        Doxygen:                  ${DOXYGEN}                          ")
 message("        Docbook Generator:        ${DOCBOOK_GENERATOR_NAME}           ")
 

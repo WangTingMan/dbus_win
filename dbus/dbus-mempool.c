@@ -82,19 +82,31 @@ struct DBusMemBlock
                         *   when we free the mem pool.
                         */
 
-  /* this is a long so that "elements" is aligned */
-  long used_so_far;     /**< bytes of this block already allocated as elements. */
-  
-  unsigned char elements[];                /**< the block data, actually allocated to required size */
+  size_t used_so_far;       /**< bytes of this block already allocated as elements. */
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+  /*
+   * Ensure that elements is aligned correctly. For all supported pre-C11
+   * targets, the size_t above should ensure that the elements array is
+   * sufficiently aligned (this is checked in the static assert below).
+   */
+  _Alignas (dbus_max_align_t)
+#endif
+  unsigned char elements[]; /**< the block data, actually allocated to required size */
 };
+
+_DBUS_STATIC_ASSERT (_DBUS_IS_ALIGNED (sizeof (struct DBusMemBlock),
+                                       _DBUS_ALIGNOF (dbus_max_align_t)));
+_DBUS_STATIC_ASSERT (_DBUS_IS_ALIGNED (offsetof (struct DBusMemBlock,
+                                                 elements),
+                                       _DBUS_ALIGNOF (dbus_max_align_t)));
 
 /**
  * Internals fields of DBusMemPool
  */
 struct DBusMemPool
 {
-  int element_size;                /**< size of a single object in the pool */
-  int block_size;                  /**< size of most recently allocated block */
+  size_t element_size;             /**< size of a single object in the pool */
+  size_t block_size;               /**< size of most recently allocated block */
   unsigned int zero_elements : 1;  /**< whether to zero-init allocated elements */
 
   DBusFreedElement *free_elements; /**< a free list of elements to recycle */
@@ -152,10 +164,11 @@ _dbus_mem_pool_new (int element_size,
   _dbus_assert (element_size >= (int) sizeof (void*));
   _dbus_assert (element_size >= (int) sizeof (DBusFreedElement));
 
-  /* align the element size to a pointer boundary so we won't get bus
-   * errors under other architectures.  
+  /* align the element size to be suitable for the most-aligned type
+   * that we care about (in practice usually a pointer).
    */
-  pool->element_size = _DBUS_ALIGN_VALUE (element_size, sizeof (void *));
+  pool->element_size =
+      _DBUS_ALIGN_VALUE (element_size, _DBUS_ALIGNOF (dbus_max_align_t));
 
   pool->zero_elements = zero_elements != FALSE;
 
@@ -215,7 +228,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
   if (_dbus_disable_mem_pools ())
     {
       DBusMemBlock *block;
-      int alloc_size;
+      size_t alloc_size;
       
       /* This is obviously really silly, but it's
        * debug-mode-only code that is compiled out
@@ -223,9 +236,9 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
        * is a constant expression FALSE so this block
        * should vanish)
        */
-      
+
       alloc_size = sizeof (DBusMemBlock) + pool->element_size;
-      
+
       if (pool->zero_elements)
         block = dbus_malloc0 (alloc_size);
       else
@@ -239,6 +252,8 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
 
           VALGRIND_MEMPOOL_ALLOC (pool, (void *) &block->elements[0],
               pool->element_size);
+          _dbus_assert (_DBUS_IS_ALIGNED (&block->elements[0],
+                                          _DBUS_ALIGNOF (dbus_max_align_t)));
           return (void*) &block->elements[0];
         }
       else
@@ -264,7 +279,8 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
             memset (element, '\0', pool->element_size);
 
           pool->allocated_elements += 1;
-
+          _dbus_assert (
+              _DBUS_IS_ALIGNED (element, _DBUS_ALIGNOF (dbus_max_align_t)));
           return element;
         }
       else
@@ -276,7 +292,7 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
             {
               /* Need a new block */
               DBusMemBlock *block;
-              int alloc_size;
+              size_t alloc_size;
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
               int saved_counter;
 #endif
@@ -306,6 +322,8 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
                 block = dbus_malloc0 (alloc_size);
               else
                 block = dbus_malloc (alloc_size);
+              _dbus_assert (
+                  _DBUS_IS_ALIGNED (block, _DBUS_ALIGNOF (dbus_max_align_t)));
 
 #ifdef DBUS_ENABLE_EMBEDDED_TESTS
               _dbus_set_fail_alloc_counter (saved_counter);
@@ -319,14 +337,16 @@ _dbus_mem_pool_alloc (DBusMemPool *pool)
               block->next = pool->blocks;
               pool->blocks = block;          
             }
-      
+
           element = &pool->blocks->elements[pool->blocks->used_so_far];
-          
+
           pool->blocks->used_so_far += pool->element_size;
 
           pool->allocated_elements += 1;
 
           VALGRIND_MEMPOOL_ALLOC (pool, element, pool->element_size);
+          _dbus_assert (
+              _DBUS_IS_ALIGNED (element, _DBUS_ALIGNOF (dbus_max_align_t)));
           return element;
         }
     }
