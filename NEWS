@@ -1,4 +1,4 @@
-dbus 1.15.0 (UNRELEASED)
+dbus 1.15.0 (2022-09-22)
 ========================
 
 Dependencies:
@@ -47,6 +47,7 @@ Enhancements:
 • D-Bus Specification 0.39:
   · Document how to represent internationalized domain names in D-Bus
     names (dbus!324, Simon McVittie)
+  · Improve documentation of AF_UNIX sockets (Marc-André Lureau)
 
 • On Unix, speed up closing file descriptors for subprocesses by using
   closefrom() or close_range() where available
