@@ -3,9 +3,11 @@ dbus 1.15.0 (UNRELEASED)
 
 Dependencies:
 
-• dbus now requires either a C99 compiler (such as gcc or clang),
-  or Microsoft Visual Studio 2015 or later. Some workarounds for
-  pre-C99 environments are currently still present, but we plan to
+• On platforms where a pointer is larger than 64 bits, dbus requires at
+  least a C11 compiler.
+  On other platforms, dbus now requires either a C99 compiler such as
+  gcc or clang, or Microsoft Visual Studio 2015 or later. Some workarounds
+  for pre-C99 environments are currently still present, but we plan to
   remove them during this development cycle.
 
 • Building with CMake now requires CMake ≥ 3.4.
@@ -68,8 +70,8 @@ Enhancements:
 
 Fixes:
 
-• Partial portability to CPU architectures with larger-than-64-bit pointers
-  (dbus!318, Alex Richardson)
+• Portability to CPU architectures with larger-than-64-bit pointers
+  (dbus!335, dbus!318; Alex Richardson)
 
 • Fix build failure on FreeBSD (dbus!277, Alex Richardson)
 
@@ -179,7 +181,7 @@ Tests and CI enhancements:
   Ralf Habacker, Simon McVittie, Alex Richardson)
 
 • Added FreeBSD Gitlab-CI build jobs
-  (dbus!280, Alex Richardson)
+  (dbus!280, dbus!347; Alex Richardson)
 
 • Use the latest MSYS2 packages for CI
   (Ralf Habacker, Simon McVittie)
