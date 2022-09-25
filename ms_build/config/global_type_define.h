@@ -40,5 +40,13 @@
 
 #endif
 
+#ifndef DBUS_SIZEOF_VOID_P
+#ifdef _WIN64
+#define DBUS_SIZEOF_VOID_P 8
+#else
+#define DBUS_SIZEOF_VOID_P 4
+#endif
+#endif
+
 #endif
 

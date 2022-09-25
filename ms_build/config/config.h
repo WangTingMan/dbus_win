@@ -22,7 +22,7 @@
 #define PACKAGE_NAME "dbus"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dbus 1.14.99"
+#define PACKAGE_STRING "dbus 1.15.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "dbus"
@@ -31,11 +31,11 @@
 #define PACKAGE_URL "http://dbus.freedesktop.org"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.14.99"
+#define PACKAGE_VERSION "1.15.1"
 
 /* defined by autotools package */
 #define PACKAGE "dbus"
-#define VERSION "1.14.99"
+#define VERSION "1.15.1"
 
 
 /*
