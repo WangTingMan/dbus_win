@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright 2010 Lennart Poettering
 # Copyright 2022 Simon McVittie
 # SPDX-License-Identifier: MIT

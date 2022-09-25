@@ -20,7 +20,7 @@
 
 project('dbus',
     'c',
-    version: '1.14.99',
+    version: '1.15.1',
     meson_version: '>=0.56',
 )
 
@@ -63,14 +63,14 @@ config.set_quoted('DBUS_DAEMON_NAME', 'dbus-daemon')
 # http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
 
 ## increment if the interface has additions, changes, removals.
-lt_current = 36
+lt_current = 37
 ## increment any time the source changes;
 ## set to 0 if you increment CURRENT
 lt_revision = 0
 ## increment if any interfaces have been added;
 ## set to 0 if any interfaces have been changed or removed.
 ## removal has precedence over adding, so set to 0 if both happened.
-lt_age = 33
+lt_age = 34
 
 soversion = (lt_current - lt_age)
 version_info = '@0@.@1@.@2@'.format(soversion, lt_age, lt_revision)
@@ -275,6 +275,8 @@ foreach type : int_types
         break
     endif
 endforeach
+
+arch_config.set('DBUS_SIZEOF_VOID_P', cc.sizeof('void *'))
 
 ###############################################################################
 # Dependencies
@@ -927,6 +929,7 @@ if test_socket_dir == ''
 endif
 test_listen = platform_unix ? 'unix:tmpdir=' + test_socket_dir : 'tcp:host=localhost'
 config.set_quoted('TEST_LISTEN', test_listen)
+config.set_quoted('DBUS_TEST_SOCKET_DIR', test_socket_dir)
 data_config.set('TEST_LISTEN', test_listen)
 
 session_socket_dir = get_option('session_socket_dir')
@@ -1194,6 +1197,7 @@ summary_dict += {
     '64-bit int':               arch_config.get('DBUS_INT64_TYPE'),
     '32-bit int':               arch_config.get('DBUS_INT32_TYPE'),
     '16-bit int':               arch_config.get('DBUS_INT16_TYPE'),
+    'pointer size':             arch_config.get('DBUS_SIZEOF_VOID_P'),
     'xsltproc':                 xsltproc.found() ? xsltproc.full_path() : '',
     'Doxygen':                  doxygen.found() ? doxygen.full_path() : '',
     'ducktype':                 ducktype.found() ? ducktype.full_path() : '',

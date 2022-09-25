@@ -1,11 +1,18 @@
-dbus 1.15.0 (UNRELEASED)
+dbus 1.15.2 (UNRELEASED)
+========================
+
+...
+
+dbus 1.15.0 (2022-09-22)
 ========================
 
 Dependencies:
 
-• dbus now requires either a C99 compiler (such as gcc or clang),
-  or Microsoft Visual Studio 2015 or later. Some workarounds for
-  pre-C99 environments are currently still present, but we plan to
+• On platforms where a pointer is larger than 64 bits, dbus requires at
+  least a C11 compiler.
+  On other platforms, dbus now requires either a C99 compiler such as
+  gcc or clang, or Microsoft Visual Studio 2015 or later. Some workarounds
+  for pre-C99 environments are currently still present, but we plan to
   remove them during this development cycle.
 
 • Building with CMake now requires CMake ≥ 3.4.
@@ -45,6 +52,7 @@ Enhancements:
 • D-Bus Specification 0.39:
   · Document how to represent internationalized domain names in D-Bus
     names (dbus!324, Simon McVittie)
+  · Improve documentation of AF_UNIX sockets (Marc-André Lureau)
 
 • On Unix, speed up closing file descriptors for subprocesses by using
   closefrom() or close_range() where available
@@ -69,7 +77,7 @@ Enhancements:
 Fixes:
 
 • Portability to CPU architectures with larger-than-64-bit pointers
-  (dbus!318, Alex Richardson)
+  (dbus!335, dbus!318; Alex Richardson)
 
 • Fix build failure on FreeBSD (dbus!277, Alex Richardson)
 
@@ -108,6 +116,13 @@ Fixes:
 • Silence xmlto warnings when building man pages
   (dbus!312, Marc-André Lureau)
 
+• Fix build failure when checks are disabled but assertions are enabled
+  (dbus#412, Johannes Kauffmann)
+
+• Use C99 flexible arrays in the memory pool implementation for better
+  support for modern compilers
+  (dbus!343, dbus!344; Alex Richardson, Simon McVittie)
+
 • Autotools build system fixes:
   · Don't treat --with-x or --with-x=yes as a request to disable X11,
     fixing a regression in 1.13.20. Instead, require X11 libraries and
@@ -145,7 +160,6 @@ Fixes:
   · Fix use of paths relative to the dbus project directory when dbus is
     vendored into a larger CMake project (dbus!332, Jordan Williams)
 
-
 Tests and CI enhancements:
 
 • Add an automated test for Windows autolaunching
@@ -163,13 +177,20 @@ Tests and CI enhancements:
 • On Unix, skip tests that switch uid if run in a container that is
   unable to do so, instead of failing (dbus#407, Simon McVittie)
 
+• On Unix, consistently create test sockets in DBUS_TEST_SOCKET_DIR and
+  not the build directory, allowing the build directory to be mounted with
+  a non-POSIX filesystem (dbus!334, Alex Richardson)
+
 • Gitlab-CI improvements
   (dbus#383, dbus#388, dbus!262, dbus!288, dbus!292, dbus!296, dbus!299,
   dbus!301;
   Ralf Habacker, Simon McVittie, Alex Richardson)
 
 • Added FreeBSD Gitlab-CI build jobs
-  (dbus!280, Alex Richardson)
+  (dbus!280, dbus!347; Alex Richardson)
+
+• Use the latest MSYS2 packages for CI
+  (Ralf Habacker, Simon McVittie)
 
 dbus 1.14.0 (2022-02-28)
 ========================
