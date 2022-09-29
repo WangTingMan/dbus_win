@@ -43,9 +43,6 @@ DBusServer* _dbus_server_new_for_tcp_socket       (const char       *host,
                                                    const char       *family,
                                                    DBusError        *error,
                                                    dbus_bool_t      use_nonce);
-DBusServer* _dbus_server_new_for_dir              (const char       *dir,
-                                                   dbus_bool_t       use_abstract,
-                                                   DBusError        *error);
 DBusServerListenResult _dbus_server_listen_socket (DBusAddressEntry  *entry,
                                                    DBusServer       **server_p,
                                                    DBusError         *error);
