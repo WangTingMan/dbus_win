@@ -139,19 +139,11 @@ _dbus_server_listen_platform_specific (DBusAddressEntry *entry,
         {
           DBusString full_path;
           DBusString filename;
-          dbus_bool_t use_abstract = FALSE;
 
+          /* tmpdir is now equivalent to dir. Previously it would try to
+           * use an abstract socket. */
           if (tmpdir != NULL)
-            {
-              dir = tmpdir;
-
-#ifdef __linux__
-              /* Use abstract sockets for tmpdir if supported, so that it
-               * never needs to be cleaned up. Use dir instead if you want a
-               * path-based socket. */
-              use_abstract = TRUE;
-#endif
-            }
+            dir = tmpdir;
 
           if (!_dbus_string_init (&full_path))
             {
@@ -192,7 +184,7 @@ _dbus_server_listen_platform_specific (DBusAddressEntry *entry,
 
           *server_p =
             _dbus_server_new_for_domain_socket (_dbus_string_get_const_data (&full_path),
-                                                use_abstract,
+                                                FALSE,
                                                 error);
 
           _dbus_string_free (&full_path);
