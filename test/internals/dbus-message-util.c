@@ -589,6 +589,10 @@ foreach_message_file (const char                *test_data_dir,
 
   _dbus_string_init_const (&test_directory, test_data_dir);
 
+  if (!process_test_subdir (&test_directory, "valid-messages",
+                            DBUS_VALID, func, user_data))
+    goto failed;
+
   if (!process_test_subdir (&test_directory, "invalid-messages",
                             DBUS_INVALID_FOR_UNKNOWN_REASON, func, user_data))
     goto failed;
