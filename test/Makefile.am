@@ -762,6 +762,8 @@ static_data = \
 	data/valid-config-files/standard-session-dirs.conf \
 	data/valid-config-files-system/many-rules.conf \
 	data/valid-config-files-system/system.d/test.conf \
+	data/valid-messages/byteswap-fd-index.message-raw \
+	data/valid-messages/byteswap-fd-index.message-raw.hex \
 	data/valid-messages/minimal.message-raw \
 	data/valid-messages/minimal.message-raw.hex \
 	$(NULL)

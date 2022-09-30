@@ -110,6 +110,8 @@ data_to_install = [
     'valid-config-files/many-rules.conf',
     'valid-config-files/minimal.conf',
     'valid-config-files/standard-session-dirs.conf',
+    'valid-messages/byteswap-fd-index.message-raw',
+    'valid-messages/byteswap-fd-index.message-raw.hex',
     'valid-messages/minimal.message-raw',
     'valid-messages/minimal.message-raw.hex',
 ]
