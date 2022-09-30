@@ -110,6 +110,8 @@ data_to_install = [
     'valid-config-files/many-rules.conf',
     'valid-config-files/minimal.conf',
     'valid-config-files/standard-session-dirs.conf',
+    'valid-messages/minimal.message-raw',
+    'valid-messages/minimal.message-raw.hex',
 ]
 
 data_in_to_install = [

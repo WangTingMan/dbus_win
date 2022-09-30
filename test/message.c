@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include <dbus/dbus.h>
 #include "dbus/dbus-internals.h"
@@ -177,6 +178,152 @@ out:
   g_assert_cmpint (_dbus_get_malloc_blocks_outstanding (), ==, 0);
 
   return !g_test_failed ();
+}
+
+static void iterate_fully (DBusMessageIter *iter,
+                           int              n_elements);
+
+/* Iterate over @iter. If n_elements >= 0, then @iter is
+ * expected to yield exactly @n_elements elements. */
+static void
+iterate_fully (DBusMessageIter *iter,
+               int              n_elements)
+{
+  int i = 0;
+
+  while (TRUE)
+    {
+      int arg_type = dbus_message_iter_get_arg_type (iter);
+      dbus_bool_t should_have_next;
+      dbus_bool_t had_next;
+
+      if (arg_type == DBUS_TYPE_INVALID)
+        return;   /* end of iteration */
+
+      if (dbus_type_is_container (arg_type))
+        {
+          DBusMessageIter sub = DBUS_MESSAGE_ITER_INIT_CLOSED;
+          int n_contained = -1;
+
+          switch (arg_type)
+            {
+              case DBUS_TYPE_ARRAY:
+                /* This is only allowed for arrays */
+                n_contained = dbus_message_iter_get_element_count (iter);
+                g_assert_cmpint (n_contained, >=, 0);
+                break;
+
+              case DBUS_TYPE_VARIANT:
+                n_contained = 1;
+                break;
+
+              case DBUS_TYPE_STRUCT:
+                break;
+
+              case DBUS_TYPE_DICT_ENTRY:
+                n_contained = 2;
+                break;
+
+              default:
+                g_assert_not_reached ();
+            }
+
+          dbus_message_iter_recurse (iter, &sub);
+          iterate_fully (&sub, n_contained);
+        }
+      else
+        {
+          DBusBasicValue value;
+
+          dbus_message_iter_get_basic (iter, &value);
+
+          if (arg_type == DBUS_TYPE_UNIX_FD && value.fd >= 0)
+            {
+              GError *error = NULL;
+
+              g_close (value.fd, &error);
+              g_assert_no_error (error);
+            }
+        }
+
+      should_have_next = dbus_message_iter_has_next (iter);
+      had_next = dbus_message_iter_next (iter);
+      g_assert_cmpint (had_next, ==, should_have_next);
+      g_assert_cmpint (had_next, ==,
+                       (dbus_message_iter_get_arg_type (iter) != DBUS_TYPE_INVALID));
+      i += 1;
+    }
+
+  if (n_elements >= 0)
+    g_assert_cmpuint (n_elements, ==, i);
+}
+
+/* Return TRUE if the right thing happens, but the right thing might include
+ * OOM. */
+static dbus_bool_t
+test_valid_message_blobs (void        *message_name,
+                          dbus_bool_t  have_memory)
+{
+  gchar *path = NULL;
+  gchar *contents = NULL;
+  gsize len = 0;
+  DBusMessage *m = NULL;
+  DBusMessageIter iter = DBUS_MESSAGE_ITER_INIT_CLOSED;
+  GError *error = NULL;
+  DBusError e = DBUS_ERROR_INIT;
+  dbus_bool_t ok = TRUE;
+  gchar *filename = NULL;
+
+  filename = g_strdup_printf ("%s.message-raw", (const char *) message_name);
+  path = g_test_build_filename (G_TEST_DIST, "data", "valid-messages",
+                                filename, NULL);
+  g_file_get_contents (path, &contents, &len, &error);
+  g_assert_no_error (error);
+  g_assert_cmpuint (len, <, (gsize) INT_MAX);
+
+  m = dbus_message_demarshal (contents, (int) len, &e);
+
+  if (m == NULL)
+    {
+      if (dbus_error_has_name (&e, DBUS_ERROR_NO_MEMORY) && !have_memory)
+        {
+          g_test_message ("Out of memory (not a problem)");
+          goto out;
+        }
+
+      /* TODO: Validity checking sometimes returns InvalidArgs for OOM */
+      if (dbus_error_has_name (&e, DBUS_ERROR_INVALID_ARGS) &&
+          !have_memory &&
+          strstr (e.message, "Out of memory") != NULL)
+        {
+          g_test_message ("Out of memory (not a problem)");
+          goto out;
+        }
+
+      g_test_message ("Parsing %s reported unexpected error %s: %s",
+                      path, e.name, e.message);
+      g_test_fail ();
+      ok = FALSE;
+      goto out;
+    }
+
+  g_test_message ("Successfully parsed %s", path);
+  test_assert_no_error (&e);
+
+  if (dbus_message_iter_init (m, &iter))
+    g_assert_cmpint (dbus_message_iter_get_arg_type (&iter), !=, DBUS_TYPE_INVALID);
+  else
+    g_assert_cmpint (dbus_message_iter_get_arg_type (&iter), ==, DBUS_TYPE_INVALID);
+
+  iterate_fully (&iter, -1);
+
+out:
+  dbus_clear_message (&m);
+  dbus_error_free (&e);
+  g_free (path);
+  g_free (contents);
+  g_free (filename);
+  return ok;
 }
 
 /* Return TRUE if the right thing happens, but the right thing might include
@@ -365,6 +512,11 @@ add_oom_test (const gchar *name,
   g_queue_push_tail (test_cases_to_free, test_case);
 }
 
+static const char *valid_messages[] =
+{
+  "minimal",
+};
+
 static const char *invalid_messages[] =
 {
   "boolean-has-no-value",
@@ -390,6 +542,14 @@ main (int argc,
   add_oom_test ("/message/array/variant", test_array, "v");
   add_oom_test ("/message/fd", test_fd, NULL);
   add_oom_test ("/message/zero-iter", test_zero_iter, NULL);
+
+  for (i = 0; i < G_N_ELEMENTS (valid_messages); i++)
+    {
+      gchar *path = g_strdup_printf ("/message/valid/%s", valid_messages[i]);
+
+      add_oom_test (path, test_valid_message_blobs, valid_messages[i]);
+      g_free (path);
+    }
 
   for (i = 0; i < G_N_ELEMENTS (invalid_messages); i++)
     {
