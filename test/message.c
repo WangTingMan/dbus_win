@@ -291,15 +291,6 @@ test_valid_message_blobs (void        *message_name,
           goto out;
         }
 
-      /* TODO: Validity checking sometimes returns InvalidArgs for OOM */
-      if (dbus_error_has_name (&e, DBUS_ERROR_INVALID_ARGS) &&
-          !have_memory &&
-          strstr (e.message, "Out of memory") != NULL)
-        {
-          g_test_message ("Out of memory (not a problem)");
-          goto out;
-        }
-
       g_test_message ("Parsing %s reported unexpected error %s: %s",
                       path, e.name, e.message);
       g_test_fail ();
