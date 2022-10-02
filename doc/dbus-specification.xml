@@ -3728,7 +3728,12 @@
               The same as "dir", except that on platforms with
               abstract sockets, the server may attempt to create an
               abstract socket whose name starts with this directory instead
-              of a path-based socket. This key can only be used in server
+              of a path-based socket.
+              The server is not required to create an abstract socket, even
+              on platforms that support it: treating "tmpdir" as being
+              equivalent to "dir" is a valid implementation, and recent
+              versions of the reference implementation of D-Bus do this.
+              Like "dir", this key can only be used in server
               addresses, not in client addresses; the resulting client address
               will have the "abstract" or "path" key instead.
             </entry>
