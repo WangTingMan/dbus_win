@@ -3733,6 +3733,8 @@
               on platforms that support it: treating "tmpdir" as being
               equivalent to "dir" is a valid implementation, and recent
               versions of the reference implementation of D-Bus do this.
+              See "abstract", below, for more details of the consequences
+              of using abstract sockets.
               Like "dir", this key can only be used in server
               addresses, not in client addresses; the resulting client address
               will have the "abstract" or "path" key instead.
@@ -3746,6 +3748,21 @@
               resembling a path but unconnected to the filesystem namespace.
               This key is only supported on platforms with abstract Unix
               sockets, of which Linux is the only known example.
+              Implementors should note that on Linux, abstract sockets are
+              namespaced according to
+              <ulink url="https://man7.org/linux/man-pages/man7/network_namespaces.7.html"
+                >network namespaces</ulink>
+              rather than being part of the filesystem.
+              This means that abstract sockets are unaffected by mechanisms
+              like
+              <ulink url="https://man7.org/linux/man-pages/man2/chroot.2.html"
+                >chroot(2)</ulink>
+              and
+              <ulink url="https://man7.org/linux/man-pages/man7/mount_namespaces.7.html"
+                >mount namespaces</ulink>,
+              which can lead to a sandbox escape if a sandboxing
+              implementation alters the sandboxed process's view of the
+              filesystem but shares the network namespace with the host.
             </entry>
           </row>
           <row>
