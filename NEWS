@@ -1,7 +1,27 @@
 dbus 1.14.4 (UNRELEASED)
 ========================
 
-...
+Behaviour changes:
+
+• On Linux, dbus-daemon and other uses of DBusServer now create a
+  path-based Unix socket, unix:path=..., when asked to listen on a
+  unix:tmpdir=... address. This makes unix:tmpdir=... equivalent to
+  unix:dir=... on all platforms.
+  Previous versions would have created an abstract socket, unix:abstract=...,
+  in this situation.
+  This change primarily affects the well-known session bus when run via
+  dbus-launch(1) or dbus-run-session(1). The user bus, enabled by configuring
+  dbus with --enable-user-session and running it on a systemd system,
+  already used path-based Unix sockets and is unaffected by this change.
+  This behaviour change prevents a sandbox escape via the session bus socket
+  in sandboxing frameworks that can share the network namespace with the host
+  system, such as Flatpak.
+  This change might cause a regression in situations where the abstract socket
+  is intentionally shared between the host system and a chroot or container,
+  such as some use-cases of schroot(1). That regression can be resolved by
+  using a bind-mount to share either the D-Bus socket, or the whole /tmp
+  directory, with the chroot or container.
+  (dbus#416, Simon McVittie)
 
 dbus 1.14.2 (2022-09-26)
 ========================
