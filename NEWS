@@ -1,5 +1,9 @@
-dbus 1.14.4 (UNRELEASED)
+dbus 1.14.4 (2022-10-05)
 ========================
+
+This is a security update for the dbus 1.14.x stable branch, fixing
+denial-of-service issues (CVE-2022-42010, -42011, -42012) and applying
+security hardening (dbus#416).
 
 Behaviour changes:
 
