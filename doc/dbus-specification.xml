@@ -6,8 +6,8 @@
 <article id="index">
   <articleinfo>
     <title>D-Bus Specification</title>
-    <releaseinfo>Version 0.39</releaseinfo>
-    <date>2022-09-22</date>
+    <releaseinfo>Version 0.40</releaseinfo>
+    <date>2022-10-05</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -77,6 +77,17 @@
        <revremark>
          See <ulink url='http://cgit.freedesktop.org/dbus/dbus/log/doc/dbus-specification.xml'>commit log</ulink>
        </revremark>
+     </revision>
+     <revision>
+       <revnumber>0.40</revnumber>
+       <date>2022-10-05</date>
+       <authorinitials></authorinitials>
+       <revdescription>
+         <itemizedlist>
+           <listitem><simpara>Clarify that unix:tmpdir is not required to use an abstract socket on Linux</simpara></listitem>
+           <listitem><simpara>Mention implications of abstract sockets for Linux namespacing</simpara></listitem>
+         </itemizedlist>
+       </revdescription>
      </revision>
      <revision>
        <revnumber>0.39</revnumber>

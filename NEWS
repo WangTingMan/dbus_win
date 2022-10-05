@@ -1,5 +1,8 @@
-dbus 1.15.2 (UNRELEASED)
+dbus 1.15.2 (2022-10-05)
 ========================
+
+This development release incorporates the same denial-of-service fixes and
+security hardening as dbus 1.14.4.
 
 Behaviour changes:
 
@@ -46,6 +49,13 @@ these could potentially be carried out by an authenticated remote attacker.
   would cause a use-after-free and possible memory corruption in production
   builds, or an assertion failure in debug builds. This was a regression in
   version 1.3.0. (dbus#417, CVE-2022-42012; Simon McVittie)
+
+Enhancements:
+
+• D-Bus Specification 0.40 (dbus#416, Simon McVittie)
+  · Clarify that unix:tmpdir is not required to use abstract sockets,
+    even where supported
+  · Mention implications of abstract sockets for Linux namespacing
 
 dbus 1.15.0 (2022-09-22)
 ========================

@@ -20,7 +20,7 @@
 
 project('dbus',
     'c',
-    version: '1.15.1',
+    version: '1.15.2',
     meson_version: '>=0.56',
 )
 
@@ -63,14 +63,14 @@ config.set_quoted('DBUS_DAEMON_NAME', 'dbus-daemon')
 # http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
 
 ## increment if the interface has additions, changes, removals.
-lt_current = 37
+lt_current = 38
 ## increment any time the source changes;
 ## set to 0 if you increment CURRENT
 lt_revision = 0
 ## increment if any interfaces have been added;
 ## set to 0 if any interfaces have been changed or removed.
 ## removal has precedence over adding, so set to 0 if both happened.
-lt_age = 34
+lt_age = 35
 
 soversion = (lt_current - lt_age)
 version_info = '@0@.@1@.@2@'.format(soversion, lt_age, lt_revision)
