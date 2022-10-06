@@ -328,7 +328,9 @@ data_config.set('top_builddir', meson.project_build_root())
 threads = dependency('threads')
 config.set(
     'HAVE_MONOTONIC_CLOCK',
-    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c),
+    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c)
+    and cc.has_header_symbol('pthread.h', 'pthread_condattr_setclock', args: compile_args_c)
+    and cc.has_header_symbol('time.h', 'clock_getres', args: compile_args_c),
 )
 
 glib = dependency(
