@@ -368,10 +368,12 @@ validate_body_helper (DBusTypeReader       *reader,
 
       switch (current_type)
         {
+        /* Special case of fixed-length types: every byte is valid */
         case DBUS_TYPE_BYTE:
           ++p;
           break;
 
+        /* Multi-byte fixed-length types require padding to their alignment */
         case DBUS_TYPE_BOOLEAN:
         case DBUS_TYPE_INT16:
         case DBUS_TYPE_UINT16:
@@ -408,6 +410,7 @@ validate_body_helper (DBusTypeReader       *reader,
           p += alignment;
           break;
 
+        /* Types that start with a 4-byte length */
         case DBUS_TYPE_ARRAY:
         case DBUS_TYPE_STRING:
         case DBUS_TYPE_OBJECT_PATH:
@@ -430,6 +433,10 @@ validate_body_helper (DBusTypeReader       *reader,
             /* p may now be == end */
             _dbus_assert (p <= end);
 
+            /* Arrays have padding between the length and the first
+             * array item, if it's necessary for the array's element type.
+             * This padding is not counted as part of the length
+             * claimed_len. */
             if (current_type == DBUS_TYPE_ARRAY)
               {
                 int array_elem_type = _dbus_type_reader_get_element_type (reader);
@@ -495,6 +502,9 @@ validate_body_helper (DBusTypeReader       *reader,
                 _dbus_type_reader_recurse (reader, &sub);
 
                 array_end = p + claimed_len;
+                /* We effectively already checked this, by checking that
+                 * claimed_len <= (end - p) */
+                _dbus_assert (array_end <= end);
 
                 array_elem_type = _dbus_type_reader_get_element_type (reader);
 
