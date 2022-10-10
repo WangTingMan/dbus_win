@@ -269,6 +269,8 @@ esac
 export MAKE=${make}
 make="${make} -j${ci_parallel} V=1 VERBOSE=1"
 
+export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
+
 case "$ci_buildsys" in
     (autotools)
         case "$ci_variant" in
