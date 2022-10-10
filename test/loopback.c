@@ -61,6 +61,37 @@ assert_no_error (const DBusError *e)
     g_error ("expected success but got error: %s: %s", e->name, e->message);
 }
 
+/* these are macros so they get the right line number */
+
+#define assert_method_reply(m, sender, destination, signature) \
+do { \
+  g_assert_cmpstr (dbus_message_type_to_string (dbus_message_get_type (m)), \
+      ==, dbus_message_type_to_string (DBUS_MESSAGE_TYPE_METHOD_RETURN)); \
+  g_assert_cmpstr (dbus_message_get_sender (m), ==, sender); \
+  g_assert_cmpstr (dbus_message_get_destination (m), ==, destination); \
+  g_assert_cmpstr (dbus_message_get_path (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_interface (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_member (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_signature (m), ==, signature); \
+  g_assert_cmpint (dbus_message_get_serial (m), !=, 0); \
+  g_assert_cmpint (dbus_message_get_reply_serial (m), !=, 0); \
+} while (0)
+
+#define assert_error_reply(m, sender, destination, error_name) \
+do { \
+  g_assert_cmpstr (dbus_message_type_to_string (dbus_message_get_type (m)), \
+      ==, dbus_message_type_to_string (DBUS_MESSAGE_TYPE_ERROR)); \
+  g_assert_cmpstr (dbus_message_get_sender (m), ==, sender); \
+  g_assert_cmpstr (dbus_message_get_destination (m), ==, destination); \
+  g_assert_cmpstr (dbus_message_get_error_name (m), ==, error_name); \
+  g_assert_cmpstr (dbus_message_get_path (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_interface (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_member (m), ==, NULL); \
+  g_assert_cmpstr (dbus_message_get_signature (m), ==, "s"); \
+  g_assert_cmpint (dbus_message_get_serial (m), !=, 0); \
+  g_assert_cmpint (dbus_message_get_reply_serial (m), !=, 0); \
+} while (0)
+
 static DBusHandlerResult
 server_message_cb (DBusConnection *server_conn,
     DBusMessage *message,
@@ -423,6 +454,59 @@ test_message (Fixture *f,
 }
 
 static void
+test_builtin_filters (Fixture *f,
+    gconstpointer addr)
+{
+  dbus_bool_t have_mem;
+  dbus_uint32_t serial;
+  DBusMessage *ping;
+  DBusMessage *m;
+
+  if (f->skip)
+    return;
+
+  test_connect (f, addr);
+
+  ping = dbus_message_new_method_call (NULL, "/foo", DBUS_INTERFACE_PEER,
+      "Ping");
+
+  dbus_connection_set_builtin_filters_enabled (f->client_conn, TRUE);
+
+  have_mem = dbus_connection_send (f->server_conn, ping, &serial);
+  g_assert (have_mem);
+  g_assert (serial != 0);
+
+  while (g_queue_get_length (&f->server_messages) < 1)
+    test_main_context_iterate (f->ctx, TRUE);
+
+  m = g_queue_pop_head (&f->server_messages);
+  assert_method_reply (m, NULL, NULL, "");
+  dbus_message_unref (m);
+
+  m = g_queue_pop_head (&f->server_messages);
+  g_assert (m == NULL);
+
+  dbus_connection_set_builtin_filters_enabled (f->client_conn, FALSE);
+
+  have_mem = dbus_connection_send (f->server_conn, ping, &serial);
+  g_assert (have_mem);
+  g_assert (serial != 0);
+
+  while (g_queue_get_length (&f->server_messages) < 1)
+    test_main_context_iterate (f->ctx, TRUE);
+
+  m = g_queue_pop_head (&f->server_messages);
+  assert_error_reply (m, NULL, NULL,
+      "org.freedesktop.DBus.Error.UnknownMethod");
+  dbus_message_unref (m);
+
+  m = g_queue_pop_head (&f->server_messages);
+  g_assert (m == NULL);
+
+  dbus_message_unref (ping);
+}
+
+static void
 teardown (Fixture *f,
     gconstpointer addr G_GNUC_UNUSED)
 {
@@ -533,6 +617,9 @@ main (int argc,
 
   g_test_add ("/message/bad-guid/unix", Fixture, unix_tmpdir, setup,
       test_bad_guid, teardown);
+
+  g_test_add ("/builtin-filters", Fixture, "tcp:host=127.0.0.1", setup,
+      test_builtin_filters, teardown);
 
   ret = g_test_run ();
   dbus_shutdown ();
