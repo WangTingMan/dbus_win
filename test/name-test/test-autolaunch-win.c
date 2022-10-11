@@ -34,21 +34,6 @@ static int add_wait_time = 0;
 
 #define oom() _dbus_test_fatal ("Out of memory")
 
-/**
- * helper function
- */
-#define _dbus_error_set_from_message_with_location(a, b) __dbus_error_set_from_message_with_location (__FILE__, __LINE__, __FUNCTION__, a, b)
-
-static void
-__dbus_error_set_from_message_with_location (const char *file, int line, const char *function, DBusError *error, DBusMessage *message)
-{
-  char *str = NULL;
-  dbus_message_get_args (message, NULL,
-                         DBUS_TYPE_STRING, &str,
-                         DBUS_TYPE_INVALID);
-  dbus_set_error (error, dbus_message_get_error_name (message), "[%s(%d):%s] %s", file, line, function, str ? str : "");
-}
-
 static dbus_bool_t
 call_method (DBusConnection *conn,
                DBusError *error,
@@ -75,12 +60,8 @@ call_method (DBusConnection *conn,
       goto out;
     }
 
-  if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR)
-    {
-      _dbus_error_set_from_message_with_location (error, reply);
-      result = FALSE;
-      goto out;
-    }
+  /* ..._send_with_reply_and_block converts ERROR messages into errors */
+  _dbus_assert (dbus_message_get_type (reply) != DBUS_MESSAGE_TYPE_ERROR);
   result = TRUE;
 
 out:
