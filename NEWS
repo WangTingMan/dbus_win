@@ -1,7 +1,19 @@
 dbus 1.14.6 (UNRELEASED)
 ========================
 
-...
+Fixes:
+
+• When connected to a dbus-broker, stop dbus-monitor from incorrectly
+  replying to Peer method calls that were sent to the dbus-broker with
+  a NULL destination (dbus#301, Kai A. Hiller)
+
+• Fix out-of-bounds varargs read in the dbus-daemon's config-parser.
+  This is not attacker-triggerable and appears to be harmless in practice,
+  but is technically undefined behaviour and is detected as such by
+  AddressSanitizer. (dbus!357, Evgeny Vereshchagin)
+
+• If dbus_message_demarshal() runs out of memory while validating a message,
+  report it as NoMemory rather than InvalidArgs (dbus#420, Simon McVittie)
 
 dbus 1.14.4 (2022-10-05)
 ========================

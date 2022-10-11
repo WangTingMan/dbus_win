@@ -642,10 +642,11 @@ locate_attributes (BusConfigParser  *parser,
   va_start (args, first_attribute_retloc);
 
   name = va_arg (args, const char*);
-  retloc = va_arg (args, const char**);
+  retloc = NULL;
 
   while (name != NULL)
     {
+      retloc = va_arg (args, const char**);
       _dbus_assert (retloc != NULL);
       _dbus_assert (n_attrs < MAX_ATTRS);
 
@@ -655,7 +656,6 @@ locate_attributes (BusConfigParser  *parser,
       *retloc = NULL;
 
       name = va_arg (args, const char*);
-      retloc = va_arg (args, const char**);
     }
 
   va_end (args);

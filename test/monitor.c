@@ -28,6 +28,8 @@
 
 #include <string.h>
 
+#include "dbus/dbus-connection-internal.h"
+
 #include "test-utils-glib.h"
 
 typedef struct {
@@ -505,7 +507,7 @@ become_monitor (Fixture *f,
   int i;
   dbus_uint32_t zero = 0;
 
-  dbus_connection_set_route_peer_messages (f->monitor, TRUE);
+  _dbus_connection_set_builtin_filters_enabled (f->monitor, FALSE);
 
   if (config == NULL)
     config = f->config;
