@@ -1286,8 +1286,8 @@ AM_CONDITIONAL(DBUS_CAN_UPLOAD_DOCS,
     [test x$enable_doxygen_docs = xyes && test x$enable_xml_docs = xyes &&
      test x$enable_ducktype_docs = xyes])
 
-# Autoconf 2.70 will support this, and many distros patch this option in,
-# but Autoconf 2.70 hasn't actually been released yet.
+# Autoconf 2.70 supports this, and many distros patched this option in
+# before Autoconf 2.70 was released
 AS_IF([test -z "${runstatedir}"], [runstatedir='${localstatedir}/run'])
 AC_SUBST([runstatedir])
 
@@ -1330,14 +1330,14 @@ AS_HELP_STRING([--with-systemduserunitdir=DIR], [Directory for systemd user serv
 AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
 ##### Set up location for system bus socket
-if ! test -z "$with_system_socket"; then
-   DBUS_SYSTEM_SOCKET=$with_system_socket
-else
-   # We don't use runstatedir for this (yet?), because /var/run has been the
-   # interoperable system bus socket for 10+ years.
-   # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
-   DBUS_SYSTEM_SOCKET=${EXPANDED_LOCALSTATEDIR}/run/dbus/system_bus_socket
-fi
+
+AS_IF([test -n "$with_system_socket"],
+   [DBUS_SYSTEM_SOCKET=$with_system_socket],
+   [DBUS_SYSTEM_SOCKET=${EXPANDED_RUNSTATEDIR}/dbus/system_bus_socket])
+
+dnl The actual check script is shared between Autotools and CMake.
+AS_IF([test "$dbus_win" != yes],
+    [${CONFIG_SHELL-/bin/sh} "${srcdir}/tools/check-runstatedir.sh" "$DBUS_SYSTEM_SOCKET"])
 
 AC_SUBST(DBUS_SYSTEM_SOCKET)
 AC_DEFINE_UNQUOTED(DBUS_SYSTEM_SOCKET,"$DBUS_SYSTEM_SOCKET",[The name of the socket the system bus listens on by default])

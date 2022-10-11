@@ -191,7 +191,7 @@ install_emptydirs += [
 
 if platform_unix
     install_emptydirs += [
-        get_option('localstatedir') / 'run' / 'dbus',
+        runstatedir / 'dbus',
         get_option('datadir') / 'dbus-1' / 'system.d',
         get_option('datadir') / 'dbus-1' / 'system-services',
     ]

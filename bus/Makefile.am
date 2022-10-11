@@ -185,7 +185,7 @@ install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)$(dbusdatadir)/session.d
 	$(mkinstalldirs) $(DESTDIR)$(dbusdatadir)/services
 if DBUS_UNIX
-	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/run/dbus
+	$(mkinstalldirs) $(DESTDIR)$(runstatedir)/dbus
 	$(mkinstalldirs) $(DESTDIR)$(dbusdatadir)/system.d
 	$(mkinstalldirs) $(DESTDIR)$(dbusdatadir)/system-services
 endif
