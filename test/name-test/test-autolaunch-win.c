@@ -71,7 +71,6 @@ call_method (DBusConnection *conn,
   dbus_message_unref (method);
   if (reply == NULL)
     {
-      dbus_set_error (error, DBUS_ERROR_FAILED, "Got no reply");
       result = FALSE;
       goto out;
     }
