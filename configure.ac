@@ -10,7 +10,7 @@ AC_INIT([dbus], [dbus_version], [https://gitlab.freedesktop.org/dbus/dbus/issues
 
 AC_CONFIG_AUX_DIR([build-aux])
 
-m4_pattern_forbid([^AX_(CHECK_ENABLE_DEBUG|CODE_COVERAGE|COMPILER_FLAGS|COMPILER_FLAGS_(CFLAGS|CXXFLAGS|LDFLAGS))\b],
+m4_pattern_forbid([^AX_(CHECK_ENABLE_DEBUG|CODE_COVERAGE|COMPILER_FLAGS|COMPILER_FLAGS_(CFLAGS|CXXFLAGS|LDFLAGS)|RECURSIVE_EVAL)\b],
   [Unexpanded AX_ macro found. Please install GNU autoconf-archive])
 
 AC_CANONICAL_HOST
@@ -1296,14 +1296,22 @@ AC_SUBST([runstatedir])
 #### find the actual value for $prefix that we'll end up with
 ##   (I know this is broken and should be done in the Makefile, but
 ##    that's a major pain and almost nobody actually seems to care)
-AS_AC_EXPAND(EXPANDED_PREFIX, "$prefix")
-AS_AC_EXPAND(EXPANDED_LOCALSTATEDIR, "$localstatedir")
-AS_AC_EXPAND(EXPANDED_SYSCONFDIR, "$sysconfdir")
-AS_AC_EXPAND(EXPANDED_BINDIR, "$bindir")
-AS_AC_EXPAND(EXPANDED_LIBDIR, "$libdir")
-AS_AC_EXPAND(EXPANDED_LIBEXECDIR, "$libexecdir")
-AS_AC_EXPAND(EXPANDED_DATADIR, "$datadir")
-AS_AC_EXPAND(EXPANDED_RUNSTATEDIR, "$runstatedir")
+AX_RECURSIVE_EVAL(["$prefix"], [EXPANDED_PREFIX])
+AX_RECURSIVE_EVAL(["$localstatedir"], [EXPANDED_LOCALSTATEDIR])
+AX_RECURSIVE_EVAL(["$sysconfdir"], [EXPANDED_SYSCONFDIR])
+AX_RECURSIVE_EVAL(["$bindir"], [EXPANDED_BINDIR])
+AX_RECURSIVE_EVAL(["$libdir"], [EXPANDED_LIBDIR])
+AX_RECURSIVE_EVAL(["$libexecdir"], [EXPANDED_LIBEXECDIR])
+AX_RECURSIVE_EVAL(["$datadir"], [EXPANDED_DATADIR])
+AX_RECURSIVE_EVAL(["$runstatedir"], [EXPANDED_RUNSTATEDIR])
+AC_SUBST([EXPANDED_PREFIX])
+AC_SUBST([EXPANDED_LOCALSTATEDIR])
+AC_SUBST([EXPANDED_SYSCONFDIR])
+AC_SUBST([EXPANDED_BINDIR])
+AC_SUBST([EXPANDED_LIBDIR])
+AC_SUBST([EXPANDED_LIBEXECDIR])
+AC_SUBST([EXPANDED_DATADIR])
+AC_SUBST([EXPANDED_RUNSTATEDIR])
 
 ##### systemd unit files
 AC_ARG_WITH([systemdsystemunitdir],
