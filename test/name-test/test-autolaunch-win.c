@@ -62,11 +62,11 @@ call_method (DBusConnection *conn,
 
   /* ..._send_with_reply_and_block converts ERROR messages into errors */
   _dbus_assert (dbus_message_get_type (reply) != DBUS_MESSAGE_TYPE_ERROR);
+  dbus_message_unref (reply);
   result = TRUE;
 
 out:
   _DBUS_ASSERT_ERROR_XOR_BOOL (error, result);
-  dbus_message_unref (reply);
   return result;
 }
 
