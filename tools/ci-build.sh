@@ -77,6 +77,10 @@ init_wine() {
 # Build system under test: autotools or cmake
 : "${ci_buildsys:=autotools}"
 
+# ci_compiler:
+# Compiler used to build dbus: gcc or clang
+: "${ci_compiler:=gcc}"
+
 # ci_distro:
 # OS distribution in which we are testing
 # Typical values: auto (detect at runtime), ubuntu, debian; maybe fedora in future
@@ -264,6 +268,8 @@ esac
 : "${make:=make}"
 export MAKE=${make}
 make="${make} -j${ci_parallel} V=1 VERBOSE=1"
+
+export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
 
 case "$ci_buildsys" in
     (autotools)
@@ -522,12 +528,26 @@ case "$ci_buildsys" in
                         ;;
                     (*)
                         set -- -Db_sanitize=address,undefined "$@"
+
+                        # https://github.com/mesonbuild/meson/issues/764
+                        if [ "$ci_compiler" = "clang" ]; then
+                            set -- -Db_lundef=false "$@"
+                        fi
+
                         set -- -Db_pie=true "$@"
                         set -- -Duser_session=true "$@"
                         ;;
                 esac
 
                 shift
+                ;;
+        esac
+
+        case "$ci_compiler" in
+            (clang)
+                export CC=clang
+                ;;
+            (*)
                 ;;
         esac
 
@@ -548,7 +568,7 @@ case "$ci_buildsys" in
 
         $meson_setup "$@" "$srcdir"
         meson compile -v
-        [ "$ci_test" = no ] || meson test
+        [ "$ci_test" = no ] || meson test --print-errorlogs
         DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
         ;;

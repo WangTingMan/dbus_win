@@ -148,6 +148,7 @@ case "$ci_distro" in
             autotools-dev
             ca-certificates
             ccache
+            clang
             cmake
             debhelper
             dh-autoreconf
@@ -169,6 +170,7 @@ case "$ci_distro" in
             libselinux1-dev
             libsystemd-dev
             libx11-dev
+            llvm
             meson
             ninja-build
             sudo
