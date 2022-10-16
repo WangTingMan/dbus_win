@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.9)
 
 # we do not need to have WIN32 defined
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
@@ -71,7 +71,7 @@ set(DBUS_MACHINE_UUID_FILE   ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/dbus/machin
 set(DBUS_BINDIR              ${CMAKE_INSTALL_FULL_BINDIR})
 set(DBUS_DAEMONDIR           ${CMAKE_INSTALL_FULL_BINDIR})
 set(DBUS_LOCALSTATEDIR       ${CMAKE_INSTALL_FULL_LOCALSTATEDIR})
-set(DBUS_RUNSTATEDIR         ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run)
+set(DBUS_RUNSTATEDIR         ${CMAKE_INSTALL_FULL_RUNSTATEDIR})
 
 # On Windows this is relative to where we put the bus setup, in
 # ${datadir}/dbus-1. For simplicity, we only do this if
@@ -598,6 +598,18 @@ set(DBUS_SYSTEM_PID_FILE ${DBUS_RUNSTATEDIR}/dbus/pid)
 # two variables, one for the listening address and one for the connecting
 # address.
 set(DBUS_SYSTEM_BUS_DEFAULT_ADDRESS "unix:path=${DBUS_RUNSTATEDIR}/dbus/system_bus_socket" CACHE STRING "system bus default address")
+
+# This check assumes that the disposition of /run and /var/run on the
+# system where we're building is the same as on the system we're building
+# for, so we can't usefully do this check if we're building for Windows,
+# or if we're cross-building for Unix on a Windows machine.
+#
+# The check is shared between Autotools and CMake.
+# Because we only run it on Unix, it's fine to make it a shell script.
+if(UNIX AND (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows"))
+    execute_process(
+        COMMAND "${CMAKE_SOURCE_DIR}/tools/check-runstatedir.sh" "${DBUS_RUNSTATEDIR}/dbus/system_bus_socket")
+endif()
 
 if(WIN32)
     set(DBUS_SESSION_BUS_LISTEN_ADDRESS "autolaunch:" CACHE STRING "session bus default listening address")

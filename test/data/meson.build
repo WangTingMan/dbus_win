@@ -76,6 +76,16 @@ data_to_install = [
     'invalid-config-files/truncated-file.conf',
     'invalid-config-files/unknown-limit.conf',
     'invalid-messages/boolean-has-no-value.message-raw',
+    'invalid-messages/fixed-array-not-divisible.message-raw',
+    'invalid-messages/fixed-array-not-divisible.message-raw.hex',
+    'invalid-messages/issue418.message-raw',
+    'invalid-messages/issue418.message-raw.hex',
+    'invalid-messages/mis-nested-sig.message-raw',
+    'invalid-messages/mis-nested-sig.message-raw.hex',
+    'invalid-messages/truncated-variant-sig.message-raw',
+    'invalid-messages/truncated-variant-sig.message-raw.hex',
+    'invalid-messages/zero-length-variant-sig.message-raw',
+    'invalid-messages/zero-length-variant-sig.message-raw.hex',
     'sha-1/bit-hashes.sha1',
     'sha-1/bit-messages.sha1',
     'sha-1/byte-hashes.sha1',
@@ -100,6 +110,10 @@ data_to_install = [
     'valid-config-files/many-rules.conf',
     'valid-config-files/minimal.conf',
     'valid-config-files/standard-session-dirs.conf',
+    'valid-messages/byteswap-fd-index.message-raw',
+    'valid-messages/byteswap-fd-index.message-raw.hex',
+    'valid-messages/minimal.message-raw',
+    'valid-messages/minimal.message-raw.hex',
 ]
 
 data_in_to_install = [

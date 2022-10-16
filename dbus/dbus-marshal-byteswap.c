@@ -62,6 +62,7 @@ byteswap_body_helper (DBusTypeReader       *reader,
         case DBUS_TYPE_BOOLEAN:
         case DBUS_TYPE_INT32:
         case DBUS_TYPE_UINT32:
+        case DBUS_TYPE_UNIX_FD:
           {
             p = _DBUS_ALIGN_ADDRESS (p, 4);
             *((dbus_uint32_t *) (void *) p) =
@@ -190,11 +191,6 @@ byteswap_body_helper (DBusTypeReader       *reader,
             
             byteswap_body_helper (&sub, TRUE, old_byte_order, new_byte_order, p, &p);
           }
-          break;
-
-        case DBUS_TYPE_UNIX_FD:
-          /* fds can only be passed on a local machine, so byte order must always match */
-          _dbus_assert_not_reached("attempted to byteswap unix fds which makes no sense");
           break;
 
         default:

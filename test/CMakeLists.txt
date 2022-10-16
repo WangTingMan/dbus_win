@@ -228,6 +228,7 @@ set(TESTDIRS
     data/valid-config-files/session.d
     data/valid-config-files-system
     data/valid-config-files-system/system.d
+    data/valid-messages
     data/valid-service-files
     data/valid-service-files-system
     data/invalid-config-files

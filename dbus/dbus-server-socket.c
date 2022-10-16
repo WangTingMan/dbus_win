@@ -681,13 +681,11 @@ _dbus_server_new_for_domain_socket (const char     *path,
  * This function is used for "unix:dir/tmpdir" kind of addresses.
  *
  * @param dir the path to a directory.
- * @param abstract #TRUE to use abstract socket namespace
  * @param error location to store reason for failure.
  * @returns the new server, or #NULL on failure.
  */
-DBusServer *
+static DBusServer *
 _dbus_server_new_for_dir (const char       *dir,
-                          dbus_bool_t       use_abstract,
                           DBusError        *error)
 {
   DBusServer *server;
@@ -733,7 +731,7 @@ _dbus_server_new_for_dir (const char       *dir,
 
   server =
     _dbus_server_new_for_domain_socket (_dbus_string_get_const_data (&full_path),
-                                        use_abstract,
+                                        FALSE,  /* not abstract */
                                         error);
 
   _dbus_string_free (&full_path);
@@ -841,21 +839,12 @@ _dbus_server_listen_unix_socket (DBusAddressEntry *entry,
         }
       else if (tmpdir != NULL || dir != NULL)
         {
-          dbus_bool_t use_abstract = FALSE;
-
+          /* tmpdir is now equivalent to dir. Previously it would try to
+           * use an abstract socket. */
           if (tmpdir != NULL)
-            {
-              dir = tmpdir;
+            dir = tmpdir;
 
-#ifdef __linux__
-              /* Use abstract sockets for tmpdir if supported, so that it
-               * never needs to be cleaned up. Use dir instead if you want a
-               * path-based socket. */
-              use_abstract = TRUE;
-#endif
-            }
-
-          *server_p = _dbus_server_new_for_dir (dir, use_abstract, error);
+          *server_p = _dbus_server_new_for_dir (dir, error);
         }
       else
         {

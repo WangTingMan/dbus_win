@@ -20,7 +20,7 @@
 
 project('dbus',
     'c',
-    version: '1.15.1',
+    version: '1.15.3',
     meson_version: '>=0.56',
 )
 
@@ -63,14 +63,14 @@ config.set_quoted('DBUS_DAEMON_NAME', 'dbus-daemon')
 # http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
 
 ## increment if the interface has additions, changes, removals.
-lt_current = 37
+lt_current = 38
 ## increment any time the source changes;
 ## set to 0 if you increment CURRENT
 lt_revision = 0
 ## increment if any interfaces have been added;
 ## set to 0 if any interfaces have been changed or removed.
 ## removal has precedence over adding, so set to 0 if both happened.
-lt_age = 34
+lt_age = 35
 
 soversion = (lt_current - lt_age)
 version_info = '@0@.@1@.@2@'.format(soversion, lt_age, lt_revision)
@@ -328,7 +328,9 @@ data_config.set('top_builddir', meson.project_build_root())
 threads = dependency('threads')
 config.set(
     'HAVE_MONOTONIC_CLOCK',
-    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c),
+    cc.has_header_symbol('pthread.h', 'CLOCK_MONOTONIC', args: compile_args_c)
+    and cc.has_header_symbol('pthread.h', 'pthread_condattr_setclock', args: compile_args_c)
+    and cc.has_header_symbol('time.h', 'clock_getres', args: compile_args_c),
 )
 
 glib = dependency(
@@ -820,15 +822,29 @@ config.set_quoted('DBUS_SESSION_CONFIG_FILE',
 
 system_socket = get_option('system_socket')
 if system_socket == ''
-    # We don't use runstatedir for this (yet?), because /var/run has been the
-    # interoperable system bus socket for 10+ years.
-    # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
     system_socket = (
-        get_option('prefix')
-        / get_option('localstatedir')
-        /'run'/'dbus'/'system_bus_socket'
+        get_option('prefix') / runstatedir / 'dbus' / 'system_bus_socket'
     )
 endif
+
+# This check assumes that the disposition of /run and /var/run on the
+# system where we're building is the same as on the system we're building
+# for, so we can't usefully do this check if we're building for Windows,
+# or if we're cross-building for Unix on a Windows machine.
+#
+# The check is shared between Autotools, CMake and Meson.
+# Because we only run it on Unix, it's fine to make it a shell script.
+if platform_unix and build_machine.system() != 'windows'
+    msg = run_command(
+        find_program('tools/check-runstatedir.sh'),
+        system_socket,
+        check: false,
+    ).stdout()
+    if msg != ''
+        warning(msg)
+    endif
+endif
+
 data_config.set('DBUS_SYSTEM_SOCKET', system_socket)
 
 ## System bus only listens on local domain sockets, and never

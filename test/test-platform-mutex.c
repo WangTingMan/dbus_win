@@ -2,7 +2,7 @@
 /* test-platform-mutex.c
  *
  * Copyright © 2022 Ralf Habacker <ralf.habacker@freenet.de>
- * SPDX-License-Identifier: AFL-2.1 or GPL-2.0-or-later
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
 
  * Licensed under the Academic Free License version 2.1
  *

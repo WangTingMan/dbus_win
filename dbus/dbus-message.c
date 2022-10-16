@@ -5201,6 +5201,9 @@ dbus_message_demarshal (const char *str,
   return msg;
 
  fail_corrupt:
+  if (loader->corruption_reason == DBUS_VALIDITY_UNKNOWN_OOM_ERROR)
+    goto fail_oom;
+
   dbus_set_error (error, DBUS_ERROR_INVALID_ARGS, "Message is corrupted (%s)",
                   _dbus_validity_to_error_message (loader->corruption_reason));
   _dbus_message_loader_unref (loader);

@@ -304,14 +304,11 @@ variant_reader_recurse (DBusTypeReader *sub,
 #endif
 }
 
+/* return true if no more elements remain */
 static dbus_bool_t
 array_reader_check_finished (const DBusTypeReader *reader)
 {
   int end_pos;
-
-  /* return the array element type if elements remain, and
-   * TYPE_INVALID otherwise
-   */
 
   end_pos = reader->u.array.start_pos + array_reader_get_array_len (reader);
 

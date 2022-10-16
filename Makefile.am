@@ -37,6 +37,7 @@ EXTRA_DIST =			\
 	test/CMakeLists.txt \
 	test/name-test/CMakeLists.txt \
 	tools/CMakeLists.txt \
+	tools/check-runstatedir.sh \
 	cmake \
 	$(NULL)
 

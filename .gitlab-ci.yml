@@ -196,6 +196,15 @@ debian meson:
   variables:
     ci_buildsys: "meson-dist"
 
+debian meson clang debug:
+  extends:
+    - .meson-common
+    - .debian-build
+  variables:
+    ci_buildsys: "meson-dist"
+    ci_compiler: "clang"
+    ci_variant: "debug"
+
 debian mingw32 autotools debug:
   extends: .debian-build
   variables:

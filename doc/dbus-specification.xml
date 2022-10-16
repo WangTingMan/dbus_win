@@ -6,8 +6,8 @@
 <article id="index">
   <articleinfo>
     <title>D-Bus Specification</title>
-    <releaseinfo>Version 0.39</releaseinfo>
-    <date>2022-09-22</date>
+    <releaseinfo>Version 0.40</releaseinfo>
+    <date>2022-10-05</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -77,6 +77,17 @@
        <revremark>
          See <ulink url='http://cgit.freedesktop.org/dbus/dbus/log/doc/dbus-specification.xml'>commit log</ulink>
        </revremark>
+     </revision>
+     <revision>
+       <revnumber>0.40</revnumber>
+       <date>2022-10-05</date>
+       <authorinitials></authorinitials>
+       <revdescription>
+         <itemizedlist>
+           <listitem><simpara>Clarify that unix:tmpdir is not required to use an abstract socket on Linux</simpara></listitem>
+           <listitem><simpara>Mention implications of abstract sockets for Linux namespacing</simpara></listitem>
+         </itemizedlist>
+       </revdescription>
      </revision>
      <revision>
        <revnumber>0.39</revnumber>
@@ -3728,7 +3739,14 @@
               The same as "dir", except that on platforms with
               abstract sockets, the server may attempt to create an
               abstract socket whose name starts with this directory instead
-              of a path-based socket. This key can only be used in server
+              of a path-based socket.
+              The server is not required to create an abstract socket, even
+              on platforms that support it: treating "tmpdir" as being
+              equivalent to "dir" is a valid implementation, and recent
+              versions of the reference implementation of D-Bus do this.
+              See "abstract", below, for more details of the consequences
+              of using abstract sockets.
+              Like "dir", this key can only be used in server
               addresses, not in client addresses; the resulting client address
               will have the "abstract" or "path" key instead.
             </entry>
@@ -3741,6 +3759,21 @@
               resembling a path but unconnected to the filesystem namespace.
               This key is only supported on platforms with abstract Unix
               sockets, of which Linux is the only known example.
+              Implementors should note that on Linux, abstract sockets are
+              namespaced according to
+              <ulink url="https://man7.org/linux/man-pages/man7/network_namespaces.7.html"
+                >network namespaces</ulink>
+              rather than being part of the filesystem.
+              This means that abstract sockets are unaffected by mechanisms
+              like
+              <ulink url="https://man7.org/linux/man-pages/man2/chroot.2.html"
+                >chroot(2)</ulink>
+              and
+              <ulink url="https://man7.org/linux/man-pages/man7/mount_namespaces.7.html"
+                >mount namespaces</ulink>,
+              which can lead to a sandbox escape if a sandboxing
+              implementation alters the sandboxed process's view of the
+              filesystem but shares the network namespace with the host.
             </entry>
           </row>
           <row>
@@ -5750,13 +5783,27 @@
           variable. If that variable is not set, applications should try
           to connect to the well-known address
           <literal>unix:path=/var/run/dbus/system_bus_socket</literal>.
-          <footnote>
-            <para>
-              The D-Bus reference implementation actually honors the
-              <literal>$(localstatedir)</literal> configure option
-              for this address, on both client and server side.
-            </para>
-          </footnote>
+          Implementations of the well-known system bus should listen on
+          an address that will result in that connection being successful.
+        </para>
+        <para>
+          On systems where <filename>/var/run/</filename> is known to be
+          synonymous with <filename>/run/</filename> (such as most Linux
+          operating system distributions), implementations might prefer
+          to make use of that knowledge to connect to or listen on
+          <literal>unix:path=/run/dbus/system_bus_socket</literal> instead,
+          which has some minor technical advantages, particularly during
+          early startup and late shutdown.
+        </para>
+        <para>
+          In practice, implementations of D-Bus often have build-time
+          configuration options for the system bus address, whose defaults
+          often depend on other build-time options such as the installation
+          prefix (in particular, this is the case for dbus, the reference
+          implementation of D-Bus).
+          Distributors intending to provide access to the well-known
+          system bus should verify that they are using an interoperable
+          address.
         </para>
         <para>
           On Unix systems, the system bus should default to searching

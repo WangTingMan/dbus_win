@@ -1149,6 +1149,7 @@ _dbus_marshal_skip_basic (const DBusString      *str,
       break;
     case DBUS_TYPE_INT16:
     case DBUS_TYPE_UINT16:
+      /* Advance to the next suitably-aligned position >= *pos */
       *pos = _DBUS_ALIGN_VALUE (*pos, 2);
       *pos += 2;
       break;
@@ -1170,6 +1171,8 @@ _dbus_marshal_skip_basic (const DBusString      *str,
       {
         int len;
 
+        /* Let len be the number of bytes of string data, and advance
+         * *pos to just after the length */
         len = _dbus_marshal_read_uint32 (str, *pos, byte_order, pos);
         
         *pos += len + 1; /* length plus nul */
@@ -1190,6 +1193,10 @@ _dbus_marshal_skip_basic (const DBusString      *str,
       _dbus_assert_not_reached ("not a basic type");
       break;
     }
+
+  /* We had better still be in-bounds at this point (pointing either into
+   * the content of the string, or 1 past the logical length of the string) */
+  _dbus_assert (*pos <= _dbus_string_get_length (str));
 }
 
 /**
@@ -1211,23 +1218,34 @@ _dbus_marshal_skip_array (const DBusString  *str,
   int i;
   int alignment;
 
+  /* Advance to the next 4-byte-aligned position >= *pos */
   i = _DBUS_ALIGN_VALUE (*pos, 4);
 
+  /* Let array_len be the number of bytes of array data, and advance
+   * i to just after the length */
   array_len = _dbus_marshal_read_uint32 (str, i, byte_order, &i);
 
+  /* If the element type is more strictly-aligned than the length,
+   * advance i to the next suitably-aligned position
+   * (in other words, skip the padding) */
   alignment = _dbus_type_get_alignment (element_type);
 
   i = _DBUS_ALIGN_VALUE (i, alignment);
 
+  /* Skip the actual array data */
   *pos = i + array_len;
+
+  /* We had better still be in-bounds at this point (pointing either into
+   * the content of the string, or 1 past the logical length of the string) */
+  _dbus_assert (*pos <= _dbus_string_get_length (str));
 }
 
 /**
  * Gets the alignment requirement for the given type;
- * will be 1, 4, or 8.
+ * will be 1, 2, 4, or 8.
  *
  * @param typecode the type
- * @returns alignment of 1, 4, or 8
+ * @returns alignment of 1, 2, 4, or 8
  */
 int
 _dbus_type_get_alignment (int typecode)

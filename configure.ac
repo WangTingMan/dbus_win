@@ -3,14 +3,14 @@ AC_PREREQ([2.63])
 
 m4_define([dbus_major_version], [1])
 m4_define([dbus_minor_version], [15])
-m4_define([dbus_micro_version], [1])
+m4_define([dbus_micro_version], [3])
 m4_define([dbus_version],
           [dbus_major_version.dbus_minor_version.dbus_micro_version])
 AC_INIT([dbus], [dbus_version], [https://gitlab.freedesktop.org/dbus/dbus/issues], [dbus])
 
 AC_CONFIG_AUX_DIR([build-aux])
 
-m4_pattern_forbid([^AX_(CHECK_ENABLE_DEBUG|CODE_COVERAGE|COMPILER_FLAGS|COMPILER_FLAGS_(CFLAGS|CXXFLAGS|LDFLAGS))\b],
+m4_pattern_forbid([^AX_(CHECK_ENABLE_DEBUG|CODE_COVERAGE|COMPILER_FLAGS|COMPILER_FLAGS_(CFLAGS|CXXFLAGS|LDFLAGS)|RECURSIVE_EVAL)\b],
   [Unexpanded AX_ macro found. Please install GNU autoconf-archive])
 
 AC_CANONICAL_HOST
@@ -38,7 +38,7 @@ AC_DEFINE_UNQUOTED(DBUS_DAEMON_NAME,"dbus-daemon",[Name of executable])
 #
 
 ## increment if the interface has additions, changes, removals.
-LT_CURRENT=37
+LT_CURRENT=38
 
 ## increment any time the source changes; set to
 ##  0 if you increment CURRENT
@@ -47,7 +47,7 @@ LT_REVISION=0
 ## increment if any interfaces have been added; set to 0
 ## if any interfaces have been changed or removed. removal has
 ## precedence over adding, so set to 0 if both happened.
-LT_AGE=34
+LT_AGE=35
 
 AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
@@ -1286,8 +1286,8 @@ AM_CONDITIONAL(DBUS_CAN_UPLOAD_DOCS,
     [test x$enable_doxygen_docs = xyes && test x$enable_xml_docs = xyes &&
      test x$enable_ducktype_docs = xyes])
 
-# Autoconf 2.70 will support this, and many distros patch this option in,
-# but Autoconf 2.70 hasn't actually been released yet.
+# Autoconf 2.70 supports this, and many distros patched this option in
+# before Autoconf 2.70 was released
 AS_IF([test -z "${runstatedir}"], [runstatedir='${localstatedir}/run'])
 AC_SUBST([runstatedir])
 
@@ -1296,14 +1296,22 @@ AC_SUBST([runstatedir])
 #### find the actual value for $prefix that we'll end up with
 ##   (I know this is broken and should be done in the Makefile, but
 ##    that's a major pain and almost nobody actually seems to care)
-AS_AC_EXPAND(EXPANDED_PREFIX, "$prefix")
-AS_AC_EXPAND(EXPANDED_LOCALSTATEDIR, "$localstatedir")
-AS_AC_EXPAND(EXPANDED_SYSCONFDIR, "$sysconfdir")
-AS_AC_EXPAND(EXPANDED_BINDIR, "$bindir")
-AS_AC_EXPAND(EXPANDED_LIBDIR, "$libdir")
-AS_AC_EXPAND(EXPANDED_LIBEXECDIR, "$libexecdir")
-AS_AC_EXPAND(EXPANDED_DATADIR, "$datadir")
-AS_AC_EXPAND(EXPANDED_RUNSTATEDIR, "$runstatedir")
+AX_RECURSIVE_EVAL(["$prefix"], [EXPANDED_PREFIX])
+AX_RECURSIVE_EVAL(["$localstatedir"], [EXPANDED_LOCALSTATEDIR])
+AX_RECURSIVE_EVAL(["$sysconfdir"], [EXPANDED_SYSCONFDIR])
+AX_RECURSIVE_EVAL(["$bindir"], [EXPANDED_BINDIR])
+AX_RECURSIVE_EVAL(["$libdir"], [EXPANDED_LIBDIR])
+AX_RECURSIVE_EVAL(["$libexecdir"], [EXPANDED_LIBEXECDIR])
+AX_RECURSIVE_EVAL(["$datadir"], [EXPANDED_DATADIR])
+AX_RECURSIVE_EVAL(["$runstatedir"], [EXPANDED_RUNSTATEDIR])
+AC_SUBST([EXPANDED_PREFIX])
+AC_SUBST([EXPANDED_LOCALSTATEDIR])
+AC_SUBST([EXPANDED_SYSCONFDIR])
+AC_SUBST([EXPANDED_BINDIR])
+AC_SUBST([EXPANDED_LIBDIR])
+AC_SUBST([EXPANDED_LIBEXECDIR])
+AC_SUBST([EXPANDED_DATADIR])
+AC_SUBST([EXPANDED_RUNSTATEDIR])
 
 ##### systemd unit files
 AC_ARG_WITH([systemdsystemunitdir],
@@ -1330,14 +1338,14 @@ AS_HELP_STRING([--with-systemduserunitdir=DIR], [Directory for systemd user serv
 AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
 ##### Set up location for system bus socket
-if ! test -z "$with_system_socket"; then
-   DBUS_SYSTEM_SOCKET=$with_system_socket
-else
-   # We don't use runstatedir for this (yet?), because /var/run has been the
-   # interoperable system bus socket for 10+ years.
-   # See https://bugs.freedesktop.org/show_bug.cgi?id=101628
-   DBUS_SYSTEM_SOCKET=${EXPANDED_LOCALSTATEDIR}/run/dbus/system_bus_socket
-fi
+
+AS_IF([test -n "$with_system_socket"],
+   [DBUS_SYSTEM_SOCKET=$with_system_socket],
+   [DBUS_SYSTEM_SOCKET=${EXPANDED_RUNSTATEDIR}/dbus/system_bus_socket])
+
+dnl The actual check script is shared between Autotools and CMake.
+AS_IF([test "$dbus_win" != yes],
+    [${CONFIG_SHELL-/bin/sh} "${srcdir}/tools/check-runstatedir.sh" "$DBUS_SYSTEM_SOCKET"])
 
 AC_SUBST(DBUS_SYSTEM_SOCKET)
 AC_DEFINE_UNQUOTED(DBUS_SYSTEM_SOCKET,"$DBUS_SYSTEM_SOCKET",[The name of the socket the system bus listens on by default])
