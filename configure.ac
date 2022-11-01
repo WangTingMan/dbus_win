@@ -672,7 +672,7 @@ AC_ARG_VAR([THREAD_LIBS])
 save_libs="$LIBS"
 LIBS="$LIBS $THREAD_LIBS"
 
-is_missing_pthread_function="is required when compiling D-Bus on Unix platforms, but is not in your libc or libpthread. Please open a bug on https://bugs.freedesktop.org/enter_bug.cgi?product=dbus with details of your platform."
+is_missing_pthread_function="is required when compiling D-Bus on Unix platforms, but is not in your libc or libpthread. Please open a bug on https://gitlab.freedesktop.org/dbus/dbus/-/issues/new with details of your platform."
 
 # Don't do these automatic checks if the user set THREAD_LIBS on the
 # configure command-line. If they did, we assume they're right.
