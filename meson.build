@@ -333,25 +333,44 @@ config.set(
     and cc.has_header_symbol('time.h', 'clock_getres', args: compile_args_c),
 )
 
-glib = dependency(
-    'glib-2.0', version: '>=2.40',
-    required: get_option('modular_tests'),
-    fallback: ['glib', 'libglib_dep'],
-    default_options: [
-        'tests=false',
-    ],
-)
-if platform_windows
-    gio = dependency('gio-windows-2.0', required: glib.found())
-    have_gio_unix = false
+# Controls whether message bus daemon is built. Tests which depend on
+# a running dbus-daemon will be disabled if message_bus is not set.
+message_bus = get_option('message_bus')
+
+if get_option('modular_tests').disabled()
+    glib = dependency('', required: false)
 else
-    gio = dependency('gio-unix-2.0',    required: glib.found())
-    have_gio_unix = gio.found()
+    glib = dependency(
+        'glib-2.0', version: '>=2.40',
+        required: get_option('modular_tests'),
+        fallback: ['glib', 'libglib_dep'],
+        default_options: [
+           'tests=false',
+        ],
+    )
+endif
+
+if glib.found()
+    if platform_windows
+        gio = dependency('gio-windows-2.0', required: glib.found())
+        have_gio_unix = false
+    else
+        gio = dependency('gio-unix-2.0',    required: glib.found())
+        have_gio_unix = gio.found()
+    endif
+else
+    gio = dependency('', required: false)
+    have_gio_unix = false
 endif
 use_glib = glib.found() and gio.found()
 config.set('DBUS_WITH_GLIB', use_glib)
 
-expat = dependency('expat')
+if message_bus
+    expat = dependency('expat')
+else
+    expat = dependency('', required: false)
+endif
+
 if expat.type_name() == 'internal'
     # Configure-time checks can't act on subprojects that haven't been
     # built yet, but we know that subprojects/expat.wrap is a new enough
@@ -473,7 +492,7 @@ data_config.set('SYSTEMCTL', systemctl)
 
 
 
-use_traditional_activation = get_option('traditional_activation')
+use_traditional_activation = message_bus and get_option('traditional_activation')
 config.set('ENABLE_TRADITIONAL_ACTIVATION', use_traditional_activation)
 
 if not (use_systemd or use_traditional_activation)
@@ -760,6 +779,9 @@ config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
 
 windows_output_debug = get_option('windows_output_debug_string')
 config.set('DBUS_USE_OUTPUT_DEBUG_STRING', windows_output_debug)
+
+# Controls whether the tools are built.
+tools = get_option('tools')
 
 # DBUS_ENABLE_EMBEDDED_TESTS controls unit tests built in to .c files
 # and some stuff in the test/ subdir.
@@ -1115,8 +1137,12 @@ if platform_unix
 endif
 
 subdir('dbus')
-subdir('bus')
-subdir('tools')
+if message_bus
+    subdir('bus')
+endif
+if tools
+    subdir('tools')
+endif
 subdir('test')
 subdir('doc')
 subdir('cmake')
@@ -1242,6 +1268,8 @@ summary_dict += {
     'Building Ducktype docs':   ducktype.found(),
     'Building XML docs':        build_xml_docs,
     'Building launchd support': use_launchd,
+    'Building dbus-daemon':     message_bus,
+    'Building tools':           tools,
     'System bus socket':        data_config.get('DBUS_SYSTEM_SOCKET'),
     'System bus address':       config.get('DBUS_SYSTEM_BUS_DEFAULT_ADDRESS'),
     'System bus PID file':      data_config.get('DBUS_SYSTEM_PID_FILE'),
