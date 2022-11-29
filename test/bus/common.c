@@ -2,7 +2,7 @@
 /*
  * Copyright 2003-2009 Red Hat, Inc.
  * Copyright 2011-2022 Collabora Ltd.
- * SPDX-License-Identifier: AFL-2.1 or GPL-2-or-later
+ * SPDX-License-Identifier: AFL-2.1 or GPL-2.0-or-later
  *
  * Licensed under the Academic Free License version 2.1
  *
