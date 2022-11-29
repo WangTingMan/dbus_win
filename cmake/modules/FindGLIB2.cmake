@@ -7,7 +7,7 @@
 
 # Copyright (c) 2008 Laurent Montel, <montel@kde.org>
 # Copyright (c) 2013 Ralf Habacker, <ralf.habacker@freenet.de>
-# SPDX-License-Identifier: LicenseRef-CMakeScripts.txt
+# SPDX-License-Identifier: LicenseRef-CMakeScripts
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see LICENSES/LicenseRef-CMakeScripts.txt.
