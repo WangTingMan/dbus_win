@@ -177,6 +177,7 @@ set(DBUS_UTIL_HEADERS
 ### platform specific settings
 if(WIN32)
     set(DBUS_SHARED_SOURCES ${DBUS_SHARED_SOURCES}
+        dbus-backtrace-win.c
         dbus-file-win.c
         dbus-init-win.cpp
         dbus-sysdeps-win.c
