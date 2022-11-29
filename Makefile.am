@@ -17,6 +17,7 @@ EXTRA_DIST =			\
 	LICENSES/Apache-2.0.txt	\
 	LICENSES/BSD-3-Clause.txt	\
 	LICENSES/GPL-2.0-or-later.txt	\
+	LICENSES/LGPL-2.1-or-later.txt	\
 	LICENSES/LicenseRef-CMakeScripts.txt	\
 	LICENSES/LicenseRef-GAP.txt	\
 	LICENSES/LicenseRef-pycrypto-orig.txt	\
