@@ -172,7 +172,10 @@ socket_handle_watch (DBusWatch    *watch,
   for (i = 0 ; i < socket_server->n_fds ; i++)
     {
       if (socket_server->watch[i] == watch)
-        found = TRUE;
+        {
+          found = TRUE;
+	  break;
+        }
     }
   _dbus_assert (found);
 #endif
