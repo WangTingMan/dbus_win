@@ -97,6 +97,9 @@ uninstallable_test_programs += test-normal-activation
 endif
 
 if DBUS_UNIX
+test_counter_SOURCES = internals/counter.c
+test_counter_LDADD = libdbus-testutils.la
+
 if ENABLE_TRADITIONAL_ACTIVATION
 uninstallable_test_programs += test-bus-launch-helper-oom
 uninstallable_test_programs += test-bus-system
@@ -390,6 +393,14 @@ installable_manual_tests += \
 	manual-test-thread-blocking \
 	$(NULL)
 endif DBUS_WITH_GLIB
+
+if DBUS_UNIX
+if DBUS_ENABLE_EMBEDDED_TESTS
+installable_tests += \
+	test-counter \
+	$(NULL)
+endif DBUS_ENABLE_EMBEDDED_TESTS
+endif DBUS_UNIX
 
 installable_test_meta = \
 	$(dist_installable_test_scripts:=.test) \

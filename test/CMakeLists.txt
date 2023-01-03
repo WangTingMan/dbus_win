@@ -163,6 +163,7 @@ if(DBUS_ENABLE_EMBEDDED_TESTS)
 
     if(NOT WIN32)
         add_test_executable(test-bus-system bus/system.c launch-helper-internal dbus-testutils)
+        add_test_executable(test-counter internals/counter.c dbus-testutils)
         if(ENABLE_TRADITIONAL_ACTIVATION)
             add_test_executable(test-bus-launch-helper-oom bus/launch-helper-oom.c launch-helper-internal dbus-testutils)
             add_helper_executable(dbus-daemon-launch-helper-for-tests bus/launch-helper-for-tests.c launch-helper-internal)
