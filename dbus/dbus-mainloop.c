@@ -575,7 +575,7 @@ _dbus_loop_iterate (DBusLoop     *loop,
   DBusList *link;
   int n_ready;
   int initial_serial;
-  long timeout;
+  int timeout;
   int orig_depth;
 
   retval = FALSE;      
