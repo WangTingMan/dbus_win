@@ -8,6 +8,8 @@
  * Copyright (C) 2006 Christian Ehrlicher <ch.ehrlicher@gmx.de>
  * Copyright (C) 2006-2021 Ralf Habacker <ralf.habacker@freenet.de>
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
+ *
  * Licensed under the Academic Free License version 2.1
  *
  * This program is free software; you can redistribute it and/or modify
