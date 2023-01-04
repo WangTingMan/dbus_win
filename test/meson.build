@@ -54,13 +54,21 @@ test_env.set('G_TEST_BUILDDIR',     meson.current_build_dir())
 test_env.set('DBUS_TEST_EXEC',      meson.current_build_dir())
 test_env.set('DBUS_TEST_DATA',      meson.current_build_dir() / 'data')
 
-test_env.set('DBUS_TEST_DAEMON',        dbus_daemon.full_path())
-test_env.set('DBUS_TEST_DBUS_LAUNCH',   dbus_launch.full_path())
-test_env.set('DBUS_TEST_DBUS_MONITOR',  dbus_monitor.full_path())
-test_env.set('DBUS_TEST_DBUS_SEND',     dbus_send.full_path())
+if message_bus
+    test_env.set('DBUS_TEST_DAEMON',        dbus_daemon.full_path())
+endif
 
-if platform_unix
-    test_env.set('DBUS_TEST_DBUS_UUIDGEN', dbus_uuidgen.full_path())
+if tools
+    test_env.set('DBUS_TEST_DBUS_MONITOR',  dbus_monitor.full_path())
+    test_env.set('DBUS_TEST_DBUS_SEND',     dbus_send.full_path())
+endif
+
+if message_bus and tools
+    test_env.set('DBUS_TEST_DBUS_LAUNCH',   dbus_launch.full_path())
+endif
+
+if platform_unix and tools
+    test_env.set('DBUS_TEST_DBUS_UUIDGEN',  dbus_uuidgen.full_path())
 endif
 
 if platform_windows
@@ -204,7 +212,7 @@ else
     test_data_config.set('TEST_LAUNCH_HELPER_BINARY', '/bin/false')
 endif
 
-if platform_unix and use_glib
+if message_bus and tools and platform_unix and use_glib
     test_apparmor_activation = executable('test-apparmor-activation',
         'sd-activation.c',
         include_directories: root_include,
@@ -226,26 +234,15 @@ subdir('data')
 
 # the "name-test" subdir in fact contains a bunch of tests now that need a
 # temporary bus to be running to do stuff with. The directory should be renamed.
-subdir('name-test')
+if message_bus and tools
+    subdir('name-test')
+endif
 
 tests = []
 
 if embedded_tests
 
     tests += [
-        {
-            'name': 'bus',
-            'srcs': [ 'bus/main.c', 'bus/common.c' ],
-            'link': [ libdbus_testutils, libdbus_daemon_internal, ],
-            'install': false,
-        },
-        {
-            'name': 'bus-dispatch-sha1',
-            'srcs': [ 'bus/dispatch-sha1.c', 'bus/common.c' ],
-            'link': [ libdbus_testutils, libdbus_daemon_internal, ],
-            'install': false,
-            'suite': ['slow'],
-        },
         {
             'name': 'marshal-recursive',
             'srcs': [
@@ -269,6 +266,24 @@ if embedded_tests
             'suite': ['slow'],
         },
     ]
+
+    if message_bus
+       tests += [
+           {
+               'name': 'bus',
+               'srcs': [ 'bus/main.c', 'bus/common.c' ],
+               'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+               'install': false,
+           },
+           {
+               'name': 'bus-dispatch-sha1',
+               'srcs': [ 'bus/dispatch-sha1.c', 'bus/common.c' ],
+               'link': [ libdbus_testutils, libdbus_daemon_internal, ],
+               'install': false,
+               'suite': ['slow'],
+           },
+       ]
+    endif
 
     if use_traditional_activation
         tests += [
@@ -575,6 +590,10 @@ foreach test: tests
     suites = test.get('suite', ['dbus'])
     install = test.get('install', true)
 
+    if suites.contains('runs-dbus-daemon') and not (message_bus and tools)
+        continue
+    endif
+
     if test.get('test', true)
         exe_name = 'test-' + name
     else
@@ -626,7 +645,7 @@ endforeach
 
 scripts = []
 
-if platform_unix and use_glib
+if message_bus and tools and platform_unix and use_glib
     scripts += [
         {   'name': 'test-dbus-daemon-fork.sh', },
         {   'name': 'transient-services.sh',

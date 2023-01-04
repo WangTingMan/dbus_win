@@ -203,6 +203,12 @@ libdbus = library('dbus-1',
     install: true,
 )
 
+libdbus_dep = declare_dependency(
+    include_directories: root_include,
+    dependencies: dbus_dependencies,
+    link_with: libdbus,
+)
+
 libdbus_internal = static_library('dbus-internal',
     dbus_util_sources,
 

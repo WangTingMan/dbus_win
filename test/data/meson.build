@@ -198,14 +198,15 @@ foreach file : data_in_to_install
     files += dst
 endforeach
 
-files += meson.project_build_root() / 'bus' / 'session.conf'
-files += meson.current_build_dir() / 'valid-config-files/session.conf'
+if message_bus
+    files += meson.project_build_root() / 'bus' / 'session.conf'
+    files += meson.current_build_dir() / 'valid-config-files/session.conf'
 
-if platform_unix
-    files += meson.project_build_root() / 'bus' / 'system.conf'
-    files += meson.current_build_dir() / 'valid-config-files-system/system.conf'
+    if platform_unix
+        files += meson.project_build_root() / 'bus' / 'system.conf'
+        files += meson.current_build_dir() / 'valid-config-files-system/system.conf'
+    endif
 endif
-
 
 run_result = run_command(find_program('copy_data_for_tests.py'), files, check: true)
 
