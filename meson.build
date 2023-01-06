@@ -200,6 +200,27 @@ if using_cpp
     add_project_arguments(compile_args_cpp, language: 'cpp')
 endif
 
+# Try to use hidden visibility on Unix. We don't do this on Windows to avoid
+# interfering with use of __declspec(dllexport) and __declspec(dllimport),
+# which have a similar effect.
+if cc.has_argument('-fvisibility=hidden') and not platform_windows
+    default_visibility = '__attribute__ ((__visibility__ ("default")))'
+    test_visibility = '''
+@0@ void public_func (void);
+@0@ int public_var;
+int main (void) { return 0; }
+'''.format(default_visibility)
+
+    if cc.compiles(test_visibility, args: compile_args_c + ['-fvisibility=hidden'])
+        add_project_arguments(['-fvisibility=hidden'], language: 'c')
+        config.set('DBUS_PRIVATE_EXPORT', default_visibility)
+        config.set('DBUS_EXPORT', default_visibility)
+        # If we were using C++ then we'd need to add -fvisibility=hidden
+        # to the C++ arguments too, but that's not currently applicable here.
+        assert(not using_cpp, 'C++ only used on Windows')
+    endif
+endif
+
 if host_machine.endian() == 'big'
   config.set('WORDS_BIGENDIAN', 1)
 endif
