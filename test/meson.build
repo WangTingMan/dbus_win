@@ -298,6 +298,16 @@ if embedded_tests
         ]
     endif
 
+    if platform_unix
+        tests += [
+            {
+            'name': 'counter',
+            'srcs': [ 'internals/counter.c' ],
+            'link': [ libdbus_testutils, ],
+            },
+        ]
+    endif
+
     if use_traditional_activation and platform_unix
         tests += [
             {
