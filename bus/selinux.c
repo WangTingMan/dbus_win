@@ -112,9 +112,6 @@ log_callback (int type, const char *fmt, ...)
      * syslog if OOM, like the equivalent AppArmor code does. */
     char buf[PATH_MAX*2];
 
-    /* FIXME: need to change this to show real user */
-    vsnprintf(buf, sizeof(buf), fmt, ap);
-
     switch (type)
       {
       case SELINUX_AVC:
@@ -137,6 +134,8 @@ log_callback (int type, const char *fmt, ...)
       }
 
     if (audit_type > 0) {
+      /* FIXME: need to change this to show real user */
+      vsnprintf(buf, sizeof(buf), fmt, ap);
       audit_log_user_avc_message(audit_fd, audit_type, buf, NULL, NULL,
                              NULL, getuid());
       goto out;
