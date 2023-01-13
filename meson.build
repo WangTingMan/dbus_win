@@ -179,7 +179,7 @@ if host_os.contains('solaris')
 endif
 
 dbus_static_flags = ( get_option('default_library') == 'static'
-    ? '-DDBUS_STATIC_BUILD'
+    ? [ '-DDBUS_STATIC_BUILD' ]
     : []
 )
 compile_args += dbus_static_flags
