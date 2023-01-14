@@ -201,8 +201,12 @@ void _dbus_real_assert_not_reached (const char *explanation,
     ((intptr_t) ((unsigned char*) &((struct_type*) 0)->member))
 #endif
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__cplusplus)
+#define _DBUS_ALIGNOF(type) _Alignof(type)
+#else
 #define _DBUS_ALIGNOF(type) \
     (_DBUS_STRUCT_OFFSET (struct { char _1; type _2; }, _2))
+#endif
 
 #if defined(DBUS_DISABLE_CHECKS) || defined(DBUS_DISABLE_ASSERT)
 /* this is an assert and not an error, but in the typical --disable-checks case (you're trying
