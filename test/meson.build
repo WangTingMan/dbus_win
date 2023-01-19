@@ -398,6 +398,11 @@ tests += [
         'link': [ libdbus_testutils, ],
     },
     {
+        'name': 'strings',
+        'srcs': [ 'internals/strings.c' ],
+        'link': [ libdbus_testutils, ],
+    },
+    {
         'name': 'printf',
         'srcs': [ 'internals/printf.c' ],
         'link': [ libdbus_testutils, ],

@@ -78,6 +78,7 @@ add_helper_executable(manual-dir-iter ${manual-dir-iter_SOURCES} ${DBUS_INTERNAL
 add_helper_executable(test-service ${test-service_SOURCES} dbus-testutils)
 add_helper_executable(test-names ${test-names_SOURCES} dbus-testutils)
 add_test_executable(test-shell ${test-shell_SOURCES} ${DBUS_INTERNAL_LIBRARIES})
+add_test_executable(test-string internals/strings.c dbus-testutils)
 add_test_executable(test-printf internals/printf.c dbus-testutils)
 add_helper_executable(test-privserver test-privserver.c dbus-testutils)
 add_helper_executable(test-shell-service ${test-shell-service_SOURCES} dbus-testutils)
