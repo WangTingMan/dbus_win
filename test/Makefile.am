@@ -90,6 +90,7 @@ uninstallable_test_programs += \
 	test-bus-dispatch-sha1 \
 	test-marshal-recursive \
 	test-message-internals \
+	test-strings \
 	$(NULL)
 
 if DBUS_UNIX
@@ -131,6 +132,8 @@ test_privserver_LDADD = libdbus-testutils.la
 test_shell_service_LDADD = libdbus-testutils.la
 test_shell_SOURCES = shell-test.c
 test_shell_LDADD = libdbus-testutils.la
+test_strings_SOURCES = internals/strings.c
+test_strings_LDADD = libdbus-testutils.la
 
 if ENABLE_TRADITIONAL_ACTIVATION
 test_spawn_SOURCES = spawn-test.c
