@@ -1880,7 +1880,7 @@ _dbus_string_skip_blank (const DBusString *str,
       ++i;
     }
 
-  _dbus_assert (i == real->len || !DBUS_IS_ASCII_WHITE (real->str[i]));
+  _dbus_assert (i == real->len || !DBUS_IS_ASCII_BLANK (real->str[i]));
   
   if (end)
     *end = i;
