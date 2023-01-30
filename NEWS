@@ -12,6 +12,9 @@ Fixes:
   but is technically undefined behaviour and is detected as such by
   AddressSanitizer. (dbus!357, Evgeny Vereshchagin)
 
+• Avoid a data race in multi-threaded use of DBusCounter
+  (dbus#426, Ralf Habacker)
+
 • If dbus_message_demarshal() runs out of memory while validating a message,
   report it as NoMemory rather than InvalidArgs (dbus#420, Simon McVittie)
 
