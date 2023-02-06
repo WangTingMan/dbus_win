@@ -86,15 +86,6 @@ init_wine() {
 # Typical values: auto (detect at runtime), ubuntu, debian; maybe fedora in future
 : "${ci_distro:=auto}"
 
-# ci_docker:
-# If non-empty, this is the name of a Docker image. ci-install.sh will
-# fetch it with "docker pull" and use it as a base for a new Docker image
-# named "ci-image" in which we will do our testing.
-#
-# If empty, we test on "bare metal".
-# Typical values: ubuntu:xenial, debian:jessie-slim
-: "${ci_docker:=}"
-
 # ci_host:
 # See ci-install.sh
 : "${ci_host:=native}"
@@ -138,7 +129,7 @@ init_wine() {
 # One of static, shared; used for windows cross builds
 : "${ci_runtime:=static}"
 
-echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_docker=$ci_docker ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
+echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
 
 # choose distribution
 if [ "$ci_distro" = "auto" ]; then
@@ -150,22 +141,6 @@ fi
 if [ "$ci_suite" = "auto" ]; then
     ci_suite=$(. /etc/os-release; if test -v VERSION_CODENAME; then echo ${VERSION_CODENAME}; else echo ${VERSION_ID}; fi)
     echo "detected ci_suite as '${ci_suite}'"
-fi
-
-if [ -n "$ci_docker" ]; then
-    exec docker run \
-        --env=ci_buildsys="${ci_buildsys}" \
-        --env=ci_docker="" \
-        --env=ci_host="${ci_host}" \
-        --env=ci_parallel="${ci_parallel}" \
-        --env=ci_sudo=yes \
-        --env=ci_test="${ci_test}" \
-        --env=ci_test_fatal="${ci_test_fatal}" \
-        --env=ci_variant="${ci_variant}" \
-        --env=ci_runtime="${ci_runtime}" \
-        --privileged \
-        ci-image \
-        tools/ci-build.sh
 fi
 
 maybe_fail_tests () {
@@ -396,19 +371,34 @@ case "$ci_buildsys" in
                 maybe_fail_tests
             cat test/test-suite.log || :
 
-            # re-run them with gnome-desktop-testing
+            # Re-run them with gnome-desktop-testing.
+            # Also, one test needs a finite fd limit to be useful, so we
+            # can set that here.
             env LD_LIBRARY_PATH=/usr/local/lib \
+            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
             gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
                 maybe_fail_tests
 
-            # these tests benefit from being re-run as root, and one
-            # test needs a finite fd limit to be useful
-            sudo env LD_LIBRARY_PATH=/usr/local/lib \
-            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+            # Some tests benefit from being re-run as non-root, if we were
+            # not already...
+            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
+                sudo -u user \
+                env LD_LIBRARY_PATH=/usr/local/lib \
                 gnome-desktop-testing-runner -d /usr/local/share \
-                dbus/test-dbus-daemon_with_config.test \
-                dbus/test-uid-permissions_with_config.test || \
-                maybe_fail_tests
+                    dbus/test-dbus-daemon_with_config.test \
+                    || maybe_fail_tests
+            fi
+
+            # ... while other tests benefit from being re-run as root, if
+            # we were not already
+            if [ "$(id -u)" != 0 ]; then
+                sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+                    gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    dbus/test-uid-permissions_with_config.test || \
+                    maybe_fail_tests
+            fi
         fi
         ;;
 
