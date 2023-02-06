@@ -82,15 +82,6 @@ init_wine() {
 # Typical values: ubuntu, debian; maybe fedora in future
 : "${ci_distro:=ubuntu}"
 
-# ci_docker:
-# If non-empty, this is the name of a Docker image. ci-install.sh will
-# fetch it with "docker pull" and use it as a base for a new Docker image
-# named "ci-image" in which we will do our testing.
-#
-# If empty, we test on "bare metal".
-# Typical values: ubuntu:xenial, debian:jessie-slim
-: "${ci_docker:=}"
-
 # ci_host:
 # See ci-install.sh
 : "${ci_host:=native}"
@@ -130,23 +121,7 @@ init_wine() {
 # One of static, shared; used for windows cross builds
 : "${ci_runtime:=static}"
 
-echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_docker=$ci_docker ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
-
-if [ -n "$ci_docker" ]; then
-    exec docker run \
-        --env=ci_buildsys="${ci_buildsys}" \
-        --env=ci_docker="" \
-        --env=ci_host="${ci_host}" \
-        --env=ci_parallel="${ci_parallel}" \
-        --env=ci_sudo=yes \
-        --env=ci_test="${ci_test}" \
-        --env=ci_test_fatal="${ci_test_fatal}" \
-        --env=ci_variant="${ci_variant}" \
-        --env=ci_runtime="${ci_runtime}" \
-        --privileged \
-        ci-image \
-        tools/ci-build.sh
-fi
+echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
 
 maybe_fail_tests () {
     if [ "$ci_test_fatal" = yes ]; then
