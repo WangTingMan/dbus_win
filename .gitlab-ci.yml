@@ -40,6 +40,9 @@ variables:
   ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
+  # Temporarily needed to clean up after dbus/dbus#447
+  GIT_STRATEGY: clone
+
   ###
   # IMPORTANT
   # These are the version tags for the docker images the CI runs against.
