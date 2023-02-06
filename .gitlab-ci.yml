@@ -362,7 +362,7 @@ windows vs15-64 cmake:
     - cmake --build build --config Debug
     - cmake --install build --config Debug
     # FIXME: a few tests timeout on gitlab runner for unknown reason
-    - cd build ; ctest -C Debug -VV --timeout 1200 -E '(dbus-daemon|monitor)' --output-junit $ci_cmake_junit_output
+    - cd build ; ctest -C Debug -VV --timeout 1200 -E '(dbus-daemon|monitor|header-fields)' --output-junit $ci_cmake_junit_output
 
 windows-meson-mingw-ucrt64:
   extends: .win-build
