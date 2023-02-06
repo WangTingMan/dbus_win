@@ -314,19 +314,34 @@ case "$ci_buildsys" in
                 maybe_fail_tests
             cat test/test-suite.log || :
 
-            # re-run them with gnome-desktop-testing
+            # Re-run them with gnome-desktop-testing.
+            # Also, one test needs a finite fd limit to be useful, so we
+            # can set that here.
             env LD_LIBRARY_PATH=/usr/local/lib \
+            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
             gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
                 maybe_fail_tests
 
-            # these tests benefit from being re-run as root, and one
-            # test needs a finite fd limit to be useful
-            sudo env LD_LIBRARY_PATH=/usr/local/lib \
-            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+            # Some tests benefit from being re-run as non-root, if we were
+            # not already...
+            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
+                sudo -u user \
+                env LD_LIBRARY_PATH=/usr/local/lib \
                 gnome-desktop-testing-runner -d /usr/local/share \
-                dbus/test-dbus-daemon_with_config.test \
-                dbus/test-uid-permissions_with_config.test || \
-                maybe_fail_tests
+                    dbus/test-dbus-daemon_with_config.test \
+                    || maybe_fail_tests
+            fi
+
+            # ... while other tests benefit from being re-run as root, if
+            # we were not already
+            if [ "$(id -u)" != 0 ]; then
+                sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+                    gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    dbus/test-uid-permissions_with_config.test || \
+                    maybe_fail_tests
+            fi
         fi
         ;;
 
