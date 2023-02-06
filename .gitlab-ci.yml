@@ -142,8 +142,7 @@ windows amd64 image:
     # compilers
     - export PATH="/usr/lib/ccache:$PATH"
   script:
-    - chown -R user .
-    - runuser -u user ./tools/ci-build.sh
+    - ./tools/ci-build.sh
 
 debian image:
   extends:

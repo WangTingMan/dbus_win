@@ -406,11 +406,6 @@ if [ "$ci_local_packages" = yes ]; then
                 wget ${mirror}/${filename}
                 tar -C ${dep_prefix} --strip-components=1 -xvf ${filename}
             done
-
-            # limit access rights
-            if [ "$ci_in_docker" = yes ]; then
-                chown -R user "${dep_prefix}"
-            fi
             ;;
     esac
 fi
