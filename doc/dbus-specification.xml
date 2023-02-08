@@ -6,8 +6,8 @@
 <article id="index">
   <articleinfo>
     <title>D-Bus Specification</title>
-    <releaseinfo>Version 0.40</releaseinfo>
-    <date>2022-10-05</date>
+    <releaseinfo>Version 0.41</releaseinfo>
+    <date>2023-02-08</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -77,6 +77,16 @@
        <revremark>
          See <ulink url='http://cgit.freedesktop.org/dbus/dbus/log/doc/dbus-specification.xml'>commit log</ulink>
        </revremark>
+     </revision>
+     <revision>
+       <revnumber>0.41</revnumber>
+       <date>2023-02-08</date>
+       <authorinitials></authorinitials>
+       <revdescription>
+         <itemizedlist>
+           <listitem><simpara>Clarify intended handling of /run vs. /var/run</simpara></listitem>
+         </itemizedlist>
+       </revdescription>
      </revision>
      <revision>
        <revnumber>0.40</revnumber>

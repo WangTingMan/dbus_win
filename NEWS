@@ -1,4 +1,4 @@
-dbus 1.15.4 (UNRELEASED)
+dbus 1.15.4 (2023-02-08)
 ========================
 
 Dependencies:
@@ -26,7 +26,20 @@ Build-time configuration changes:
     behaviour similar to Autotools otherwise. The path to the system bus
     socket can be overridden with the system_socket option if required.
 
-New features:
+Denial of service fixes:
+
+• Fix an incorrect assertion that could be used to crash dbus-daemon or
+  other users of DBusServer prior to authentication, if libdbus was compiled
+  with assertions enabled.
+  We recommend that production builds of dbus, for example in OS distributions,
+  should be compiled with checks but without assertions.
+  (dbus#421, Ralf Habacker; thanks to Evgeny Vereshchagin)
+
+Enhancements:
+
+• D-Bus Specification 0.41:
+  · Clarify handling of /run vs. /var/run on Unix systems
+    (dbus#180, Simon McVittie)
 
 • Add dbus_connection_set_builtin_filters_enabled(), intended to be called
   by tools that use BecomeMonitor() such as dbus-monitor
@@ -38,16 +51,7 @@ New features:
   strongly recommended. See test/use-as-subproject for sample code.
   (dbus!368, dbus!388; Daniel Wagner)
 
-Denial of service fixes:
-
-• Fix an incorrect assertion that could be used to crash dbus-daemon or
-  other users of DBusServer prior to authentication, if libdbus was compiled
-  with assertions enabled.
-  We recommend that production builds of dbus, for example in OS distributions,
-  should be compiled with checks but without assertions.
-  (dbus#421, Ralf Habacker; thanks to Evgeny Vereshchagin)
-
-Fixes:
+Other fixes:
 
 • When connected to a dbus-broker, stop dbus-monitor from incorrectly
   replying to Peer method calls that were sent to the dbus-broker with
