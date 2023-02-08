@@ -1,4 +1,5 @@
 Adrian Szyndela <adrian.s@samsung.com>
+Aiknow <shixin21@huawei.com>
 Alan Coopersmith <alan.coopersmith@oracle.com>
 Alban Crequy <alban.crequy@collabora.co.uk>
 Alexander Larsson <alexl@redhat.com>
@@ -44,8 +45,10 @@ Cyril Brulebois <kibi@debian.org>
 Dagobert Michelsen <dam@opencsw.org>
 Daniel P. Berrange <dan@berrange.com>
 Daniel Reed <djr@redhat.com>
+Daniel Wagner <dwagner@suse.de>
 Daniel Wendt <daniel.wendt@linux.com>
 Dan Williams <dcbw@redhat.com>
+Dave Jones <dave.jones@canonical.com>
 Dave Reisner <dreisner@archlinux.org>
 David King <dking@redhat.com>
 David Redondo <kde@david-redondo.de>
@@ -58,6 +61,7 @@ Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
 Dmitri Iouchtchenko <johnnyspoon@gmail.com>
 DreamNik <dreamnik@mail.ru>
 Eamon Walsh <ewalsh@tycho.nsa.gov>
+Evgeny Vereshchagin <evvers@ya.ru>
 eXeC001er <execooler@gmail.com>
 Federico Mena Quintero <federico@novell.com>
 Felipe Franciosi <felipe@nutanix.com>
@@ -79,6 +83,7 @@ Hendrik Buschmeier <hbuschme@TechFak.Uni-Bielefeld.DE>
 hyeric <eric.hyer@diehl.com>
 ilovezfs <ilovezfs@icloud.com>
 Ioan-Adrian Ratiu <adrian.ratiu@ni.com>
+Issam E. Maghni <issam.e.maghni@mailbox.org>
 Ivan Romanov <drizt land ru>
 Jaap Boender <jaapb@kerguelen.org>
 Jacek Bukarewicz <j.bukarewicz@samsung.com>
@@ -91,6 +96,7 @@ Jan Tojnar <jtojnar@gmail.com>
 Jean-Louis Fuchs <jean-louis.fuchs@adfinis-sygroup.ch>
 Jens Granseuer <jensgr@gmx.net>
 Jérémie Dimino <jeremie@dimino.org>
+Jeremi Piotrowski <jpiotrowski@microsoft.com>
 Jesper Dam <jalf@medical-insight.com>
 Jiří Klimeš <jklimes@redhat.com>
 Joe Marcus Clarke <marcus@freedesktop.org>
@@ -107,7 +113,9 @@ Jon Trowbridge <trow@ximian.com>
 Jordan Williams <jordan@jwillikers.com>
 Julien Schueller <schueller@phimeca.com>
 Justin Lee <justinlee5455@gmail.com>
+Kai A. Hiller <V02460@gmail.com>
 Kay Sievers <kay.sievers@vrfy.org>
+Khem Raj <raj.khem@gmail.com>
 Kimmo Hämäläinen <kimmo.hamalainen@nokia.com>
 Kir Kolyshkin <kolyshkin@gmail.com>
 Kjartan Maraas <kmaraas@gnome.org>
@@ -129,6 +137,7 @@ Marc-André Lureau <marcandre.lureau@redhat.com>
 Marc Brockschmidt <he@debian.org>
 Marc Mutz <marc@kdab.net>
 Marc Mutz <marc.mutz@kdab.com>
+Marco Trevisan (Treviño) <mail@3v1n0.net>
 Marcus Brinkmann <marcus.brinkmann@ruhr-uni-bochum.de>
 Mark Brand <mabrand@mabrand.nl>
 Mark McLoughlin <mark@skynet.ie>
@@ -239,6 +248,7 @@ Will Thompson <will.thompson@collabora.co.uk>
 Wolfgang Baron <netz.frei freenet de>
 Wulf C. Krueger <philantrop@exherbo.org>
 Xan Lopez <xan@gnome.org>
+Xin Shi <shixin21@huawei.com>
 Yaakov Selkowitz <yselkowitz@users.sourceforge.net>
 Yiyang Fei <YiYang.Fei@barco.com>
 Zack Rusin <zack@kde.org>
