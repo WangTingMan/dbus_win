@@ -38,6 +38,15 @@ New features:
   strongly recommended. See test/use-as-subproject for sample code.
   (dbus!368, dbus!388; Daniel Wagner)
 
+Denial of service fixes:
+
+• Fix an incorrect assertion that could be used to crash dbus-daemon or
+  other users of DBusServer prior to authentication, if libdbus was compiled
+  with assertions enabled.
+  We recommend that production builds of dbus, for example in OS distributions,
+  should be compiled with checks but without assertions.
+  (dbus#421, Ralf Habacker; thanks to Evgeny Vereshchagin)
+
 Fixes:
 
 • When connected to a dbus-broker, stop dbus-monitor from incorrectly
