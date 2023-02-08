@@ -1,7 +1,16 @@
 dbus 1.14.6 (UNRELEASED)
 ========================
 
-Fixes:
+Denial of service fixes:
+
+• Fix an incorrect assertion that could be used to crash dbus-daemon or
+  other users of DBusServer prior to authentication, if libdbus was compiled
+  with assertions enabled.
+  We recommend that production builds of dbus, for example in OS distributions,
+  should be compiled with checks but without assertions.
+  (dbus#421, Ralf Habacker; thanks to Evgeny Vereshchagin)
+
+Other fixes:
 
 • When connected to a dbus-broker, stop dbus-monitor from incorrectly
   replying to Peer method calls that were sent to the dbus-broker with
