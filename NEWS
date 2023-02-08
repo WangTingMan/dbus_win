@@ -26,11 +26,17 @@ Build-time configuration changes:
     behaviour similar to Autotools otherwise. The path to the system bus
     socket can be overridden with the system_socket option if required.
 
-New API:
+New features:
 
 • Add dbus_connection_set_builtin_filters_enabled(), intended to be called
   by tools that use BecomeMonitor() such as dbus-monitor
   (dbus#301, Kai A. Hiller)
+
+• When using the Meson build system, dbus can now be used as a subproject.
+  To avoid colliding with a separate system copy of dbus, building it as a
+  static library with tests, tools and the message bus disabled is
+  strongly recommended. See test/use-as-subproject for sample code.
+  (dbus!368, dbus!388; Daniel Wagner)
 
 Fixes:
 
@@ -43,15 +49,56 @@ Fixes:
   but is technically undefined behaviour and is detected as such by
   AddressSanitizer. (dbus!357, Evgeny Vereshchagin)
 
+• Avoid a data race in multi-threaded use of DBusCounter
+  (dbus#426, Ralf Habacker)
+
+• Fix a crash with some glibc versions when non-auditable SELinux events
+  are logged (dbus!386, Jeremi Piotrowski)
+
 • If dbus_message_demarshal() runs out of memory while validating a message,
   report it as NoMemory rather than InvalidArgs (dbus#420, Simon McVittie)
 
-• Correct syntax of some SPDX license markers (dbus!360, Ralf Habacker)
+• Use C11 _Alignof if available, for better standards-compliance
+  (dbus!389, Khem Raj)
+
+• Stop including an outdated copy of pkg.m4 in the git tree
+  (dbus!365, Simon McVittie)
 
 • Meson build fixes:
+  · Use -fvisibility=hidden on Unix if supported, in particular on Linux
+    (dbus!383, dbus#437; Simon McVittie)
   · Fix build on macOS, and any other platform that has
     CLOCK_MONOTONIC but not pthread_condattr_setclock()
     (dbus#419, Jordan Williams)
+
+• Documentation:
+  · Consistently use Gitlab bug reporting URL (dbus!372, Marco Trevisan)
+
+• Licensing:
+  · Use MIT license for some test files that did not previous specify a
+    license, with permission from their authors (dbus!359, Simon McVittie)
+  · Add more SPDX/REUSE license markers
+    (dbus!311, dbus!369, dbus!370, dbus!371, dbus!375, dbus!376;
+    Ralf Habacker, Simon McVittie)
+  · Correct syntax of some SPDX license markers (dbus!360, Ralf Habacker)
+
+• Tests fixes:
+  · Fix an assertion failure in test-autolaunch-win
+    (dbus#422, Ralf Habacker)
+  · Expand test coverage under CMake (dbus!322, Ralf Habacker)
+  · Fix the test-apparmor-activation test after dbus#416
+    (dbus!380, Dave Jones)
+
+Internal changes:
+
+• Add static assertions for some things we assume about pointers
+  (dbus!345, Simon McVittie)
+
+• Refactoring (dbus!356, dbus#430, dbus#431; Simon McVittie, Xin Shi)
+
+• Fix CI builds with recent git versions (dbus#447, Simon McVittie)
+
+• Build dbus with clang during CI (dbus!358, Evgeny Vereshchagin)
 
 dbus 1.15.2 (2022-10-05)
 ========================
