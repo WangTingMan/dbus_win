@@ -335,6 +335,10 @@ case "$ci_distro" in
     (opensuse*)
         # test-bus depends on group 'bin'
         $sudo getent group bin >/dev/null || /usr/sbin/groupadd -r bin
+        # Make sure we have a messagebus user, even if the dbus package
+        # isn't installed
+        getent group messagebus >/dev/null || /usr/sbin/groupadd -r messagebus
+        getent passwd messagebus >/dev/null || /usr/sbin/useradd -r -s /usr/bin/false -c "User for D-Bus" -d /run/dbus -g messagebus messagebus
         ;;
 
     (freebsd*)
