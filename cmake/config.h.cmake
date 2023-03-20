@@ -120,10 +120,12 @@
 #cmakedefine HAVE_SYSLOG_H 1
 #cmakedefine HAVE_SYS_EVENTS_H 1
 #cmakedefine HAVE_SYS_INOTIFY_H 1
+#cmakedefine HAVE_LINUX_MAGIC_H 1
 #cmakedefine HAVE_SYS_PRCTL_H 1
 #cmakedefine HAVE_SYS_RANDOM_H 1
 #cmakedefine HAVE_SYS_RESOURCE_H 1
 #cmakedefine HAVE_SYS_SYSCALL_H 1
+#cmakedefine HAVE_SYS_VFS_H 1
 
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
@@ -185,6 +187,7 @@
 
 #cmakedefine HAVE_ACCEPT4 1
 
+#cmakedefine HAVE_FSTATFS 1
 #cmakedefine HAVE_INOTIFY_INIT1 1
 #cmakedefine HAVE_GETRANDOM 1
 #cmakedefine HAVE_GETRLIMIT 1
