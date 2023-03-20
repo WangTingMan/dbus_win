@@ -2217,6 +2217,7 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
   dbus_gid_t primary_gid_read;
   dbus_pid_t pid_read;
   int bytes_read;
+  int pid_fd_read;
 
 #ifdef HAVE_CMSGCRED
   union {
@@ -2236,6 +2237,7 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
   uid_read = DBUS_UID_UNSET;
   primary_gid_read = DBUS_GID_UNSET;
   pid_read = DBUS_PID_UNSET;
+  pid_fd_read = -1;
 
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
 
@@ -2328,6 +2330,24 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
         primary_gid_read = cr.gid;
 #endif
       }
+
+#ifdef SO_PEERPIDFD
+    /* If we have SO_PEERCRED we might also have SO_PEERPIDFD, which
+     * allows to pin the process ID, and is available on Linux since v6.5. */
+    cr_len = sizeof (int);
+
+    if (getsockopt (client_fd.fd, SOL_SOCKET, SO_PEERPIDFD, &pid_fd_read, &cr_len) != 0)
+      {
+        _dbus_verbose ("Failed to getsockopt(SO_PEERPIDFD): %s\n",
+                       _dbus_strerror (errno));
+      }
+    else if (cr_len != sizeof (int))
+      {
+        _dbus_verbose ("Failed to getsockopt(SO_PEERPIDFD), returned %d bytes, expected %d\n",
+                       cr_len, (int) sizeof (int));
+      }
+#endif
+
 #elif defined(HAVE_UNPCBID) && defined(LOCAL_PEEREID)
     /* Another variant of the above - used on NetBSD
      */
@@ -2482,6 +2502,11 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
                  "\n",
 		 pid_read,
 		 uid_read);
+
+  /* Assign this first, so we don't have to close it manually in case one of
+   * the next steps fails. */
+  if (pid_fd_read >= 0)
+    _dbus_credentials_take_pid_fd (credentials, pid_fd_read);
 
   if (pid_read != DBUS_PID_UNSET)
     {
@@ -2960,6 +2985,8 @@ _dbus_user_info_fill_uid (DBusUserInfo *info,
 dbus_bool_t
 _dbus_credentials_add_from_current_process (DBusCredentials *credentials)
 {
+  dbus_pid_t pid = _dbus_getpid ();
+
   /* The POSIX spec certainly doesn't promise this, but
    * we need these assertions to fail as soon as we're wrong about
    * it so we can do the porting fixups
@@ -2968,12 +2995,92 @@ _dbus_credentials_add_from_current_process (DBusCredentials *credentials)
   _DBUS_STATIC_ASSERT (sizeof (uid_t) <= sizeof (dbus_uid_t));
   _DBUS_STATIC_ASSERT (sizeof (gid_t) <= sizeof (dbus_gid_t));
 
-  if (!_dbus_credentials_add_pid(credentials, _dbus_getpid()))
+#if HAVE_DECL_SYS_PIDFD_OPEN
+  /* Normally this syscall would have a race condition, but we can trust
+   * that our own process isn't going to exit, so the pid won't get reused. */
+  int pid_fd = (int) syscall (SYS_pidfd_open, pid, 0);
+  if (pid_fd >= 0)
+    _dbus_credentials_take_pid_fd (credentials, pid_fd);
+#endif
+  if (!_dbus_credentials_add_pid (credentials, pid))
     return FALSE;
   if (!_dbus_credentials_add_unix_uid(credentials, _dbus_geteuid()))
     return FALSE;
 
   return TRUE;
+}
+
+/**
+ * Resolve the PID from the PID FD, if any. This allows us to avoid
+ * PID reuse attacks. Returns DBUS_PID_UNSET if the PID could not be resolved.
+ * Note that this requires being able to read /proc/self/fdinfo/<FD>,
+ * which is created as 600 and owned by the original UID that the
+ * process started as. So it cannot work when the start as root and
+ * drop privileges mechanism is in use (the systemd unit no longer
+ * does this, but third-party init-scripts might).
+ *
+ * @param pid_fd the PID FD
+ * @returns the resolved PID if found, DBUS_PID_UNSET otherwise
+ */
+dbus_pid_t
+_dbus_resolve_pid_fd (int pid_fd)
+{
+#ifdef __linux__
+  DBusError error = DBUS_ERROR_INIT;
+  DBusString content = _DBUS_STRING_INIT_INVALID;
+  DBusString filename = _DBUS_STRING_INIT_INVALID;
+  dbus_pid_t result = DBUS_PID_UNSET;
+  int pid_index;
+
+  if (pid_fd < 0)
+    goto out;
+
+  if (!_dbus_string_init (&content))
+    goto out;
+
+  if (!_dbus_string_init (&filename))
+    goto out;
+
+  if (!_dbus_string_append_printf (&filename, "/proc/self/fdinfo/%d", pid_fd))
+    goto out;
+
+  if (!_dbus_file_get_contents (&content, &filename, &error))
+    {
+      _dbus_verbose ("Cannot read '/proc/self/fdinfo/%d', unable to resolve PID, %s: %s\n",
+                     pid_fd, error.name, error.message);
+      goto out;
+    }
+
+  /* Ensure we are not reading PPid, either it's the first line of the file or
+   * there's a newline before it. */
+  if (!_dbus_string_find (&content, 0, "Pid:", &pid_index) ||
+      (pid_index > 0 && _dbus_string_get_byte (&content, pid_index - 1) != '\n'))
+    {
+      _dbus_verbose ("Cannot find 'Pid:' in '/proc/self/fdinfo/%d', unable to resolve PID\n",
+                     pid_fd);
+      goto out;
+    }
+
+  if (!_dbus_string_parse_uint (&content, pid_index + strlen ("Pid:"), &result, NULL))
+    {
+      _dbus_verbose ("Cannot parse 'Pid:' from '/proc/self/fdinfo/%d', unable to resolve PID\n",
+                     pid_fd);
+      goto out;
+    }
+
+out:
+  _dbus_string_free (&content);
+  _dbus_string_free (&filename);
+  dbus_error_free (&error);
+
+  if (result <= 0)
+    return DBUS_PID_UNSET;
+
+  return result;
+#else
+  return DBUS_PID_UNSET;
+#endif
+
 }
 
 /**

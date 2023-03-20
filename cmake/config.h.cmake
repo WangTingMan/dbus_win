@@ -262,5 +262,6 @@
 #cmakedefine01 HAVE_DECL_ENVIRON
 #cmakedefine01 HAVE_DECL_LOG_PERROR
 #cmakedefine01 HAVE_DECL_MSG_NOSIGNAL
+#cmakedefine01 HAVE_DECL_SYS_PIDFD_OPEN
 
 #endif  // _DBUS_CONFIG_H

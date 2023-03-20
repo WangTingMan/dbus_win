@@ -1029,6 +1029,8 @@ fi
 AC_CHECK_HEADERS(sys/vfs.h, [AC_CHECK_FUNCS(fstatfs)])
 AC_CHECK_HEADERS([linux/magic.h])
 
+AC_CHECK_DECLS([SYS_pidfd_open], [], [], [[ #include <sys/syscall.h> ]])
+
 #### Set up final flags
 LIBDBUS_LIBS="$THREAD_LIBS $NETWORK_libs $SYSTEMD_LIBS"
 AC_SUBST([LIBDBUS_LIBS])
