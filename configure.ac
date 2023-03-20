@@ -956,6 +956,9 @@ AM_CONDITIONAL(HAVE_LIBAUDIT, test x$have_libaudit = xyes)
 if test x$have_libaudit = xyes ; then
     SELINUX_LIBS="$SELINUX_LIBS -laudit -lcap-ng"
     AC_DEFINE(HAVE_LIBAUDIT,1,[audit daemon SELinux support])
+    # For the systemd system unit
+    AMBIENT_CAPS="AmbientCapabilities=CAP_AUDIT_WRITE"
+    AC_SUBST(AMBIENT_CAPS)
 fi
 
 AC_SUBST([SELINUX_LIBS])
