@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\dbus\dbus-address.c" />
     <ClCompile Include="..\..\dbus\dbus-auth.c" />
+    <ClCompile Include="..\..\dbus\dbus-backtrace-win.c" />
     <ClCompile Include="..\..\dbus\dbus-bus.c" />
     <ClCompile Include="..\..\dbus\dbus-connection.c" />
     <ClCompile Include="..\..\dbus\dbus-credentials.c" />

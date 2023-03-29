@@ -171,6 +171,9 @@
     <ClCompile Include="..\..\dbus\dbus-test-tap.c">
       <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dbus\dbus-backtrace-win.c">
+      <Filter>libdbus_SOURCES\DBUS_SHARED_SOURCES</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dbus\dbus-watch.h">
