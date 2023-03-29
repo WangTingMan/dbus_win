@@ -116,6 +116,7 @@ if platform_windows
     ))
 
     dbus_shared_sources += [
+        'dbus-backtrace-win.c',
         'dbus-file-win.c',
         'dbus-pipe-win.c',
         'dbus-sysdeps-thread-win.c',
@@ -200,6 +201,12 @@ libdbus = library('dbus-1',
 
     dependencies: dbus_dependencies,
     install: true,
+)
+
+libdbus_dep = declare_dependency(
+    include_directories: root_include,
+    dependencies: dbus_dependencies,
+    link_with: libdbus,
 )
 
 libdbus_internal = static_library('dbus-internal',

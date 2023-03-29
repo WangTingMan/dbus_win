@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2002, 2003  Red Hat, Inc.
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
+ *
  * Licensed under the Academic Free License version 2.1
  *
  * This program is free software; you can redistribute it and/or modify
@@ -175,6 +177,35 @@
  * @def _DBUS_UNLOCK
  *
  * Unlocks a global lock
+ */
+
+/* The build system should have checked for DBUS_SIZEOF_VOID_P */
+_DBUS_STATIC_ASSERT (sizeof (void *) == DBUS_SIZEOF_VOID_P);
+
+/* dbus currently assumes that function pointers are essentially
+ * interchangeable with data pointers. There's nothing special about
+ * DBusShutdownFunction, it's just an arbitrary function pointer type.
+ * If this assertion fails on your platform, some porting will be required. */
+_DBUS_STATIC_ASSERT (sizeof (void *) == sizeof (DBusShutdownFunction));
+_DBUS_STATIC_ASSERT (_DBUS_ALIGNOF (void *) == _DBUS_ALIGNOF (DBusShutdownFunction));
+
+/* This is meant to be true by definition. */
+_DBUS_STATIC_ASSERT (sizeof (void *) == sizeof (intptr_t));
+_DBUS_STATIC_ASSERT (sizeof (void *) == sizeof (uintptr_t));
+
+/*
+ * Some frequent assumptions that we should *avoid* making include these,
+ * all of which are false on CHERI (which has 128-bit tagged pointers,
+ * but a 64-bit address space and therefore 64-bit sizes):
+ *
+ * sizeof (void *) <= sizeof (size_t)
+ * sizeof (void *) <= 8
+ * _DBUS_ALIGNOF (void *) <= 8
+ *
+ * We should also avoid making these assumptions, although we don't currently
+ * know a concrete example of platforms where they're false:
+ *
+ * sizeof (ptrdiff_t) == sizeof (size_t)
  */
 
 /**

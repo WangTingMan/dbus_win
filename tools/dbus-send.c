@@ -2,6 +2,7 @@
 /* dbus-send.c  Utility program to send messages from the command line
  *
  * Copyright (C) 2003 Philip Blundell <philb@gnu.org>
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2003, 2004 Red Hat, Inc.
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
+ *
  * Licensed under the Academic Free License version 2.1
  *
  * This program is free software; you can redistribute it and/or modify
@@ -3239,7 +3241,6 @@ process_test_valid_subdir (const DBusString *test_base_dir,
   else
     _dbus_test_diag ("Testing unknown files:");
 
- next:
   while (_dbus_directory_get_next_file (dir, &filename, &error))
     {
       DBusString full_path;
@@ -3259,7 +3260,7 @@ process_test_valid_subdir (const DBusString *test_base_dir,
           _dbus_verbose ("Skipping non-.conf file %s\n",
                          _dbus_string_get_const_data (&filename));
           _dbus_string_free (&full_path);
-          goto next;
+          continue;
         }
 
       _dbus_test_diag ("    %s", _dbus_string_get_const_data (&filename));
@@ -3556,7 +3557,6 @@ all_are_equiv (const DBusString *target_directory)
 
   _dbus_test_diag ("Comparing equivalent files:");
 
- next:
   while (_dbus_directory_get_next_file (dir, &filename, &error))
     {
       DBusString full_path;
@@ -3575,7 +3575,7 @@ all_are_equiv (const DBusString *target_directory)
           _dbus_verbose ("Skipping non-.conf file %s\n",
                          _dbus_string_get_const_data (&filename));
 	  _dbus_string_free (&full_path);
-          goto next;
+          continue;
         }
 
       _dbus_test_diag ("    %s", _dbus_string_get_const_data (&filename));

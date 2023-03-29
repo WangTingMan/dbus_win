@@ -3,6 +3,8 @@
  *
  * Copyright (C) 2002, 2003, 2004, 2006  Red Hat Inc.
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
+ *
  * Licensed under the Academic Free License version 2.1
  *
  * This program is free software; you can redistribute it and/or modify
@@ -172,7 +174,10 @@ socket_handle_watch (DBusWatch    *watch,
   for (i = 0 ; i < socket_server->n_fds ; i++)
     {
       if (socket_server->watch[i] == watch)
-        found = TRUE;
+        {
+          found = TRUE;
+	  break;
+        }
     }
   _dbus_assert (found);
 #endif

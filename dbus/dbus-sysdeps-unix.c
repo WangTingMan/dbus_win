@@ -4,6 +4,8 @@
  * Copyright (C) 2002, 2003, 2006  Red Hat, Inc.
  * Copyright (C) 2003 CodeFactory AB
  *
+ * SPDX-License-Identifier: AFL-2.1 OR GPL-2.0-or-later
+ *
  * Licensed under the Academic Free License version 2.1
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2462,7 +2464,7 @@ _dbus_read_credentials_socket  (DBusSocket       client_fd,
 #else /* no supported mechanism */
 
 #warning Socket credentials not supported on this Unix OS
-#warning Please tell https://bugs.freedesktop.org/enter_bug.cgi?product=DBus
+#warning Please tell https://gitlab.freedesktop.org/dbus/dbus/-/issues/new
 
     /* Please add other operating systems known to support at least one of
      * the mechanisms above to this list, keeping alphabetical order.

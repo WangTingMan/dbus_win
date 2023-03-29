@@ -39,14 +39,15 @@ else
     ]
 endif
 
-dbus_launch = executable('dbus-launch',
-    dbus_launch_sources,
-    include_directories: root_include,
-    link_with: libdbus,
-    dependencies: [ x11, ],
-    install: true,
-)
-
+if message_bus
+    dbus_launch = executable('dbus-launch',
+        dbus_launch_sources,
+        include_directories: root_include,
+        link_with: libdbus,
+        dependencies: [ x11, ],
+        install: true,
+    )
+endif
 
 dbus_monitor = executable('dbus-monitor',
     'dbus-print-message.c',
@@ -57,13 +58,15 @@ dbus_monitor = executable('dbus-monitor',
     install: true,
 )
 
-dbus_run_session = executable('dbus-run-session',
-    'dbus-run-session.c',
-    'tool-common.c',
-    include_directories: root_include,
-    link_with: libdbus_internal,
-    install: true,
-)
+if message_bus
+    dbus_run_session = executable('dbus-run-session',
+        'dbus-run-session.c',
+        'tool-common.c',
+        include_directories: root_include,
+        link_with: libdbus_internal,
+        install: true,
+    )
+endif
 
 dbus_send = executable('dbus-send',
     'dbus-print-message.c',
