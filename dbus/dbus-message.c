@@ -2293,7 +2293,7 @@ dbus_message_iter_get_signature (DBusMessageIter *iter)
 {
   const DBusString *sig;
   DBusString retstr;
-  char *ret;
+  char *ret = NULL;
   int start, len;
   DBusMessageRealIter *real = (DBusMessageRealIter *)iter;
 
@@ -2307,9 +2307,13 @@ dbus_message_iter_get_signature (DBusMessageIter *iter)
   if (!_dbus_string_append_len (&retstr,
 				_dbus_string_get_const_data (sig) + start,
 				len))
-    return NULL;
-  if (!_dbus_string_steal_data (&retstr, &ret))
-    return NULL;
+    goto oom;
+
+  /* This is correct whether it succeeds or fails: on success it sets `ret`,
+   * and on failure it leaves `ret` set to NULL. */
+  _dbus_string_steal_data (&retstr, &ret);
+
+oom:
   _dbus_string_free (&retstr);
   return ret;
 }
