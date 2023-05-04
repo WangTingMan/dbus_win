@@ -5,7 +5,7 @@
 #if !defined(SPAWN_DEBUG) || defined(_MSC_VER)
 #define PING()
 #else
-#define PING() fprintf (stderr, "%s:%s:%d\n", __FILE__, __FUNCTION__, __LINE__); fflush (stderr)
+#define PING() fprintf (stderr, "%s:%s:%d\n", __FILE__, _DBUS_FUNCTION_NAME, __LINE__); fflush (stderr)
 #endif
 
 #include <stdio.h>
@@ -107,7 +107,7 @@ _dbus_babysitter_new (void)
 
   old_refcount = _dbus_atomic_inc (&sitter->refcount);
 
-  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount+1, __FUNCTION__);
+  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount+1, _DBUS_FUNCTION_NAME);
 
   sitter->child_handle = NULL;
 
@@ -141,7 +141,7 @@ _dbus_babysitter_ref (DBusBabysitter *sitter)
 
   old_refcount = _dbus_atomic_inc (&sitter->refcount);
   _dbus_assert (old_refcount > 0);
-  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount+1, __FUNCTION__);
+  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount+1, _DBUS_FUNCTION_NAME);
 
   return sitter;
 }
@@ -182,7 +182,7 @@ _dbus_babysitter_unref (DBusBabysitter *sitter)
 
   old_refcount = _dbus_atomic_dec (&sitter->refcount);
   _dbus_assert (old_refcount > 0);
-  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount-1, __FUNCTION__);
+  _dbus_babysitter_trace_ref (sitter, old_refcount, old_refcount-1, _DBUS_FUNCTION_NAME);
 
   if (old_refcount == 1)
     {
