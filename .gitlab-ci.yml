@@ -38,8 +38,6 @@ variables:
   ci_sudo: "yes"
   ci_distro: "debian"
   ci_suite: "bullseye"
-  # Temporarily needed to clean up after dbus/dbus#447
-  GIT_STRATEGY: clone
 
   ###
   # IMPORTANT
