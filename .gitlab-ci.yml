@@ -308,6 +308,8 @@ opensuse mingw64 cmake debug:
     ci_host: "x86_64-w64-mingw32"
     ci_local_packages: "no"
     ci_variant: "debug"
+  # Currently broken, https://gitlab.freedesktop.org/dbus/dbus/-/issues/455
+  when: manual
 
 opensuse mingw64 meson debug:
   extends:
