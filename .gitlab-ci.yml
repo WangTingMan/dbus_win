@@ -45,7 +45,7 @@ variables:
   # If you are hacking on them or need a them to rebuild, its enough
   # to change any part of the string of the image you want.
   ###
-  WINDOWS_TAG: "2022-01-07.1"
+  WINDOWS_TAG: "2023-05-12.0"
 
   UPSTREAM_BRANCH: 'master'
   UPSTREAM_REPO: 'dbus/dbus'
@@ -64,7 +64,7 @@ windows amd64 docker:
   tags:
     - windows
     - shell
-    - "1809"
+    - "2022"
   script:
     # We need to pass an array and to resolve the env vars, so we can't use a variable:
     - $DOCKER_BUILD_ARGS = @("--build-arg", "DEFAULT_BRANCH=$UPSTREAM_BRANCH")
@@ -159,7 +159,7 @@ buster:
   tags:
     - 'docker'
     - 'windows'
-    - '1809'
+    - '2022'
   needs:
     - "windows amd64 docker"
   timeout: '2h'
