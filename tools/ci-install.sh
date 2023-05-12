@@ -261,6 +261,7 @@ case "$ci_distro" in
                 )
                 packages=(
                     "${packages[@]}"
+                    mingw${bits}-cross-cmake
                     mingw${bits}-cross-gcc-c++
                     mingw${bits}-cross-meson
                     mingw${bits}-cross-pkgconf

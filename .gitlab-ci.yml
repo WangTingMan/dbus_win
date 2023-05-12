@@ -71,7 +71,7 @@ variables:
 .opensuse-vars:
   variables:
     FDO_DISTRIBUTION_VERSION: 'leap'
-    FDO_DISTRIBUTION_TAG: '2022-05-14.0' # Bump this version on every ci-install.sh change
+    FDO_DISTRIBUTION_TAG: '2023-05-12.0' # Bump this version on every ci-install.sh change
 
 .freebsd-vars:
   variables:
