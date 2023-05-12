@@ -558,6 +558,10 @@ case "$ci_buildsys" in
 
         $meson_setup "$@" "$srcdir"
         meson compile -v
+
+        # This is too slow and verbose to keep enabled at the moment
+        export DBUS_TEST_MALLOC_FAILURES=0
+
         [ "$ci_test" = no ] || meson test --print-errorlogs
         DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
