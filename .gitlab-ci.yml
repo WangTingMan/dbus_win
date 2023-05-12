@@ -45,8 +45,6 @@ variables:
   ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
-  # Temporarily needed to clean up after dbus/dbus#447
-  GIT_STRATEGY: clone
 
   ###
   # IMPORTANT
