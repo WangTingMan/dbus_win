@@ -262,10 +262,10 @@ case "$ci_distro" in
                 packages=(
                     "${packages[@]}"
                     mingw${bits}-cross-gcc-c++
-                    mingw${bits}-cross-pkgconf
-                    mingw${bits}-libexpat-devel
-                    mingw${bits}-glib2-devel
                     mingw${bits}-cross-meson
+                    mingw${bits}-cross-pkgconf
+                    mingw${bits}-glib2-devel
+                    mingw${bits}-libexpat-devel
                 )
                 ;;
 
@@ -273,9 +273,9 @@ case "$ci_distro" in
                 packages=(
                     "${packages[@]}"
                     gcc-c++
-                    libexpat-devel
                     glib2-devel
                     libX11-devel
+                    libexpat-devel
                     systemd-devel
                 )
                 ;;
