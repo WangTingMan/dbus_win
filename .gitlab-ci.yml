@@ -20,9 +20,14 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_PROJECT_NAMESPACE == 'dbus'
+
 include:
   - project: 'freedesktop/ci-templates'
-    ref: e9a461877f8c7f9fed9fff5491067ec3c3472559
+    ref: fb33e1b244ec2a0b8edf8ee5590a96369c3b4666
     file:
       - '/templates/debian.yml'
       - '/templates/freebsd.yml'
@@ -40,8 +45,6 @@ variables:
   ci_local_packages: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
-  # Temporarily needed to clean up after dbus/dbus#447
-  GIT_STRATEGY: clone
 
   ###
   # IMPORTANT
@@ -49,7 +52,7 @@ variables:
   # If you are hacking on them or need a them to rebuild, its enough
   # to change any part of the string of the image you want.
   ###
-  WINDOWS_TAG: "2022-02-06.2"
+  WINDOWS_TAG: "2023-05-12.0"
 
   UPSTREAM_BRANCH: 'master'
   UPSTREAM_REPO: 'dbus/dbus'
@@ -68,7 +71,7 @@ variables:
 .opensuse-vars:
   variables:
     FDO_DISTRIBUTION_VERSION: 'leap'
-    FDO_DISTRIBUTION_TAG: '2022-05-14.0' # Bump this version on every ci-install.sh change
+    FDO_DISTRIBUTION_TAG: '2023-05-12.0' # Bump this version on every ci-install.sh change
 
 .freebsd-vars:
   variables:
@@ -116,7 +119,7 @@ windows amd64 image:
   tags:
     - windows
     - shell
-    - "1809"
+    - "2022"
   script:
     # We need to pass an array and to resolve the env vars, so we can't use a variable:
     - $DOCKER_BUILD_ARGS = @("--build-arg", "DEFAULT_BRANCH=$UPSTREAM_BRANCH")
@@ -127,6 +130,8 @@ windows amd64 image:
         echo "Failed to build the image"
         Exit 1
       }
+  # This is extremely slow, and is getting in the way of having CI at all
+  when: manual
 
 .unix-host-build:
   stage: build
@@ -305,6 +310,8 @@ opensuse mingw64 cmake debug:
     ci_host: "x86_64-w64-mingw32"
     ci_local_packages: "no"
     ci_variant: "debug"
+  # Currently broken, https://gitlab.freedesktop.org/dbus/dbus/-/issues/455
+  when: manual
 
 opensuse mingw64 meson debug:
   extends:
@@ -337,7 +344,7 @@ ubuntu jammy autotools:
   tags:
     - 'docker'
     - 'windows'
-    - '1809'
+    - '2022'
   needs:
     - "windows amd64 image"
   timeout: '2h'
@@ -346,6 +353,8 @@ ubuntu jammy autotools:
     - $WarningPreference = "Stop"
     - $env:DBUS_TEST_MALLOC_FAILURES = 0
     - $env:PATH += ";C:\bin"
+  # These are extremely slow, and are getting in the way of having CI at all
+  when: manual
 
 windows msys64 ucrt64 cmake:
   extends: .win-build

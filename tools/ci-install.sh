@@ -261,11 +261,12 @@ case "$ci_distro" in
                 )
                 packages=(
                     "${packages[@]}"
+                    mingw${bits}-cross-cmake
                     mingw${bits}-cross-gcc-c++
-                    mingw${bits}-cross-pkgconf
-                    mingw${bits}-libexpat-devel
-                    mingw${bits}-glib2-devel
                     mingw${bits}-cross-meson
+                    mingw${bits}-cross-pkgconf
+                    mingw${bits}-glib2-devel
+                    mingw${bits}-libexpat-devel
                 )
                 ;;
 
@@ -273,9 +274,9 @@ case "$ci_distro" in
                 packages=(
                     "${packages[@]}"
                     gcc-c++
-                    libexpat-devel
                     glib2-devel
                     libX11-devel
+                    libexpat-devel
                     systemd-devel
                 )
                 ;;
@@ -285,8 +286,10 @@ case "$ci_distro" in
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
             # Docker container, and let them use sudo
-            useradd -m user
-            passwd -ud user
+            if ! getent passwd user >/dev/null; then
+                useradd -m user
+                passwd -ud user
+            fi
             echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
