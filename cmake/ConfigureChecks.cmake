@@ -15,6 +15,7 @@ check_include_file(errno.h     HAVE_ERRNO_H)    # dbus-sysdeps.c
 check_include_file(inttypes.h     HAVE_INTTYPES_H)   # dbus-pipe.h
 check_include_file(io.h         HAVE_IO_H)      # internal
 check_include_file(linux/close_range.h HAVE_LINUX_CLOSE_RANGE_H)
+check_include_file(linux/magic.h HAVE_LINUX_MAGIC_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(signal.h     HAVE_SIGNAL_H)
 check_include_file(stdio.h      HAVE_STDIO_H)   # dbus-sysdeps.h
@@ -26,6 +27,7 @@ check_include_file(sys/resource.h     HAVE_SYS_RESOURCE_H)
 check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
 check_include_file(sys/prctl.h  HAVE_SYS_PRCTL_H)
 check_include_file(sys/time.h   HAVE_SYS_TIME_H)# dbus-sysdeps-win.c
+check_include_file(sys/vfs.h    HAVE_SYS_VFS_H)
 check_include_file(ws2tcpip.h   HAVE_WS2TCPIP_H)# dbus-sysdeps-win.c
 check_include_file(unistd.h     HAVE_UNISTD_H)  # dbus-sysdeps-util-win.c
 check_include_file(sys/inotify.h DBUS_BUS_ENABLE_INOTIFY)
@@ -64,6 +66,7 @@ check_symbol_exists(environ      "unistd.h"                  HAVE_DECL_ENVIRON)
 check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
 check_symbol_exists(setresuid    "unistd.h"                  HAVE_SETRESUID)
 check_symbol_exists(getresuid    "unistd.h"                  HAVE_GETRESUID)
+check_symbol_exists(fstatfs      "sys/vfs.h"                 HAVE_FSTATFS)
 
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 

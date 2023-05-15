@@ -1023,6 +1023,9 @@ if test x$with_valgrind != xno; then
   AC_DEFINE([WITH_VALGRIND], [1], [Define to add Valgrind instrumentation])
 fi
 
+AC_CHECK_HEADERS(sys/vfs.h, [AC_CHECK_FUNCS(fstatfs)])
+AC_CHECK_HEADERS([linux/magic.h])
+
 #### Set up final flags
 LIBDBUS_LIBS="$THREAD_LIBS $NETWORK_libs $SYSTEMD_LIBS"
 AC_SUBST([LIBDBUS_LIBS])

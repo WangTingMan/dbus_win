@@ -670,6 +670,7 @@ check_headers = [
     'io.h',
     'locale.h',
     'linux/close_range.h',
+    'linux/magic.h',
     'locale.h',
     'signal.h',
     'syslog.h',
@@ -678,6 +679,7 @@ check_headers = [
     'sys/resource.h',
     'sys/syscall.h',
     'sys/time.h',
+    'sys/vfs.h',
     'unistd.h',
     'ws2tcpip.h',
 ]
@@ -753,6 +755,13 @@ config.set('HAVE_UNPCBID',
     )
 )
 
+config.set('HAVE_FSTATFS',
+    cc.has_function(
+        'fstatfs',
+        prefix : '#include <sys/vfs.h>',
+        args: compile_args_c,
+    )
+)
 
 ###############################################################################
 # Project options
