@@ -104,7 +104,7 @@ int _dbus_get_check_failed_count (void);
 DBUS_PRIVATE_EXPORT
 void _dbus_verbose_real       (const char *file, const int line, const char *function, 
                                const char *format,...) _DBUS_GNUC_PRINTF (4, 5);
-#  define _dbus_verbose(fmt,...) _dbus_verbose_real( __FILE__,__LINE__,__FUNCTION__,fmt, ## __VA_ARGS__)
+#  define _dbus_verbose(fmt,...) _dbus_verbose_real( __FILE__,__LINE__,_DBUS_FUNCTION_NAME,fmt, ## __VA_ARGS__)
 #else
 DBUS_PRIVATE_EXPORT
 void _dbus_verbose_real       (const char *format,
