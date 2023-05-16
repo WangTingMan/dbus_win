@@ -130,8 +130,6 @@ windows amd64 image:
         echo "Failed to build the image"
         Exit 1
       }
-  # This is extremely slow, and is getting in the way of having CI at all
-  when: manual
 
 .unix-host-build:
   stage: build
@@ -353,8 +351,6 @@ ubuntu jammy autotools:
     - $WarningPreference = "Stop"
     - $env:DBUS_TEST_MALLOC_FAILURES = 0
     - $env:PATH += ";C:\bin"
-  # These are extremely slow, and are getting in the way of having CI at all
-  when: manual
 
 windows msys64 ucrt64 cmake:
   extends: .win-build
