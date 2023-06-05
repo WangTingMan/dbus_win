@@ -1,7 +1,22 @@
 dbus 1.14.8 (UNRELEASED)
 ========================
 
-...
+Fixes:
+
+• Fix compilation on compilers not supporting __FUNCTION__
+  (dbus!404, Barnabás Pőcze)
+
+• Fix some memory leaks on out-of-memory conditions
+  (dbus!403, Barnabás Pőcze)
+
+• Documentation:
+  · Fix syntax of a code sample in dbus-api-design
+    (dbus!396; Yen-Chin, Lee)
+
+Tests and CI enhancements:
+
+• Fix CI pipelines after freedesktop/freedesktop#540
+  (dbus!405, dbus#456; Simon McVittie)
 
 dbus 1.14.6 (2023-02-08)
 ========================
