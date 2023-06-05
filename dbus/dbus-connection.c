@@ -1459,7 +1459,16 @@ _dbus_connection_unref_unlocked (DBusConnection *connection)
     _dbus_connection_last_unref (connection);
 }
 
-static dbus_uint32_t
+/**
+ * Allocate and return the next non-zero serial number for outgoing messages.
+ *
+ * This method is only valid to call from single-threaded code, such as
+ * the dbus-daemon, or with the connection lock held.
+ *
+ * @param connection the connection
+ * @returns A suitable serial number for the next message to be sent on the connection.
+ */
+dbus_uint32_t
 _dbus_connection_get_next_client_serial (DBusConnection *connection)
 {
   dbus_uint32_t serial;

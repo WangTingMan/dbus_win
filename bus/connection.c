@@ -2374,6 +2374,21 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
   if (!dbus_message_set_sender (message, DBUS_SERVICE_DBUS))
     return FALSE;
 
+  /* Make sure the message has a non-zero serial number, otherwise
+   * bus_transaction_capture_error_reply() will not be able to mock up
+   * a corresponding reply for it. Normally this would be delayed until
+   * the first time we actually send the message out from a
+   * connection, when the transaction is committed, but that's too late
+   * in this case.
+   */
+  if (dbus_message_get_serial (message) == 0)
+    {
+      dbus_uint32_t next_serial;
+
+      next_serial = _dbus_connection_get_next_client_serial (connection);
+      dbus_message_set_serial (message, next_serial);
+    }
+
   if (bus_connection_is_active (connection))
     {
       if (!dbus_message_set_destination (message,
