@@ -196,6 +196,10 @@ _log_message (DBusMessage *m,
       not_null (dbus_message_get_signature (m)));
   g_test_message ("\terror name: %s",
       not_null (dbus_message_get_error_name (m)));
+  g_test_message ("\tserial number: %u",
+      dbus_message_get_serial (m));
+  g_test_message ("\tin reply to: %u",
+      dbus_message_get_reply_serial (m));
 
   if (strcmp ("s", dbus_message_get_signature (m)) == 0)
     {
@@ -338,6 +342,9 @@ monitor_filter (DBusConnection *connection,
     void *user_data)
 {
   Fixture *f = user_data;
+
+  g_test_message ("Monitor received message:");
+  log_message (message);
 
   g_assert_cmpstr (dbus_message_get_interface (message), !=,
       "com.example.Tedious");
