@@ -791,12 +791,9 @@ endif
 
 if not asserts
     warning_args += [
-        '-Wno-unused-but-set-variable',
-        '-Wno-unused-variable',
         '-Wno-unused-function',
     ]
 endif
-
 
 checks = get_option('checks')
 config.set('DBUS_ENABLE_CHECKS', checks ? 1 : false)
@@ -806,6 +803,19 @@ config.set('HAVE_GIO_UNIX', have_gio_unix ? 1 : false)
 # Ignore post-2.38 deprecations, prevent use of post-2.44 APIs.
 config.set('GLIB_VERSION_MIN_REQUIRED', 'GLIB_VERSION_2_38')
 config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
+
+if not checks
+    warning_args += [
+        '-Wno-unused-label',
+    ]
+endif
+
+if not (asserts and checks)
+    warning_args += [
+        '-Wno-unused-but-set-variable',
+        '-Wno-unused-variable',
+    ]
+endif
 
 windows_output_debug = get_option('windows_output_debug_string')
 config.set('DBUS_USE_OUTPUT_DEBUG_STRING', windows_output_debug)
