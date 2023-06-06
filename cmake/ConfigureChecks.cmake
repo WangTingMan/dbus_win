@@ -6,6 +6,8 @@ include(CheckTypeSize)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 
+set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+
 check_include_files("winsock2.h;afunix.h"   HAVE_AFUNIX_H)
 check_include_file(alloca.h     HAVE_ALLOCA_H)
 check_include_file(byteswap.h     HAVE_BYTESWAP_H)
@@ -50,7 +52,6 @@ check_symbol_exists(socketpair   "sys/socket.h"     HAVE_SOCKETPAIR)         #  
 check_symbol_exists(setlocale    "locale.h"         HAVE_SETLOCALE)          #  dbus-test-main.c
 check_symbol_exists(localeconv   "locale.h"         HAVE_LOCALECONV)         #  dbus-sysdeps.c
 check_symbol_exists(poll         "poll.h"           HAVE_POLL)               #  dbus-sysdeps-unix.c
-set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(pipe2        "fcntl.h;unistd.h"         HAVE_PIPE2)
 check_symbol_exists(accept4      "sys/socket.h"             HAVE_ACCEPT4)
 check_symbol_exists(inotify_init1 "sys/inotify.h"           HAVE_INOTIFY_INIT1)
