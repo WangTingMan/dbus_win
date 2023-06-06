@@ -38,6 +38,9 @@ please report it privately to dbus-security@lists.freedesktop.org
 or by reporting a Gitlab issue at
 https://gitlab.freedesktop.org/dbus/dbus/issues/new and marking it
 as "confidential".
+Please do not open merge requests for security issues: if you have a
+proposed patch, it can be discussed on the confidential issue or by
+private email.
 
 On Unix systems, the system bus (dbus-daemon --system) is designed
 to be a security boundary between users with different privileges.
