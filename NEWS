@@ -1,4 +1,4 @@
-dbus 1.14.8 (UNRELEASED)
+dbus 1.14.8 (2023-06-06)
 ========================
 
 Denial-of-service fixes:
