@@ -1,7 +1,16 @@
 dbus 1.14.8 (UNRELEASED)
 ========================
 
-Fixes:
+Denial-of-service fixes:
+
+• Fix an assertion failure in dbus-daemon when a privileged Monitoring
+  connection (dbus-monitor, busctl monitor, gdbus monitor or similar)
+  is active, and a message from the bus driver cannot be delivered to a
+  client connection due to <deny> rules or outgoing message quota. This
+  is a denial of service if triggered maliciously by a local attacker.
+  (dbus#457; hongjinghao, Simon McVittie)
+
+Other fixes:
 
 • Fix compilation on compilers not supporting __FUNCTION__
   (dbus!404, Barnabás Pőcze)
