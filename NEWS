@@ -1,12 +1,21 @@
 dbus 1.15.6 (UNRELEASED)
 ========================
 
+Denial-of-service fixes:
+
+• Fix an assertion failure in dbus-daemon when a privileged Monitoring
+  connection (dbus-monitor, busctl monitor, gdbus monitor or similar)
+  is active, and a message from the bus driver cannot be delivered to a
+  client connection due to <deny> rules or outgoing message quota. This
+  is a denial of service if triggered maliciously by a local attacker.
+  (dbus#457; hongjinghao, Simon McVittie)
+
 Enhancements:
 
 • Special-case reading pseudo-files from Linux /proc to take into
   account the filesystem's unusual semantics (dbus!401, Luca Boccassi)
 
-Fixes:
+Other fixes:
 
 • Fix compilation on compilers not supporting __FUNCTION__
   (dbus!404, Barnabás Pőcze)
