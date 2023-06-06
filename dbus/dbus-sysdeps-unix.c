@@ -153,7 +153,7 @@
 static inline int
 close_range (unsigned int first,
              unsigned int last,
-             unsigned int flags)
+             int flags)
 {
   return syscall (__NR_close_range, first, last, flags);
 }
