@@ -262,7 +262,6 @@ debian mingw64 meson debug:
   extends:
     - .meson-common
     - .debian-build
-  when: manual
   variables:
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
@@ -398,6 +397,8 @@ windows-meson-mingw-ucrt64:
     paths:
       - "build/config.h"
       - "build/meson-logs/*.txt"
+  # Currently broken, https://gitlab.freedesktop.org/dbus/dbus/-/issues/462
+  when: manual
 
 windows-meson-vs15-x86:
   extends: .win-build
