@@ -262,7 +262,6 @@ debian mingw64 meson debug:
   extends:
     - .meson-common
     - .debian-build
-  when: manual
   variables:
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
