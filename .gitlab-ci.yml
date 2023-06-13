@@ -398,6 +398,8 @@ windows-meson-mingw-ucrt64:
     paths:
       - "build/config.h"
       - "build/meson-logs/*.txt"
+  # Currently broken, https://gitlab.freedesktop.org/dbus/dbus/-/issues/462
+  when: manual
 
 windows-meson-vs15-x86:
   extends: .win-build
