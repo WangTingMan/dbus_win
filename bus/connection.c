@@ -1660,22 +1660,26 @@ bus_connections_reload_policy (BusConnections *connections,
        link;
        link = _dbus_list_get_next_link (&(connections->completed), link))
     {
+      BusClientPolicy *policy;
+
       connection = link->data;
       d = BUS_CONNECTION_DATA (connection);
       _dbus_assert (d != NULL);
       _dbus_assert (d->policy != NULL);
 
-      bus_client_policy_unref (d->policy);
-      d->policy = bus_context_create_client_policy (connections->context,
-                                                    connection,
-                                                    error);
-      if (d->policy == NULL)
+      policy = bus_context_create_client_policy (connections->context,
+                                                 connection,
+                                                 error);
+      if (policy == NULL)
         {
           _dbus_verbose ("Failed to create security policy for connection %p\n",
                       connection);
           _DBUS_ASSERT_ERROR_IS_SET (error);
           return FALSE;
         }
+
+      bus_client_policy_unref (d->policy);
+      d->policy = policy;
     }
 
   return TRUE;
