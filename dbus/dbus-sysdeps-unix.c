@@ -2797,10 +2797,19 @@ fill_user_info (DBusUserInfo       *info,
       }
     else
       {
-        dbus_set_error (error, _dbus_error_from_errno (errno),
-                        "User \"%s\" unknown or no memory to allocate password entry\n",
-                        username_c ? username_c : "???");
-        _dbus_verbose ("User %s unknown\n", username_c ? username_c : "???");
+        DBusError local_error = DBUS_ERROR_INIT;
+
+        if (uid != DBUS_UID_UNSET)
+          dbus_set_error (&local_error, _dbus_error_from_errno (errno),
+                          "User ID " DBUS_UID_FORMAT " unknown or no memory to allocate password entry",
+                          uid);
+        else
+          dbus_set_error (&local_error, _dbus_error_from_errno (errno),
+                          "User \"%s\" unknown or no memory to allocate password entry\n",
+                          username_c ? username_c : "???");
+
+        _dbus_verbose ("%s", local_error.message);
+        dbus_move_error (&local_error, error);
         dbus_free (buf);
         return FALSE;
       }
