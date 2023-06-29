@@ -1079,7 +1079,7 @@ bus_connection_get_unix_groups  (DBusConnection   *connection,
 
   if (dbus_connection_get_unix_user (connection, &uid))
     {
-      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups))
+      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups, error))
         {
           _dbus_verbose ("Did not get any groups for UID %lu\n",
                          uid);
