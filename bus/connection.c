@@ -1586,6 +1586,7 @@ bus_connection_complete (DBusConnection   *connection,
 
   d->policy = bus_context_create_client_policy (d->connections->context,
                                                 connection,
+                                                NULL,
                                                 error);
 
   /* we may have a NULL policy on OOM or error getting list of
@@ -1671,6 +1672,7 @@ bus_connections_reload_policy (BusConnections *connections,
 
       policy = bus_context_create_client_policy (connections->context,
                                                  connection,
+                                                 d->policy,
                                                  error);
       if (policy == NULL)
         {
