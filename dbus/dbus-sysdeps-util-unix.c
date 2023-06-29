@@ -947,14 +947,16 @@ _dbus_parse_unix_group_from_config (const DBusString  *groupname,
  * @param uid the UID
  * @param group_ids return location for array of group IDs
  * @param n_group_ids return location for length of returned array
+ * @param error error location
  * @returns #TRUE if the UID existed and we got some credentials
  */
 dbus_bool_t
 _dbus_unix_groups_from_uid (dbus_uid_t            uid,
                             dbus_gid_t          **group_ids,
-                            int                  *n_group_ids)
+                            int                  *n_group_ids,
+                            DBusError            *error)
 {
-  return _dbus_groups_from_uid (uid, group_ids, n_group_ids);
+  return _dbus_groups_from_uid (uid, group_ids, n_group_ids, error);
 }
 
 /**
