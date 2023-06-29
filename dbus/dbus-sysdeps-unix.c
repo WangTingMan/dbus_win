@@ -2730,8 +2730,8 @@ fill_user_info (DBusUserInfo       *info,
   {
     struct passwd *p;
     char *buf = NULL;
-#ifdef HAVE_GETPWNAM_R
     int result;
+#ifdef HAVE_GETPWNAM_R
     size_t buflen;
     struct passwd p_str;
 
@@ -2774,16 +2774,32 @@ fill_user_info (DBusUserInfo       *info,
           }
       }
 
+    /* There are three possibilities:
+     * - an error: result is a nonzero error code, p should be NULL
+     * - name or uid not found: result is 0, p is NULL
+     * - success: result is 0, p should be &p_str
+     *
+     * Ensure that in all failure cases, p is set to NULL, matching the
+     * getpwuid/getpwnam interface. */
     if (result != 0 || p != &p_str)
       p = NULL;
+
 #else /* ! HAVE_GETPWNAM_R */
     /* I guess we're screwed on thread safety here */
 #warning getpwnam_r() not available, please report this to the dbus maintainers with details of your OS
+
+    /* It is unspecified whether "failed to find" counts as an error,
+     * or whether it's reported as p == NULL without touching errno.
+     * Reset errno so we can distinguish. */
+    errno = 0;
 
     if (uid != DBUS_UID_UNSET)
       p = getpwuid (uid);
     else
       p = getpwnam (username_c);
+
+    /* Always initialized, but only meaningful if p is NULL */
+    result = errno;
 #endif  /* ! HAVE_GETPWNAM_R */
 
     if (p != NULL)
@@ -2798,15 +2814,21 @@ fill_user_info (DBusUserInfo       *info,
     else
       {
         DBusError local_error = DBUS_ERROR_INIT;
+        const char *error_str;
+
+        if (result == 0)
+          error_str = "not found";
+        else
+          error_str = _dbus_strerror (result);
 
         if (uid != DBUS_UID_UNSET)
-          dbus_set_error (&local_error, _dbus_error_from_errno (errno),
-                          "User ID " DBUS_UID_FORMAT " unknown or no memory to allocate password entry",
-                          uid);
+          dbus_set_error (&local_error, _dbus_error_from_errno (result),
+                          "Looking up user ID " DBUS_UID_FORMAT ": %s",
+                          uid, error_str);
         else
-          dbus_set_error (&local_error, _dbus_error_from_errno (errno),
-                          "User \"%s\" unknown or no memory to allocate password entry\n",
-                          username_c ? username_c : "???");
+          dbus_set_error (&local_error, _dbus_error_from_errno (result),
+                          "Looking up user \"%s\": %s",
+                          username_c ? username_c : "???", error_str);
 
         _dbus_verbose ("%s", local_error.message);
         dbus_move_error (&local_error, error);
