@@ -2727,12 +2727,12 @@ fill_user_info (DBusUserInfo       *info,
    * checks
    */
 
-#ifdef HAVE_GETPWNAM_R
   {
     struct passwd *p;
+    char *buf = NULL;
+#ifdef HAVE_GETPWNAM_R
     int result;
     size_t buflen;
-    char *buf;
     struct passwd p_str;
 
     /* retrieve maximum needed size for buf */
@@ -2773,7 +2773,20 @@ fill_user_info (DBusUserInfo       *info,
             break;
           }
       }
-    if (result == 0 && p == &p_str)
+
+    if (result != 0 || p != &p_str)
+      p = NULL;
+#else /* ! HAVE_GETPWNAM_R */
+    /* I guess we're screwed on thread safety here */
+#warning getpwnam_r() not available, please report this to the dbus maintainers with details of your OS
+
+    if (uid != DBUS_UID_UNSET)
+      p = getpwuid (uid);
+    else
+      p = getpwnam (username_c);
+#endif  /* ! HAVE_GETPWNAM_R */
+
+    if (p != NULL)
       {
         if (!fill_user_info_from_passwd (p, info, error))
           {
@@ -2792,35 +2805,6 @@ fill_user_info (DBusUserInfo       *info,
         return FALSE;
       }
   }
-#else /* ! HAVE_GETPWNAM_R */
-  {
-    /* I guess we're screwed on thread safety here */
-    struct passwd *p;
-
-#warning getpwnam_r() not available, please report this to the dbus maintainers with details of your OS
-
-    if (uid != DBUS_UID_UNSET)
-      p = getpwuid (uid);
-    else
-      p = getpwnam (username_c);
-
-    if (p != NULL)
-      {
-        if (!fill_user_info_from_passwd (p, info, error))
-          {
-            return FALSE;
-          }
-      }
-    else
-      {
-        dbus_set_error (error, _dbus_error_from_errno (errno),
-                        "User \"%s\" unknown or no memory to allocate password entry\n",
-                        username_c ? username_c : "???");
-        _dbus_verbose ("User %s unknown\n", username_c ? username_c : "???");
-        return FALSE;
-      }
-  }
-#endif  /* ! HAVE_GETPWNAM_R */
 
   /* Fill this in so we can use it to get groups */
   username_c = info->username;
