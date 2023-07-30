@@ -2001,13 +2001,6 @@ add_groups_to_credentials (int              client_fd,
       _dbus_verbose ("will try again with %lu\n", (unsigned long) len);
     }
 
-  if (len <= 0)
-    {
-      _dbus_verbose ("getsockopt(SO_PEERGROUPS) yielded <= 0 bytes: %ld\n",
-                     (long) len);
-      goto out;
-    }
-
   if (len > n_gids * sizeof (gid_t))
     {
       _dbus_verbose ("%lu > %zu", (unsigned long) len, n_gids * sizeof (gid_t));
