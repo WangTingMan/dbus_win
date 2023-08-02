@@ -6943,6 +6943,17 @@
                 </entry>
               </row>
               <row>
+                <entry>ProcessFD</entry>
+                <entry>UNIX_FD</entry>
+                <entry>A file descriptor pinning the process, on platforms
+                  that have this concept. On Linux, the SO_PEERPIDFD socket
+                  option is a suitable implementation. This is safer to use
+                  to identify a process than the <literal>ProcessID</literal>,
+                  as the latter is subject to re-use attacks, while the FD
+                  cannot be recycled. If the original process no longer exists
+                  the FD will no longer be resolvable.</entry>
+              </row>
+              <row>
                 <entry>ProcessID</entry>
                 <entry>UINT32</entry>
                 <entry>The numeric process ID, on platforms that have
