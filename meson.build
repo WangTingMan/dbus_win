@@ -549,6 +549,8 @@ else
     if get_option('libaudit').enabled() and not have_libaudit
         error('libaudit support requested but not found')
     endif
+    # For the systemd system unit
+    data_config.set('AMBIENT_CAPS', 'AmbientCapabilities=CAP_AUDIT_WRITE')
 endif
 config.set('HAVE_LIBAUDIT', have_libaudit)
 
