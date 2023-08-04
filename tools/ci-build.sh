@@ -129,7 +129,8 @@ init_wine() {
 # One of static, shared; used for windows cross builds
 : "${ci_runtime:=static}"
 
-echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
+# print used command line
+set +x; env | awk 'BEGIN { s = "" } $1 ~ /^ci_/ { s=s " " $0} END { print s " " SCRIPT }' SCRIPT=$0; set -x
 
 # choose distribution
 if [ "$ci_distro" = "auto" ]; then
@@ -155,11 +156,11 @@ maybe_fail_tests () {
 NOCONFIGURE=1 ./autogen.sh
 
 # clean up directories from possible previous builds
-if [ -z "$builddir" ]; then
-  echo "ERROR: builddir environment variable must be set!"
+if [ -z "$ci_builddir" ]; then
+  echo "ERROR: ci_builddir environment variable must be set!"
   exit 1
 fi
-rm -rf "$builddir"
+rm -rf "$ci_builddir"
 rm -rf ci-build-dist
 rm -rf src-from-dist
 
@@ -180,8 +181,8 @@ case "$ci_buildsys" in
         ;;
 esac
 
-mkdir -p "$builddir"
-builddir="$(realpath "$builddir")"
+mkdir -p "$ci_builddir"
+ci_builddir="$(realpath "$ci_builddir")"
 
 #
 # cross compile setup
@@ -212,7 +213,7 @@ case "$ci_host" in
         ;;
 esac
 
-cd "$builddir"
+cd "$ci_builddir"
 
 case "$ci_host" in
     (*-w64-mingw32)
@@ -226,13 +227,13 @@ case "$ci_host" in
                 libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
             fi
             init_wine \
-                "${builddir}/bin" \
-                "${builddir}/subprojects/expat-2.4.8" \
-                "${builddir}/subprojects/glib-2.72.2/gio" \
-                "${builddir}/subprojects/glib-2.72.2/glib" \
-                "${builddir}/subprojects/glib-2.72.2/gmodule" \
-                "${builddir}/subprojects/glib-2.72.2/gobject" \
-                "${builddir}/subprojects/glib-2.72.2/gthread" \
+                "${ci_builddir}/bin" \
+                "${ci_builddir}/subprojects/expat-2.4.8" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gio" \
+                "${ci_builddir}/subprojects/glib-2.72.2/glib" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gmodule" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gobject" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gthread" \
                 "${dep_prefix}/bin" \
                 ${libgcc_path:+"$libgcc_path"}
         fi
@@ -437,7 +438,7 @@ case "$ci_buildsys" in
                 ;;
         esac
 
-        $cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON -S "$srcdir" -B "$builddir" "$@"
+        $cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON -S "$srcdir" -B "$ci_builddir" "$@"
 
         ${make}
         # The test coverage for OOM-safety is too verbose to be useful on
