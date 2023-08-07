@@ -3,39 +3,32 @@ cmake_minimum_required(VERSION 3.9)
 # we do not need to have WIN32 defined
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
-project(dbus)
-
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
-
-option(DBUS_BUILD_TESTS "enable unit test code" ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # detect version
-include(MacrosAutotools)
-autoinit(configure.ac)
-autoversion(dbus)
+include(MacrosMeson)
+meson_init(meson.build)
+meson_version(dbus)
+set(DBUS_PATCH_VERSION 0)
+set(VERSION "${DBUS_VERSION}")
+
+if(WIN32)
+    set(LANGUAGES C CXX)
+else()
+    set(LANGUAGES C)
+endif()
+project(dbus
+    VERSION ${DBUS_VERSION}
+    LANGUAGES C CXX
+)
+
+option(DBUS_BUILD_TESTS "enable unit test code" ON)
 
 # replacement for AC_C_BIGENDIAN
 include (TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
-
-if(EXISTS ${PROJECT_SOURCE_DIR}/config.h.in)
-    autoheaderchecks(${PROJECT_SOURCE_DIR}/config.h.in ${PROJECT_SOURCE_DIR}/cmake/ConfigureChecks.cmake ${PROJECT_SOURCE_DIR}/cmake/config.h.cmake)
-else()
-    message(STATUS "Generate config.h.in with autogen.sh to enable cmake header difference check.")
-endif()
-
-# used by file version info
-set(DBUS_PATCH_VERSION "0")
-
-# set PACKAGE_... variables
-autopackage(
-    dbus
-    ${DBUS_VERSION_STRING}
-    "http://dbus.freedesktop.org"
-    "https://gitlab.freedesktop.org/dbus/dbus/issues"
-)
 
 include(Macros)
 string(TIMESTAMP DBUS_BUILD_TIMESTAMP "%Y%m%d%H%M" UTC)
@@ -111,6 +104,7 @@ set(BUILD_SHARED_LIBS ON)
 set(INSTALL_TARGETS_DEFAULT_ARGS EXPORT DBus1Targets RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if(CYGWIN)
+    # TODO cygwin is not using WIN32 api
     set(WIN32)
 endif()
 
@@ -381,8 +375,9 @@ if(UNIX AND NOT DBUS_DISABLE_ASSERT)
 endif()
 
 if(DBUS_WITH_GLIB)
-    autodefine(GLIB_VERSION_MIN_REQUIRED)
-    autodefine(GLIB_VERSION_MAX_ALLOWED)
+    # keep in sync with meson.build
+    set(GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_38)
+    set(GLIB_VERSION_MAX_ALLOWED "G_ENCODE_VERSION(2,44)")
 endif()
 
 string(APPEND CMAKE_C_FLAGS_DEBUG " -D_DEBUG")
@@ -674,10 +669,10 @@ set(DBUS_INTERNAL_LIBRARIES dbus-internal)
 set(DBUS_INTERNAL_ADD_LIBRARY_OPTIONS STATIC)
 set(DBUS_INTERNAL_CLIENT_DEFINITIONS "-DDBUS_COMPILATION")
 
-configure_file(cmake/config.h.cmake ${PROJECT_BINARY_DIR}/config.h )
+configure_file(cmake/config.h.cmake ${PROJECT_BINARY_DIR}/config.h)
 
 if(WIN32)
-configure_file(cmake/dbus-env.bat.cmake ${PROJECT_BINARY_DIR}/bin/dbus-env.bat )
+configure_file(cmake/dbus-env.bat.cmake ${PROJECT_BINARY_DIR}/bin/dbus-env.bat)
     install(FILES ${PROJECT_BINARY_DIR}/bin/dbus-env.bat DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 

@@ -61,6 +61,9 @@ config.set_quoted('DBUS_DAEMON_NAME', 'dbus-daemon')
 ###############################################################################
 # libtool versioning - this applies to libdbus
 # http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
+#
+# These variables are parsed automatically by cmake/modules/MacrosMeson.cmake,
+# be careful if changing the formatting
 
 ## increment if the interface has additions, changes, removals.
 lt_current = 40
@@ -624,7 +627,7 @@ endif
 config.set('DBUS_BUILD_X11', use_x11_autolaunch)
 config.set('DBUS_ENABLE_X11_AUTOLAUNCH', use_x11_autolaunch)
 
-
+# keep CMakeLists.txt in sync
 check_functions = [
     'accept4',
     'clearenv',
@@ -661,6 +664,7 @@ foreach function : check_functions
     config.set(macro, cc.has_function(function, args: compile_args_c) ? 1 : false)
 endforeach
 
+# keep CMakeLists.txt in sync
 check_headers = [
     'afunix.h',
     'alloca.h',
@@ -803,6 +807,7 @@ config.set('DBUS_DISABLE_CHECKS', not checks ? 1 : false)
 config.set('G_DISABLE_CHECKS', not checks ? 1 : false)
 config.set('HAVE_GIO_UNIX', have_gio_unix ? 1 : false)
 # Ignore post-2.38 deprecations, prevent use of post-2.44 APIs.
+# keep in sync with CMakeLists.txt
 config.set('GLIB_VERSION_MIN_REQUIRED', 'GLIB_VERSION_2_38')
 config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
 
