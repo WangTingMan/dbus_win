@@ -155,17 +155,12 @@ maybe_fail_tests () {
 # own checks.
 NOCONFIGURE=1 ./autogen.sh
 
-# clean up directories from possible previous builds
-if [ -z "$ci_builddir" ]; then
-  echo "ERROR: ci_builddir environment variable must be set!"
-  exit 1
-fi
-rm -rf "$ci_builddir"
-rm -rf ci-build-dist
-rm -rf src-from-dist
-
 case "$ci_buildsys" in
     (cmake-dist|meson-dist)
+        # clean up directories from possible previous builds
+        rm -rf ci-build-dist
+        rm -rf src-from-dist
+
         # Do an Autotools `make dist`, then build *that* with CMake or Meson,
         # to assert that our official release tarballs will be enough
         # to build with CMake or Meson.
@@ -181,7 +176,15 @@ case "$ci_buildsys" in
         ;;
 esac
 
+# setup default ci_builddir, if not present
+if [ -z "$ci_builddir" ]; then
+  ci_builddir=${srcdir}/ci-build-${ci_variant}-${ci_host}
+fi
+# clean up directories from possible previous builds
+rm -rf "$ci_builddir"
+# create build directory
 mkdir -p "$ci_builddir"
+# use absolute path
 ci_builddir="$(realpath "$ci_builddir")"
 
 #
