@@ -320,35 +320,6 @@ case "$ci_buildsys" in
             LD_LIBRARY_PATH=/usr/local/lib ${make} installcheck || \
                 maybe_fail_tests
             cat test/test-suite.log || :
-
-            # Re-run them with gnome-desktop-testing.
-            # Also, one test needs a finite fd limit to be useful, so we
-            # can set that here.
-            env LD_LIBRARY_PATH=/usr/local/lib \
-            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
-            gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
-                maybe_fail_tests
-
-            # Some tests benefit from being re-run as non-root, if we were
-            # not already...
-            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
-                sudo -u user \
-                env LD_LIBRARY_PATH=/usr/local/lib \
-                gnome-desktop-testing-runner -d /usr/local/share \
-                    dbus/test-dbus-daemon_with_config.test \
-                    || maybe_fail_tests
-            fi
-
-            # ... while other tests benefit from being re-run as root, if
-            # we were not already
-            if [ "$(id -u)" != 0 ]; then
-                sudo env LD_LIBRARY_PATH=/usr/local/lib \
-                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
-                    gnome-desktop-testing-runner -d /usr/local/share \
-                    dbus/test-dbus-daemon_with_config.test \
-                    dbus/test-uid-permissions_with_config.test || \
-                    maybe_fail_tests
-            fi
         fi
         ;;
 
@@ -548,6 +519,10 @@ case "$ci_buildsys" in
             fi
         fi
 
+        # We assume this when we set LD_LIBRARY_PATH for as-installed
+        # testing, below
+        set -- "$@" --libdir=lib
+
         # openSUSE's mingw*-meson wrappers are designed for self-contained
         # package building, so they include --wrap-mode=nodownload. Switch
         # the wrap mode back, so we can use wraps.
@@ -562,6 +537,48 @@ case "$ci_buildsys" in
         [ "$ci_test" = no ] || meson test --print-errorlogs
         DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
+
+        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ] && [ "$ci_host" = native ]; then
+            sudo meson install
+        fi
+        ;;
+esac
+
+case "$ci_buildsys" in
+    (autotools | meson*)
+        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ] && [ "$ci_host" = native ]; then
+            sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                /usr/local/bin/dbus-uuidgen --ensure
+
+            # Run "as-installed" tests with gnome-desktop-testing.
+            # Also, one test needs a finite fd limit to be useful, so we
+            # can set that here.
+            env LD_LIBRARY_PATH=/usr/local/lib \
+            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+            gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
+                maybe_fail_tests
+
+            # Some tests benefit from being re-run as non-root, if we were
+            # not already...
+            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
+                sudo -u user \
+                env LD_LIBRARY_PATH=/usr/local/lib \
+                gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    || maybe_fail_tests
+            fi
+
+            # ... while other tests benefit from being re-run as root, if
+            # we were not already
+            if [ "$(id -u)" != 0 ]; then
+                sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+                    gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    dbus/test-uid-permissions_with_config.test || \
+                    maybe_fail_tests
+            fi
+        fi
         ;;
 esac
 
