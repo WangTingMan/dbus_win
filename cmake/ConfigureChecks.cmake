@@ -72,6 +72,22 @@ check_symbol_exists(socketpair   "sys/socket.h"     HAVE_SOCKETPAIR)         #  
 check_symbol_exists(unsetenv     "stdlib.h"         HAVE_UNSETENV)           #  dbus-sysdeps.c
 check_symbol_exists(writev       "sys/uio.h"        HAVE_WRITEV)             #  dbus-sysdeps.c, dbus-sysdeps-win.c
 
+# It doesn't really matter which specific header we use for these, as long as
+# we include at least one glibc-provided header. time.h is suitable.
+check_symbol_exists(__GLIBC__    "time.h"                    HAVE___GLIBC__)
+check_symbol_exists(_FILE_OFFSET_BITS "time.h"               HAVE__FILE_OFFSET_BITS)
+check_symbol_exists(_TIME_BITS   "time.h"                    HAVE__TIME_BITS)
+
+# Opt-in to large inode number and timestamp support, which we know doesn't
+# break libdbus ABI: https://gitlab.freedesktop.org/dbus/dbus/-/issues/465
+if(HAVE___GLIBC__ AND CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT HAVE__FILE_OFFSET_BITS)
+    set(_FILE_OFFSET_BITS 64)
+endif()
+
+if(HAVE___GLIBC__ AND CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT HAVE__TIME_BITS)
+    set(_TIME_BITS 64)
+endif()
+
 check_struct_member(cmsgcred cmcred_pid "sys/types.h;sys/socket.h" HAVE_CMSGCRED)   #  dbus-sysdeps.c
 
 CHECK_C_SOURCE_COMPILES("
