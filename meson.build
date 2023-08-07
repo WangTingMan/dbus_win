@@ -624,7 +624,7 @@ endif
 config.set('DBUS_BUILD_X11', use_x11_autolaunch)
 config.set('DBUS_ENABLE_X11_AUTOLAUNCH', use_x11_autolaunch)
 
-
+# keep CMakeLists.txt in sync
 check_functions = [
     'accept4',
     'clearenv',
@@ -661,6 +661,7 @@ foreach function : check_functions
     config.set(macro, cc.has_function(function, args: compile_args_c) ? 1 : false)
 endforeach
 
+# keep CMakeLists.txt in sync
 check_headers = [
     'afunix.h',
     'alloca.h',
