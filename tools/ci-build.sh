@@ -272,61 +272,6 @@ case "$ci_buildsys" in
                 export DBUS_TEST_MALLOC_FAILURES=0
                 ;;
 
-            (reduced)
-                # A smaller configuration than normal, with
-                # various features disabled; this emulates
-                # an older system or one that does not have
-                # all the optional libraries.
-                set _ "$@"
-                # No LSMs (the production build has both)
-                set "$@" --disable-selinux --disable-apparmor
-                # No inotify (we will use dnotify)
-                set "$@" --disable-inotify
-                # No epoll or kqueue (we will use poll)
-                set "$@" --disable-epoll --disable-kqueue
-                # No special init system support
-                set "$@" --disable-launchd --disable-systemd
-                # No libaudit or valgrind
-                set "$@" --disable-libaudit --without-valgrind
-                # Disable optional features, some of which are on by
-                # default
-                set "$@" --disable-stats
-                set "$@" --disable-user-session
-                shift
-                ;;
-
-            (legacy)
-                # An unrealistically cut-down configuration,
-                # to check that it compiles and works.
-                set _ "$@"
-                # Disable native atomic operations on Unix
-                # (armv4, as used as the baseline for Debian
-                # armel, is one architecture that really
-                # doesn't have them)
-                set "$@" dbus_cv_sync_sub_and_fetch=no
-		# Disable getrandom syscall
-                set "$@" ac_cv_func_getrandom=no
-                # No epoll, kqueue or poll (we will fall back
-                # to select, even on Unix where we would
-                # usually at least have poll)
-                set "$@" --disable-epoll --disable-kqueue
-                set "$@" CPPFLAGS=-DBROKEN_POLL=1
-                # Enable SELinux and AppArmor but not
-                # libaudit - that configuration has sometimes
-                # failed
-                set "$@" --enable-selinux --enable-apparmor
-                set "$@" --disable-libaudit --without-valgrind
-                # No directory monitoring at all
-                set "$@" --disable-inotify --disable-dnotify
-                # No special init system support
-                set "$@" --disable-launchd --disable-systemd
-                # No X11 autolaunching
-                set "$@" --disable-x11-autolaunch
-                # Leave stats, user-session, etc. at default settings
-                # to check that the defaults can compile on an old OS
-                shift
-                ;;
-
             (*)
                 ;;
         esac
@@ -533,6 +478,53 @@ case "$ci_buildsys" in
                         ;;
                 esac
 
+                shift
+                ;;
+          (reduced)
+                # A smaller configuration than normal, with
+                # various features disabled; this emulates
+                # an older system or one that does not have
+                # all the optional libraries.
+                set _ "$@"
+                # No LSMs (the production build has both)
+                set "$@" -Dselinux=disabled -Dapparmor=disabled
+                # No inotify (we will use dnotify)
+                set "$@" -Dinotify=disabled
+                # No epoll or kqueue (we will use poll)
+                set "$@" -Depoll=disabled -Dkqueue=disabled
+                # No special init system support
+                set "$@" -Dlaunchd=disabled -Dsystemd=disabled
+                # No libaudit or valgrind
+                set "$@" -Dlibaudit=disabled -Dvalgrind=disabled
+                # Disable optional features, some of which are on by
+                # default
+                set "$@" -Dstats=false
+                set "$@" -Duser_session=false
+                shift
+                ;;
+
+            (legacy)
+                # An unrealistically cut-down configuration,
+                # to check that it compiles and works.
+                set _ "$@"
+                # No epoll, kqueue or poll (we will fall back
+                # to select, even on Unix where we would
+                # usually at least have poll)
+                set "$@" -Depoll=disabled -Dkqueue=disabled
+                export CPPFLAGS=-DBROKEN_POLL=1
+                # Enable SELinux and AppArmor but not
+                # libaudit - that configuration has sometimes
+                # failed
+                set "$@" -Dselinux=enabled -Dapparmor=enabled
+                set "$@" -Dlibaudit=disabled -Dvalgrind=disabled
+                # No directory monitoring at all
+                set "$@" -Dinotify=disabled
+                # No special init system support
+                set "$@" -Dlaunchd=disabled -Dsystemd=disabled
+                # No X11 autolaunching
+                set "$@" -Dx11_autolaunch=disabled
+                # Leave stats, user-session, etc. at default settings
+                # to check that the defaults can compile on an old OS
                 shift
                 ;;
         esac
