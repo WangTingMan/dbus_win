@@ -769,6 +769,14 @@ config.set('HAVE_FSTATFS',
     )
 )
 
+config.set10('HAVE_DECL_SYS_PIDFD_OPEN',
+    cc.has_header_symbol(
+        'sys/syscall.h',
+        'SYS_pidfd_open',
+        args: compile_args_c,
+    )
+)
+
 ###############################################################################
 # Project options
 

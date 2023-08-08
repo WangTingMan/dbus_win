@@ -1970,7 +1970,8 @@ bus_driver_credentials_fill_unix_gids (DBusCredentials *credentials,
  */
 dbus_bool_t
 bus_driver_fill_connection_credentials (DBusCredentials *credentials,
-                                        DBusConnection  *conn,
+                                        DBusConnection  *peer_conn,
+                                        DBusConnection  *caller_conn,
                                         DBusMessageIter *asv_iter)
 {
   dbus_uid_t uid = DBUS_UID_UNSET;
@@ -1980,13 +1981,19 @@ bus_driver_fill_connection_credentials (DBusCredentials *credentials,
 #ifdef DBUS_ENABLE_CONTAINERS
   const char *path;
 #endif
+#ifdef HAVE_UNIX_FD_PASSING
+  int pid_fd = -1; /* owned by credentials */
+#endif
 
-  if (credentials == NULL && conn != NULL)
-    credentials = _dbus_connection_get_credentials (conn);
+  if (credentials == NULL && peer_conn != NULL)
+    credentials = _dbus_connection_get_credentials (peer_conn);
 
   if (credentials != NULL)
     {
       pid = _dbus_credentials_get_pid (credentials);
+#ifdef HAVE_UNIX_FD_PASSING
+      pid_fd = _dbus_credentials_get_pid_fd (credentials);
+#endif
       uid = _dbus_credentials_get_unix_uid (credentials);
       windows_sid = _dbus_credentials_get_windows_sid (credentials);
       linux_security_label =
@@ -2036,14 +2043,21 @@ bus_driver_fill_connection_credentials (DBusCredentials *credentials,
 
 #ifdef DBUS_ENABLE_CONTAINERS
   /* This has to come from the connection, not the credentials */
-  if (conn != NULL &&
-      bus_containers_connection_is_contained (conn, &path, NULL, NULL))
+  if (peer_conn != NULL &&
+      bus_containers_connection_is_contained (peer_conn, &path, NULL, NULL))
     {
       if (!_dbus_asv_add_object_path (asv_iter,
                                       DBUS_INTERFACE_CONTAINERS1 ".Instance",
                                       path))
         return FALSE;
     }
+#endif
+
+#ifdef HAVE_UNIX_FD_PASSING
+  if (caller_conn != NULL && pid_fd >= 0 &&
+      dbus_connection_can_send_type (caller_conn, DBUS_TYPE_UNIX_FD) &&
+      !_dbus_asv_add_unix_fd (asv_iter, "ProcessFD", pid_fd))
+    return FALSE;
 #endif
 
   return TRUE;
@@ -2094,7 +2108,7 @@ bus_driver_handle_get_connection_credentials (DBusConnection *connection,
   reply = _dbus_asv_new_method_return (message, &reply_iter, &array_iter);
 
   if (reply == NULL ||
-      !bus_driver_fill_connection_credentials (credentials, conn, &array_iter) ||
+      !bus_driver_fill_connection_credentials (credentials, conn, connection, &array_iter) ||
       !_dbus_asv_close (&reply_iter, &array_iter))
     goto oom;
 

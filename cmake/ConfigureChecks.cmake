@@ -42,6 +42,7 @@ set(HAVE_BACKTRACE ${Backtrace_FOUND})
 check_symbol_exists(LOG_PERROR   "syslog.h"                  HAVE_DECL_LOG_PERROR)
 check_symbol_exists(MSG_NOSIGNAL "sys/socket.h"              HAVE_DECL_MSG_NOSIGNAL)
 check_symbol_exists(SCM_RIGHTS    "sys/types.h;sys/socket.h;sys/un.h" HAVE_UNIX_FD_PASSING)
+check_symbol_exists(SYS_pidfd_open "sys/syscall.h"  HAVE_DECL_SYS_PIDFD_OPEN) #  dbus-sysdeps-unix.c
 check_symbol_exists(accept4      "sys/socket.h"             HAVE_ACCEPT4)
 check_symbol_exists(clearenv     "stdlib.h"         HAVE_CLEARENV)           #  dbus-sysdeps.c
 check_symbol_exists(close_range  "unistd.h"         HAVE_CLOSE_RANGE)        #  dbus-sysdeps-unix.c
