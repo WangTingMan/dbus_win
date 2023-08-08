@@ -427,6 +427,13 @@ case "$ci_buildsys" in
         esac
 
         set -- -Dmodular_tests=enabled "$@"
+        # By default, the Meson build would install these into
+        # /lib/systemd, overwriting any systemd units that might have
+        # come from the container's base OS. Install into our prefix instead,
+        # keeping the CI installation separate from the container's base OS
+        # while still allowing systemd to see the units. (dbus#470)
+        set -- -Dsystemd_system_unitdir=/usr/local/lib/systemd/system "$@"
+        set -- -Dsystemd_user_unitdir=/usr/local/lib/systemd/user "$@"
 
         case "$ci_variant" in
             (debug)
