@@ -4,39 +4,79 @@
 Quick start
 ===========
 
-DBus could be build with GNU AutoTools or with cmake for its build system,
-thus the basic install procedure can be summarized as:
+This branch of dbus can be built by using Meson, GNU Autotools or CMake.
+The Meson build system is the recommended build system for the master
+branch (versions >= 1.15.0).
 
-with autotools:
+Meson only supports out-of-tree builds, and must be passed a directory to put
+built and generated sources into. We'll call that directory "build" here. It's
+recommended to create a separate build directory for each configuration you
+might want to use.
 
-    ./configure --prefix=/usr
-    make
-    su make install
+Basic configuration is done with:
 
-The configure script will automatically determine whether to try and
-build bindings for GLib, Qt, Qt3, Python and Mono based on what tools
-are installed on the host system. The default build behaviour can be
-overridden using the --enable-XXX/--disable-XXX arguments to configure.
-A typical scenario in which it is desirable to override automatic
-detection, is during packaging of binary builds, where a predictable
-dependancy chain is required. For more details on GNU AutoTools
-installation, consult the generic instructions later in this document
+``` sh
+meson build/
+```
 
-with cmake:
+This will create the build directory. If any dependencies are missing, you can
+install them, or try to remove the dependency with a Meson configuration option
+(see below).
+
+Older versions of dbus required Autotools or CMake, with Autotools
+recommended for Unix systems and CMake recommended for Windows systems.
+
+Configuration flags
+===================
+
+When using Meson, to review the options which Meson chose, run:
+
+``` sh
+meson configure build/
+```
+
+With additional arguments meson configure can be used to change options for a
+previously configured build directory. All options passed to this command are in
+the form `-D "option"="value"`. For example:
+
+``` sh
+meson configure build/ -Dprefix=/tmp/install
+```
+
+See `meson_options.txt` for details of dbus-specific options, and
+<https://mesonbuild.com/Builtin-options.html> for details of generic
+Meson options.
+
+When using Autotools, run "./configure --help" to see the possible
+configuration options and environment variables.
+
+When using CMake, inspect README.cmake to see the possible
+configuration options and environment variables.
+
+Building
+========
+
+To build with meson, here is a quick guide:
+
+``` sh
+cd dbus
+meson setup build/ && cd build/
+meson compile
+meson test
+```
+
+Full build instructions can be found on mesonbuild website:
+https://mesonbuild.com/Running-Meson.html
+
+The CMake equivalent is:
+
     mkdir dbus-build-dir
     cd dbus-build-dir
     cmake -G <makefile-generator-name> [-D<option>] <dbus-src-root>/cmake
     make
     make install
 
-cmake will automatically determine whether to build some features
-based on what tools and/or libraries are installed on the host system. 
-The default build behaviour can be overridden using the 
--DENABLE_<XXX> arguments to cmake.
-A typical scenario in which it is desirable to override automatic
-detection, is during packaging of binary builds, where a predictable
-dependancy chain is required. For more details on cmake installation, 
-consult http://www.cmake.org/cmake/help/help.html. 
+See README.cmake for more details.
 
 External software dependancies
 ==============================
