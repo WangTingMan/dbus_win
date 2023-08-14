@@ -7,7 +7,7 @@ To make a release of D-Bus, do the following:
  - verify that the libtool versioning/library soname is
    changed if it needs to be, or not changed if not
     - remember to update **both** `configure.ac` **and** `meson.build`
-    - CMake takes the version number from `configure.ac` and so should not
+    - CMake takes the version number from `meson.build` and so should not
       need updating
 
  - update the file NEWS based on the git history
@@ -22,20 +22,21 @@ To make a release of D-Bus, do the following:
    if micro is 0, i.e. "1.0.0" and "1.2.0" not "1.0"/"1.2"; the micro
    version should be even for releases, and odd for intermediate snapshots
     - remember to update **both** `configure.ac` **and** `meson.build`
-    - CMake takes the version number from `configure.ac` and so should not
+    - CMake takes the version number from `meson.build` and so should not
       need updating
 
- - "make distcheck" (DO NOT just "make dist" - pass the check!)
+ - `meson dist -C ${builddir)`
+    (this is the equivalent of Autotools `make distcheck`)
 
- - if make distcheck fails, fix it.
+ - if `meson dist` failed, fix it.
 
- - once distcheck succeeds, "git commit -a".  This is the version
+ - once dist succeeds, `git commit -a`.  This is the version
    of the tree that corresponds exactly to the released tarball.
 
- - tag the tree with "git tag -s -m 'Released X.Y.Z' dbus-X.Y.Z"
+ - tag the tree with `git tag -s -m 'Released X.Y.Z' dbus-X.Y.Z`
    where X.Y.Z is the version of the release.  If you can't sign
    then simply created an unsigned annotated tag:
-   "git tag -a -m 'Released X.Y.Z' dbus-X.Y.Z".
+   `git tag -a -m 'Released X.Y.Z' dbus-X.Y.Z`.
 
  - bump the version number up in `configure.ac` and `meson.build`
    again (so the micro version is odd),
@@ -44,18 +45,15 @@ To make a release of D-Bus, do the following:
    than anything released. Similarly, bump the version number of
    dbus-specification.xml and set the release date to "(not finalized)".
 
- - merge the branch you've released to the chronologically-later
-   branch (usually "master"). You'll probably have to fix a merge
-   conflict in configure.ac (the version number).
-
  - push your changes and the tag to the central repository with
-     git push origin master dbus-X.Y dbus-X.Y.Z
+     `git push origin master dbus-X.Y dbus-X.Y.Z`
 
  - scp your tarball to freedesktop.org server and copy it to
-   dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/releases/dbus/dbus-X.Y.Z.tar.xz.
+   `dbus.freedesktop.org:/srv/dbus.freedesktop.org/www/releases/dbus/dbus-X.Y.Z.tar.xz`.
    This should be possible if you're in group "dbus"
 
- - Update the online documentation with `make -C doc maintainer-upload-docs`.
+ - Update the online documentation with
+     `ninja -C ${builddir} maintainer-upload-docs`.
 
  - update the wiki page http://www.freedesktop.org/Software/dbus by
    adding the new release under the Download heading. Then, cut the
