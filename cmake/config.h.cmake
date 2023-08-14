@@ -113,6 +113,7 @@
 /* Define to 1 if you have stdio.h */
 #cmakedefine   HAVE_STDIO_H 1
 
+#cmakedefine HAVE_STDATOMIC_H 1
 #cmakedefine HAVE_SYSLOG_H 1
 #cmakedefine HAVE_SYS_EVENTS_H 1
 #cmakedefine HAVE_SYS_INOTIFY_H 1

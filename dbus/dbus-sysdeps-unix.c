@@ -98,7 +98,7 @@
 #include <systemd/sd-daemon.h>
 #endif
 
-#if !DBUS_USE_SYNC
+#if !defined(HAVE_STDATOMIC_H) && !DBUS_USE_SYNC
 #include <pthread.h>
 #endif
 
@@ -3141,7 +3141,7 @@ _dbus_pid_for_log (void)
   return getpid ();
 }
 
-#if !DBUS_USE_SYNC
+#if !defined(HAVE_STDATOMIC_H) && !DBUS_USE_SYNC
 /* To be thread-safe by default on platforms that don't necessarily have
  * atomic operations (notably Debian armel, which is armv4t), we must
  * use a mutex that can be initialized statically, like this.
@@ -3159,7 +3159,11 @@ static pthread_mutex_t atomic_mutex = PTHREAD_MUTEX_INITIALIZER;
 dbus_int32_t
 _dbus_atomic_inc (DBusAtomic *atomic)
 {
-#if DBUS_USE_SYNC
+#ifdef HAVE_STDATOMIC_H
+  /* Atomic version of "old = *atomic; *atomic += 1; return old" */
+  return atomic_fetch_add (&atomic->value, 1);
+#elif DBUS_USE_SYNC
+  /* Atomic version of "*atomic += 1; return *atomic - 1" */
   return __sync_add_and_fetch(&atomic->value, 1)-1;
 #else
   dbus_int32_t res;
@@ -3182,7 +3186,11 @@ _dbus_atomic_inc (DBusAtomic *atomic)
 dbus_int32_t
 _dbus_atomic_dec (DBusAtomic *atomic)
 {
-#if DBUS_USE_SYNC
+#ifdef HAVE_STDATOMIC_H
+  /* Atomic version of "old = *atomic; *atomic -= 1; return old" */
+  return atomic_fetch_sub (&atomic->value, 1);
+#elif DBUS_USE_SYNC
+  /* Atomic version of "*atomic -= 1; return *atomic + 1" */
   return __sync_sub_and_fetch(&atomic->value, 1)+1;
 #else
   dbus_int32_t res;
@@ -3206,7 +3214,10 @@ _dbus_atomic_dec (DBusAtomic *atomic)
 dbus_int32_t
 _dbus_atomic_get (DBusAtomic *atomic)
 {
-#if DBUS_USE_SYNC
+#ifdef HAVE_STDATOMIC_H
+  /* Atomic version of "return *atomic" */
+  return atomic_load (&atomic->value);
+#elif DBUS_USE_SYNC
   __sync_synchronize ();
   return atomic->value;
 #else
@@ -3228,7 +3239,10 @@ _dbus_atomic_get (DBusAtomic *atomic)
 void
 _dbus_atomic_set_zero (DBusAtomic *atomic)
 {
-#if DBUS_USE_SYNC
+#ifdef HAVE_STDATOMIC_H
+  /* Atomic version of "*atomic = 0" */
+  atomic_store (&atomic->value, 0);
+#elif DBUS_USE_SYNC
   /* Atomic version of "*atomic &= 0; return *atomic" */
   __sync_and_and_fetch (&atomic->value, 0);
 #else
@@ -3246,7 +3260,10 @@ _dbus_atomic_set_zero (DBusAtomic *atomic)
 void
 _dbus_atomic_set_nonzero (DBusAtomic *atomic)
 {
-#if DBUS_USE_SYNC
+#ifdef HAVE_STDATOMIC_H
+  /* Atomic version of "*atomic = 1" */
+  atomic_store (&atomic->value, 1);
+#elif DBUS_USE_SYNC
   /* Atomic version of "*atomic |= 1; return *atomic" */
   __sync_or_and_fetch (&atomic->value, 1);
 #else

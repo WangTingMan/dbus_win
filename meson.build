@@ -691,6 +691,7 @@ check_headers = [
     'linux/magic.h',
     'locale.h',
     'signal.h',
+    'stdatomic.h',
     'syslog.h',
     'sys/prctl.h',
     'sys/random.h',
