@@ -176,18 +176,6 @@ debian autotools debug:
   variables:
     ci_variant: "debug"
 
-debian autotools reduced:
-  extends: .debian-build
-  when: manual
-  variables:
-    ci_variant: "reduced"
-
-debian autotools legacy:
-  extends: .debian-build
-  when: manual
-  variables:
-    ci_variant: "legacy"
-
 debian cmake:
   extends:
     - .cmake-common
@@ -226,6 +214,24 @@ debian mingw32 autotools debug:
   variables:
     ci_host: "i686-w64-mingw32"
     ci_variant: "debug"
+
+debian meson reduced:
+  extends:
+    - .meson-common
+    - .debian-build
+  when: manual
+  variables:
+    ci_buildsys: "meson"
+    ci_variant: "reduced"
+
+debian meson legacy:
+  extends:
+    - .meson-common
+    - .debian-build
+  when: manual
+  variables:
+    ci_buildsys: "meson"
+    ci_variant: "legacy"
 
 debian mingw32 cmake:
   extends:
