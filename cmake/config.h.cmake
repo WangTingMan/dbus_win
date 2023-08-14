@@ -13,6 +13,8 @@
 #   define __USE_MINGW_ANSI_STDIO 0
 #endif
 
+#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
+#cmakedefine _TIME_BITS @_TIME_BITS@
 #cmakedefine WORDS_BIGENDIAN
 
 /* Opt-in to modern APIs and thread-safety for Solaris. In the Autotools

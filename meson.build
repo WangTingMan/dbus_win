@@ -627,6 +627,17 @@ endif
 config.set('DBUS_BUILD_X11', use_x11_autolaunch)
 config.set('DBUS_ENABLE_X11_AUTOLAUNCH', use_x11_autolaunch)
 
+# Opt-in to large timestamp support, which we know doesn't break libdbus ABI:
+# https://gitlab.freedesktop.org/dbus/dbus/-/issues/465
+# Meson does the equivalent for large offsets and inode numbers automatically.
+if (
+    cc.has_header_symbol('time.h', '__GLIBC__', args: compile_args_c)
+    and not cc.has_header_symbol('time.h', '_TIME_BITS', args: compile_args_c)
+    and cc.sizeof('void *') == 4
+)
+    config.set('_TIME_BITS', '64')
+endif
+
 # keep CMakeLists.txt in sync
 check_functions = [
     'accept4',
