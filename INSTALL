@@ -78,23 +78,26 @@ The CMake equivalent is:
 
 See README.cmake for more details.
 
-External software dependancies
+External software dependencies
 ==============================
 
-The only fundamental requirement to build DBus is an XML parser,
-however, there are a number of other software packages which (if
-present) will enhance functionality.
+Required:
 
-Core library
-------------
-
- Requisite:
-
-  - Gettext
   - expat
 
- Optional:
+Optional:
 
-  - libselinux           (for SELinux integration)
+  - libapparmor          (for AppArmor LSM integration on Linux)
+  - libaudit             (for AppArmor/SELinux audit logging on Linux)
+  - libcap-ng            (for capabilities management on Linux)
+  - libselinux           (for SELinux LSM integration on Linux)
+  - libsystemd           (for logging, socket activation and session tracking on Linux)
+  - libX11               (for X11 autolaunching on Unix platforms)
   - doxygen              (for API documentation)
-  - xmlto or meinproc4   (for Spec & other XML documentation)
+  - xsltproc             (for Spec & other XML documentation)
+  - Docbook XSL stylesheets (for Spec & other XML documentation)
+  - ducktype             (for additional documentation)
+  - qhelpgenerator       (for additional documentation)
+  - yelp-build           (for additional documentation)
+  - GLib                 (for improved test coverage)
+  - Python 3             (for improved test coverage)
