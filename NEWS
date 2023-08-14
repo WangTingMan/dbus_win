@@ -1,3 +1,63 @@
+dbus 1.15.8 (UNRELEASED)
+========================
+
+Build-time configuration changes:
+
+• For this version of dbus, Meson is the recommended build system for all
+  platforms. See INSTALL for details.
+
+• Autotools-generated files are no longer included in the tarball release.
+  The Autotools build system is likely to be removed in a future dbus
+  release, so Autotools users should migrate to Meson as soon as possible.
+  It is still possible to build using Autotools, by following the same
+  procedure as for a git clone (starting with the `./autogen.sh` script).
+
+Enhancements:
+
+• On Linux with sufficiently new glibc and kernel headers, report a pinned
+  process file descriptor (pidfd) as the ProcessFD member of the
+  GetConnectionCredentials() result
+  (dbus!420, dbus!398; Luca Boccassi)
+
+• On Linux with systemd, start as the target user/group (retaining
+  CAP_AUDIT_WRITE to preserve the ability to write to the audit log),
+  instead of starting as root and dropping privileges
+  (dbus!399, Luca Boccassi)
+
+• On 32-bit glibc systems, opt-in to 64-bit timestamps if possible.
+  This will allow 32-bit builds of libdbus to continue working after 2038.
+  (dbus#465, Simon McVittie)
+
+• On 32-bit glibc systems when built with CMake, also opt-in to large
+  file sizes, offsets and inode numbers, as was done for Autotools
+  since 1.12.x and Meson since the Meson build was introduced
+  (dbus#465, fd.o #93545; Simon McVittie)
+
+• Avoid known dbus-daemon options being interpreted as optional arguments
+  (dbus#467, Xin Shi)
+
+• If libdbus is a Meson subproject in a larger project, announce it as an
+  implementation of the dbus-1 dependency (dbus!415, Barnabás Pőcze)
+
+• When built with CMake, get the version number from Meson instead of
+  Autotools, in preparation for the Autotools build system being removed
+  (dbus!382, Ralf Habacker)
+
+• When built with Meson, disable some unwanted warnings when either
+  assertions or checks is disabled (dbus!412, Simon McVittie)
+
+Bug fixes:
+
+• Return the primary group ID in GetConnectionCredentials()' UnixGroupIDs
+  field for processes with a valid-but-empty supplementary group list
+  (dbus!422, cptpcrd)
+
+Tests and CI enhancements:
+
+• Internal CI changes
+  (dbus#455, dbus!414, dbus#468, dbus#469, dbus!424;
+  Ralf Habacker, Simon McVittie)
+
 dbus 1.15.6 (2023-06-06)
 ========================
 
