@@ -48,17 +48,27 @@ Enhancements:
 • When built with Meson, disable some unwanted warnings when either
   assertions or checks is disabled (dbus!412, Simon McVittie)
 
+• Use C11 <stdatomic.h> if possible (dbus!431, Simon McVittie)
+
+• Expand coverage of SPDX/REUSE copyright/license information
+  (dbus!427, Simon McVittie)
+
 Bug fixes:
 
 • Return the primary group ID in GetConnectionCredentials()' UnixGroupIDs
   field for processes with a valid-but-empty supplementary group list
   (dbus!422, cptpcrd)
 
+• `sudo meson install` without a DESTDIR is now possible, although
+  strongly discouraged on production systems (dbus#436, Simon McVittie)
+
+• Fix a Meson deprecation warning (dbus#439, Simon McVittie)
+
 Tests and CI enhancements:
 
 • Internal CI changes
-  (dbus#455, dbus!414, dbus#468, dbus#469, dbus!424;
-  Ralf Habacker, Simon McVittie)
+  (dbus#455, dbus!414, dbus#468, dbus#469, dbus!424, dbus!430, dbus#436,
+  dbus#470; Ralf Habacker, Simon McVittie)
 
 dbus 1.15.6 (2023-06-06)
 ========================
