@@ -93,7 +93,7 @@ platform_windows = host_os.contains('windows')
 if platform_windows
     # On Windows, we use C++ constructors to initialize global locks
     using_cpp = true
-    add_languages('cpp', required: true)
+    add_languages('cpp', required: true, native: false)
     cpp = meson.get_compiler('cpp')
 else
     using_cpp = false
