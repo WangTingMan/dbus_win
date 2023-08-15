@@ -86,9 +86,10 @@ likely to have more bugs than stable releases, obviously.
 Configuration and installation
 ===
 
-This branch of dbus can be built by using Autotools, CMake or Meson.
+This branch of dbus can be built by using Meson, GNU Autotools or CMake.
 The Meson build system is the recommended build system for the master
-branch (versions >= 1.15.0).
+branch (versions >= 1.15.0), except when building on Windows, for which
+CMake is recommended (this recommendation might change to Meson in future).
 
 Please see `INSTALL` for full details.
 

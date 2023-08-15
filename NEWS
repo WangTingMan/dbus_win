@@ -4,7 +4,9 @@ dbus 1.15.8 (UNRELEASED)
 Build-time configuration changes:
 
 • For this version of dbus, Meson is the recommended build system for all
-  platforms. See INSTALL for details.
+  Unix platforms. CMake continues to be recommended for Windows, but this
+  recommendation might change to Meson in a future release, so please
+  test the Meson build. See INSTALL for details.
 
 • Autotools-generated files are no longer included in the tarball release.
   The Autotools build system is likely to be removed in a future dbus

@@ -6,7 +6,8 @@ Quick start
 
 This branch of dbus can be built by using Meson, GNU Autotools or CMake.
 The Meson build system is the recommended build system for the master
-branch (versions >= 1.15.0).
+branch (versions >= 1.15.0), except when building on Windows, for which
+CMake is recommended (this recommendation might change to Meson in future).
 
 Meson only supports out-of-tree builds, and must be passed a directory to put
 built and generated sources into. We'll call that directory "build" here. It's
