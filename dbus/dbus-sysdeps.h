@@ -38,6 +38,10 @@
 #include <inttypes.h>
 #endif
 
+#ifdef HAVE_STDATOMIC_H
+#include <stdatomic.h>
+#endif
+
 #include <dbus/dbus-errors.h>
 #include <dbus/dbus-file.h>
 #include <dbus/dbus-string.h>
@@ -333,7 +337,9 @@ typedef struct DBusAtomic DBusAtomic;
  */
 struct DBusAtomic
 {
-#ifdef DBUS_WIN
+#ifdef HAVE_STDATOMIC_H
+  atomic_int value; /**< Value of the atomic integer. */
+#elif defined(DBUS_WIN)
   volatile long value; /**< Value of the atomic integer. */
 #else
   volatile dbus_int32_t value; /**< Value of the atomic integer. */
