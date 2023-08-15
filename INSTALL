@@ -48,6 +48,9 @@ See `meson_options.txt` for details of dbus-specific options, and
 <https://mesonbuild.com/Builtin-options.html> for details of generic
 Meson options.
 
+Other build systems
+-------------------
+
 When using Autotools, run "./configure --help" to see the possible
 configuration options and environment variables.
 
@@ -68,6 +71,9 @@ meson test
 
 Full build instructions can be found on mesonbuild website:
 https://mesonbuild.com/Running-Meson.html
+
+Building with CMake
+-------------------
 
 The CMake equivalent is:
 
