@@ -71,13 +71,30 @@ https://mesonbuild.com/Running-Meson.html
 
 The CMake equivalent is:
 
-    mkdir dbus-build-dir
-    cd dbus-build-dir
-    cmake -G <makefile-generator-name> [-D<option>] <dbus-src-root>/cmake
-    make
-    make install
+``` sh
+cd <dbus-src-root>
+cmake -G <makefile-generator-name> [-D<option>] -B dbus-build-dir
+cmake --build <dbus-build-dir>
+cmake --build <dbus-build-dir> -t check
+```
 
-See README.cmake for more details.
+The installation of the build with CMake is performed with:
+
+``` sh
+cmake --build <dbus-build-dir> -t install [DESTDIR=<install-dir>]
+```
+
+When using makefile generator `-t install/fast` can also be used,
+which prevents rebuilding.
+
+CMake will automatically determine whether to build some features
+based on what tools and/or libraries are installed on the host system.
+The default build behaviour can be overridden using the
+-DENABLE_<XXX> arguments to cmake.
+A typical scenario in which it is desirable to override automatic
+detection, is during packaging of binary builds, where a predictable
+dependancy chain is required. For more details on cmake installation,
+consult http://www.cmake.org/cmake/help/help.html.
 
 External software dependencies
 ==============================
