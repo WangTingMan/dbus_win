@@ -651,6 +651,13 @@ dbus_bool_t _dbus_windows_user_is_process_owner (const char *windows_sid)
   unix emulation functions - should be removed sometime in the future
  =====================================================================*/
 
+static void
+set_unix_uid_unsupported (DBusError *error)
+{
+  dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
+                  "UNIX user IDs not supported on Windows");
+}
+
 /**
  * Checks to see if the UNIX user ID is at the console.
  * Should always fail on Windows (set the error to
@@ -664,8 +671,7 @@ dbus_bool_t
 _dbus_unix_user_is_at_console (dbus_uid_t         uid,
                                DBusError         *error)
 {
-  dbus_set_error (error, DBUS_ERROR_NOT_SUPPORTED,
-                  "UNIX user IDs not supported on Windows\n");
+  set_unix_uid_unsupported (error);
   return FALSE;
 }
 
@@ -709,13 +715,16 @@ _dbus_parse_unix_user_from_config (const DBusString  *username,
  * @param uid the UID
  * @param group_ids return location for array of group IDs
  * @param n_group_ids return location for length of returned array
+ * @param error error location
  * @returns #TRUE if the UID existed and we got some credentials
  */
 dbus_bool_t
 _dbus_unix_groups_from_uid (dbus_uid_t            uid,
                             dbus_gid_t          **group_ids,
-                            int                  *n_group_ids)
+                            int                  *n_group_ids,
+                            DBusError            *error)
 {
+  set_unix_uid_unsupported (error);
   return FALSE;
 }
 

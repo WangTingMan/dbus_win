@@ -557,6 +557,12 @@ if use_glib
             'suite': ['runs-dbus-daemon'],
         },
         {
+            'name': 'userdb',
+            'srcs': [ 'internals/userdb.c' ],
+            'link': [ libdbus_testutils, ],
+            'deps': [ glib, gio, ],
+        },
+        {
             'name': 'variant',
             'srcs': [ 'internals/variant.c' ],
             'link': [ libdbus_testutils, ],

@@ -979,7 +979,7 @@ _dbus_userdb_test (const char *test_data_dir)
   dbus_uid_t uid;
   unsigned long *group_ids;
   int n_group_ids, i;
-  DBusError error;
+  DBusError error = DBUS_ERROR_INIT;
 
   if (!_dbus_username_from_current_process (&username))
     _dbus_test_fatal ("didn't get username");
@@ -990,8 +990,8 @@ _dbus_userdb_test (const char *test_data_dir)
   if (!_dbus_get_user_id (username, &uid))
     _dbus_test_fatal ("didn't get uid");
 
-  if (!_dbus_groups_from_uid (uid, &group_ids, &n_group_ids))
-    _dbus_test_fatal ("didn't get groups");
+  if (!_dbus_groups_from_uid (uid, &group_ids, &n_group_ids, &error))
+    _dbus_test_fatal ("didn't get groups: %s: %s", error.name, error.message);
 
   _dbus_test_diag ("    Current user: %s homedir: %s gids:",
           _dbus_string_get_const_data (username),
