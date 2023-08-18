@@ -3,6 +3,16 @@ dbus 1.14.10 (UNRELEASED)
 
 Bug fixes:
 
+• Avoid a dbus-daemon crash if re-creating a connection's policy fails.
+  If it isn't possible to re-create its policy (for example if it belongs
+  to a user account that has been deleted or if the Name Service Switch is
+  broken, on a system not supporting SO_PEERGROUPS), we now log a warning,
+  continue to use its current policy, and continue to reload other
+  connections' policies. (dbus#343; Peter Benie, Simon McVittie)
+
+• If getting the groups from a user ID fails, report the error correctly,
+  instead of logging "(null)" (dbus#343, Simon McVittie)
+
 • Return the primary group ID in GetConnectionCredentials()' UnixGroupIDs
   field for processes with a valid-but-empty supplementary group list
   (dbus!422, cptpcrd)
