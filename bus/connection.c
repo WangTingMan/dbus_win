@@ -1079,7 +1079,7 @@ bus_connection_get_unix_groups  (DBusConnection   *connection,
 
   if (dbus_connection_get_unix_user (connection, &uid))
     {
-      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups))
+      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups, error))
         {
           _dbus_verbose ("Did not get any groups for UID %lu\n",
                          uid);
@@ -1584,6 +1584,7 @@ bus_connection_complete (DBusConnection   *connection,
 
   d->policy = bus_context_create_client_policy (d->connections->context,
                                                 connection,
+                                                NULL,
                                                 error);
 
   /* we may have a NULL policy on OOM or error getting list of
@@ -1669,6 +1670,7 @@ bus_connections_reload_policy (BusConnections *connections,
 
       policy = bus_context_create_client_policy (connections->context,
                                                  connection,
+                                                 d->policy,
                                                  error);
       if (policy == NULL)
         {
