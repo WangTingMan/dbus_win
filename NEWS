@@ -1,7 +1,11 @@
 dbus 1.14.10 (UNRELEASED)
 =========================
 
-...
+Bug fixes:
+
+• Return the primary group ID in GetConnectionCredentials()' UnixGroupIDs
+  field for processes with a valid-but-empty supplementary group list
+  (dbus!422, cptpcrd)
 
 dbus 1.14.8 (2023-06-06)
 ========================
