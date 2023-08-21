@@ -21,7 +21,7 @@
 
 project('dbus',
     'c',
-    version: '1.15.8',
+    version: '1.15.9',
     meson_version: '>=0.56',
 )
 
