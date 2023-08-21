@@ -75,8 +75,8 @@ init_wine() {
 }
 
 # ci_buildsys:
-# Build system under test: autotools or cmake
-: "${ci_buildsys:=autotools}"
+# Build system under test: meson or cmake
+: "${ci_buildsys:=meson}"
 
 # ci_compiler:
 # Compiler used to build dbus: gcc or clang
@@ -151,31 +151,7 @@ maybe_fail_tests () {
     fi
 }
 
-# Generate config.h.in and configure. We do this for both Autotools and
-# CMake builds, so that the CMake build can compare config.h.in with its
-# own checks.
-NOCONFIGURE=1 ./autogen.sh
-
-case "$ci_buildsys" in
-    (cmake-dist|meson-dist)
-        # clean up directories from possible previous builds
-        rm -rf ci-build-dist
-        rm -rf src-from-dist
-
-        # Do an Autotools `make dist`, then build *that* with CMake or Meson,
-        # to assert that our official release tarballs will be enough
-        # to build with CMake or Meson.
-        mkdir -p ci-build-dist
-        ( cd ci-build-dist; ../configure )
-        make -C ci-build-dist dist
-        tar --xz -xvf ci-build-dist/dbus-1.*.tar.xz
-        mv dbus-1.*/ src-from-dist
-        srcdir="$(pwd)/src-from-dist"
-        ;;
-    (*)
-        srcdir="$(pwd)"
-        ;;
-esac
+srcdir="$(pwd)"
 
 # setup default ci_builddir, if not present
 if [ -z "$ci_builddir" ]; then
@@ -252,77 +228,6 @@ make="${make} -j${ci_parallel} V=1 VERBOSE=1"
 export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
 
 case "$ci_buildsys" in
-    (autotools)
-        case "$ci_variant" in
-            (debug)
-                # Full developer/debug build.
-                set _ "$@"
-                set "$@" --enable-developer --enable-tests
-                # Enable optional features that are off by default
-                case "$ci_host" in
-                    *-w64-mingw32)
-                        ;;
-                    *)
-                        set "$@" --enable-user-session
-                        set "$@" SANITIZE_CFLAGS="-fsanitize=address -fsanitize=undefined -fPIE -pie"
-                        ;;
-                esac
-                shift
-                # The test coverage for OOM-safety is too
-                # verbose to be useful on travis-ci.
-                export DBUS_TEST_MALLOC_FAILURES=0
-                ;;
-
-            (*)
-                ;;
-        esac
-
-        case "$ci_host" in
-            (*-w64-mingw32)
-                set _ "$@"
-                set "$@" --build="$(build-aux/config.guess)"
-                set "$@" --host="${ci_host}"
-                set "$@" CFLAGS=-${ci_runtime}-libgcc
-                set "$@" CXXFLAGS=-${ci_runtime}-libgcc
-                # don't run tests yet, Wine needs Xvfb and
-                # more msys2 libraries
-                ci_test=no
-                # don't "make install" system-wide
-                ci_sudo=no
-                shift
-                ;;
-        esac
-
-        ../configure \
-            --enable-installed-tests \
-            --enable-maintainer-mode \
-            --enable-modular-tests \
-            "$@"
-
-        ${make}
-        [ "$ci_test" = no ] || ${make} check || maybe_fail_tests
-        cat test/test-suite.log || :
-        [ "$ci_test" = no ] || ${make} distcheck || maybe_fail_tests
-
-        ${make} install DESTDIR=$(pwd)/DESTDIR
-        ( cd DESTDIR && find . -ls )
-
-        if [ "$ci_variant" != "production-no-upload-docs" ]; then
-            ${make} -C doc dbus-docs.tar.xz
-            tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
-            ( cd DESTDIR/dbus-docs && find . -ls )
-        fi
-
-        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
-            sudo ${make} install
-            sudo env LD_LIBRARY_PATH=/usr/local/lib \
-                /usr/local/bin/dbus-uuidgen --ensure
-            LD_LIBRARY_PATH=/usr/local/lib ${make} installcheck || \
-                maybe_fail_tests
-            cat test/test-suite.log || :
-        fi
-        ;;
-
     (cmake|cmake-dist)
         cmdwrapper=
         cmake=cmake
@@ -552,7 +457,7 @@ case "$ci_buildsys" in
 esac
 
 case "$ci_buildsys" in
-    (autotools | meson*)
+    (meson*)
         if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ] && [ "$ci_host" = native ]; then
             sudo env LD_LIBRARY_PATH=/usr/local/lib \
                 /usr/local/bin/dbus-uuidgen --ensure
