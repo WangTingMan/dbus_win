@@ -53,6 +53,13 @@ Enhancements:
 • Expand coverage of SPDX/REUSE copyright/license information
   (dbus!427, Simon McVittie)
 
+• On Linux, let dbus-daemon start up successfully (with a warning) if
+  inotify initialization fails, even if DBUS_FATAL_WARNINGS=1 is present
+  in the environment (dbus#473, Simon McVittie)
+
+• On Unix, provide a better error message when looking up a user by name
+  or user ID fails (dbus!442, Simon McVittie)
+
 Bug fixes:
 
 • Avoid a dbus-daemon crash if re-creating a connection's policy fails.
