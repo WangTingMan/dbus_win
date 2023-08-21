@@ -16,7 +16,9 @@ To make a release of D-Bus, do the following:
    changed if it needs to be; if changes have been made, update the
    release date in that file
 
- - update the AUTHORS file with "make update-authors" if necessary
+ - update the AUTHORS file with
+   `ninja -C ${builddir} maintainer-update-authors`
+   if necessary
 
  - the version number should have major.minor.micro, even
    if micro is 0, i.e. "1.0.0" and "1.2.0" not "1.0"/"1.2"; the micro
