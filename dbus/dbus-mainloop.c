@@ -57,7 +57,7 @@ struct DBusLoop
 typedef struct
 {
   DBusTimeout *timeout;
-  long last_tv_sec;
+  dbus_int64_t last_tv_sec;
   long last_tv_usec;
 } TimeoutCallback;
 
@@ -425,16 +425,16 @@ _dbus_loop_remove_timeout (DBusLoop           *loop,
  * to do this.
  */
 static dbus_bool_t
-check_timeout (long            tv_sec,
+check_timeout (dbus_int64_t            tv_sec,
                long            tv_usec,
                TimeoutCallback *tcb,
                int             *timeout)
 {
-  long sec_remaining;
+  dbus_int64_t sec_remaining;
   long msec_remaining;
-  long expiration_tv_sec;
+  dbus_int64_t expiration_tv_sec;
   long expiration_tv_usec;
-  long interval_seconds;
+  dbus_int64_t interval_seconds;
   long interval_milliseconds;
   int interval;
 
@@ -596,7 +596,7 @@ _dbus_loop_iterate (DBusLoop     *loop,
   timeout = -1;
   if (loop->timeout_count > 0)
     {
-      long tv_sec;
+      dbus_int64_t tv_sec;
       long tv_usec;
       
       _dbus_get_monotonic_time (&tv_sec, &tv_usec);
@@ -709,7 +709,7 @@ _dbus_loop_iterate (DBusLoop     *loop,
 
   if (loop->timeout_count > 0)
     {
-      long tv_sec;
+      dbus_int64_t tv_sec;
       long tv_usec;
 
       _dbus_get_monotonic_time (&tv_sec, &tv_usec);
