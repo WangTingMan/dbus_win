@@ -508,6 +508,45 @@ _dbus_string_parse_uint (const DBusString *str,
   return TRUE;
 }
 
+/**
+ * Parses a dbus_int64_t integer contained in a DBusString. Either return parameter
+ * may be #NULL if you aren't interested in it. The integer is parsed
+ * and stored in value_return. Return parameters are not initialized
+ * if the function returns #FALSE.
+ *
+ * @param str the string
+ * @param start the byte index of the start of the integer
+ * @param value_return return location of the integer value or #NULL
+ * @param end_return return location of the end of the integer, or #NULL
+ * @returns #TRUE on success
+ */
+dbus_bool_t
+_dbus_string_parse_int64 (const DBusString *str,
+                          int               start,
+                          dbus_int64_t     *value_return,
+                          int              *end_return)
+{
+  dbus_int64_t v;
+  const char *p;
+  char *end;
+
+  p = _dbus_string_get_const_data_len (str, start,
+                                       _dbus_string_get_length (str) - start);
+
+  end = NULL;
+  _dbus_set_errno_to_zero ();
+  v = strtoll (p, &end, 0);
+  if (end == NULL || end == p || errno != 0)
+    return FALSE;
+
+  if (value_return)
+    *value_return = v;
+  if (end_return)
+    *end_return = start + (end - p);
+
+  return TRUE;
+}
+
 /** @} */ /* DBusString group */
 
 /**

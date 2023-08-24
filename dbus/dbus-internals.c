@@ -457,7 +457,8 @@ _dbus_verbose_real (
   va_list args;
   static dbus_bool_t need_pid = TRUE;
   int len;
-  long sec, usec;
+  dbus_int64_t sec;
+  long usec;
   
   /* things are written a bit oddly here so that
    * in the non-verbose case we just have the one
@@ -473,7 +474,7 @@ _dbus_verbose_real (
       _dbus_print_thread ();
     }
   _dbus_get_real_time (&sec, &usec);
-  fprintf (stderr, "%ld.%06ld ", sec, usec);
+  fprintf (stderr, "%" DBUS_INT64_MODIFIER "d.%06ld ", sec, usec);
 #endif
 
   /* Only print pid again if the next line is a new line */
@@ -752,7 +753,7 @@ _dbus_generate_uuid (DBusGUID  *uuid,
                      DBusError *error)
 {
   DBusError rand_error;
-  long now;
+  dbus_int64_t now;
 
   dbus_error_init (&rand_error);
 

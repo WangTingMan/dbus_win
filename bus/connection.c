@@ -107,7 +107,7 @@ typedef struct
   BusSELinuxID *selinux_id;
   BusAppArmorConfinement *apparmor_confinement;
 
-  long connection_tv_sec;  /**< Time when we connected (seconds component) */
+  dbus_int64_t connection_tv_sec;  /**< Time when we connected (seconds component) */
   long connection_tv_usec; /**< Time when we connected (microsec component) */
   int stamp;               /**< connections->stamp last time we were traversed */
   BusExtraHeaders want_headers;
@@ -967,7 +967,8 @@ bus_connections_expire_incomplete (BusConnections *connections)
   
   if (connections->incomplete != NULL)
     {
-      long tv_sec, tv_usec;
+      dbus_int64_t tv_sec;
+      long tv_usec;
       DBusList *link;
       int auth_timeout;
       

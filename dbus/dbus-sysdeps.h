@@ -463,11 +463,11 @@ DBUS_PRIVATE_EXPORT
 void _dbus_sleep_milliseconds (int milliseconds);
 
 DBUS_PRIVATE_EXPORT
-void _dbus_get_monotonic_time (long *tv_sec,
+void _dbus_get_monotonic_time (dbus_int64_t *tv_sec,
                                long *tv_usec);
 
 DBUS_PRIVATE_EXPORT
-void _dbus_get_real_time (long *tv_sec,
+void _dbus_get_real_time (dbus_int64_t *tv_sec,
                           long *tv_usec);
 
 /**

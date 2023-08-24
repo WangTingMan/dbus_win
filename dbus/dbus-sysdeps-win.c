@@ -2436,7 +2436,7 @@ _dbus_sleep_milliseconds (int milliseconds)
  * @param tv_usec return location for number of microseconds
  */
 void
-_dbus_get_real_time (long *tv_sec,
+_dbus_get_real_time (dbus_int64_t *tv_sec,
                      long *tv_usec)
 {
   FILETIME ft;
@@ -2467,7 +2467,7 @@ _dbus_get_real_time (long *tv_sec,
  * @param tv_usec return location for number of microseconds
  */
 void
-_dbus_get_monotonic_time (long *tv_sec,
+_dbus_get_monotonic_time (dbus_int64_t *tv_sec,
                           long *tv_usec)
 {
   /* no implementation yet, fall back to wall-clock time */
