@@ -1,7 +1,17 @@
 dbus 1.15.10 (UNRELEASED)
 =========================
 
-...
+Build-time configuration changes:
+
+• The Autotools build system has been removed. Its replacement is Meson.
+  (dbus#443, Ralf Habacker)
+
+Enhancements:
+
+• Use 64-bit timestamps internally.
+  This will allow 32-bit builds of libdbus to continue working after 2038
+  if there is OS-level support for 64-bit time_t, either opt-in
+  (as on 32-bit glibc systems) or by default. (dbus!444, Alexander Kanavin)
 
 dbus 1.15.8 (2023-08-21)
 ========================
