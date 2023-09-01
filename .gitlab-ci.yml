@@ -167,16 +167,6 @@ debian image:
     - .unix-host-build
   stage: build
 
-debian autotools production:
-  extends: .debian-build
-  variables:
-    ci_variant: "production"
-
-debian autotools debug:
-  extends: .debian-build
-  variables:
-    ci_variant: "debug"
-
 debian cmake:
   extends:
     - .cmake-common
@@ -204,17 +194,12 @@ debian meson clang debug:
     - ./tools/ci-build.sh
     # Also test that we can be used as a subproject:
     # https://gitlab.freedesktop.org/dbus/dbus/-/merge_requests/388
+    - meson dist -C $ci_builddir --formats xztar
     - mkdir -p test/use-as-subproject/subprojects/dbus
-    - tar --strip-components=1 -C test/use-as-subproject/subprojects/dbus -xf ci-build-dist/*.tar.xz
+    - tar --strip-components=1 -C test/use-as-subproject/subprojects/dbus -xf $ci_builddir/meson-dist/*.tar.xz
     - meson setup --wrap-mode=forcefallback test/use-as-subproject/_build test/use-as-subproject
     - meson compile -C test/use-as-subproject/_build
     - meson test -C test/use-as-subproject/_build
-
-debian mingw32 autotools debug:
-  extends: .debian-build
-  variables:
-    ci_host: "i686-w64-mingw32"
-    ci_variant: "debug"
 
 debian meson reduced:
   extends:
@@ -246,14 +231,18 @@ debian mingw32 meson:
   extends:
     - .meson-common
     - .debian-build
-  when: manual
   variables:
     ci_host: "i686-w64-mingw32"
 
-debian mingw64 autotools:
-  extends: .debian-build
+debian mingw32 meson debug:
+  extends:
+    - .meson-common
+    - .debian-build
+  when: manual
   variables:
-    ci_host: "x86_64-w64-mingw32"
+    ci_buildsys: "meson"
+    ci_host: "i686-w64-mingw32"
+    ci_variant: "debug"
 
 debian mingw64 cmake debug:
   extends:
@@ -272,11 +261,6 @@ debian mingw64 meson debug:
   variables:
     ci_host: "x86_64-w64-mingw32"
     ci_variant: "debug"
-
-debian buster autotools:
-  extends: .debian-build
-  when: manual
-  image: "debian:buster-slim"
 
 opensuse image:
   extends:
@@ -334,13 +318,6 @@ opensuse mingw64 meson debug:
   image: "ubuntu:latest"
   variables:
     ci_distro: "ubuntu"
-
-ubuntu jammy autotools:
-  extends: .ubuntu-build
-  when: manual
-  image: "ubuntu:jammy"
-  variables:
-    ci_suite: "jammy"
 
 .win-build:
   image: $WINDOWS_IMAGE
@@ -492,15 +469,6 @@ freebsd cmake release:
     # Don't build doxygen documentation since installing the required tools
     # massively increases the VM image (and therefore container) size.
     CI_BUILD_ARGS: "-DDBUS_ENABLE_DOXYGEN_DOCS=OFF -DDBUS_ENABLE_XML_DOCS=ON -DCMAKE_BUILD_TYPE=Release"
-
-freebsd autotools:
-  extends: .build-env-freebsd
-  variables:
-    ci_buildsys: "autotools"
-    # We don't build doxygen documentation, so the make dbus-docs.tar.xz target
-    # is not available. Set ci_variant to avoid building that target.
-    ci_variant: "production-no-upload-docs"
-    CI_BUILD_ARGS: "--enable-xml-docs"
 
 freebsd meson:
   extends:

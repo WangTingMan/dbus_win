@@ -4,7 +4,7 @@
 Quick start
 ===========
 
-This branch of dbus can be built by using Meson, GNU Autotools or CMake.
+This branch of dbus can be built by using Meson or CMake.
 The Meson build system is the recommended build system for the master
 branch (versions >= 1.15.0), except when building on Windows, for which
 CMake is recommended (this recommendation might change to Meson in future).
@@ -47,12 +47,6 @@ meson configure build/ -Dprefix=/tmp/install
 See `meson_options.txt` for details of dbus-specific options, and
 <https://mesonbuild.com/Builtin-options.html> for details of generic
 Meson options.
-
-Other build systems
--------------------
-
-When using Autotools, run "./configure --help" to see the possible
-configuration options and environment variables.
 
 When using CMake, inspect README.cmake to see the possible
 configuration options and environment variables.

@@ -129,9 +129,6 @@ case "$ci_distro" in
         packages=(
             "${packages[@]}"
             adduser
-            autoconf-archive
-            automake
-            autotools-dev
             ca-certificates
             ccache
             clang
@@ -193,11 +190,7 @@ case "$ci_distro" in
         # build system
         packages=(
             "${packages[@]}"
-            autoconf
-            autoconf-archive
-            automake
             cmake
-            libtool
             meson
         )
 
@@ -303,9 +296,6 @@ case "$ci_distro" in
         $sudo pkg update
         $sudo pkg upgrade -y
         packages=(
-            autoconf
-            autoconf-archive
-            automake
             bash
             cmake
             docbook-xml
@@ -314,7 +304,6 @@ case "$ci_distro" in
             glib
             git
             gmake
-            libtool
             libX11
             libxslt
             meson
