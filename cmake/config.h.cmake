@@ -123,6 +123,7 @@
 #cmakedefine HAVE_SYS_PRCTL_H 1
 #cmakedefine HAVE_SYS_RANDOM_H 1
 #cmakedefine HAVE_SYS_RESOURCE_H 1
+#cmakedefine HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
@@ -199,6 +200,8 @@
 
 /* Use the gcc __sync extension */
 #cmakedefine01 DBUS_USE_SYNC
+#cmakedefine HAVE_VASPRINTF 1
+#cmakedefine HAVE_VSNPRINTF 1
 
 #cmakedefine HAVE_SETRESUID 1
 #cmakedefine HAVE_GETRESUID 1

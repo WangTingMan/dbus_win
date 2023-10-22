@@ -84,7 +84,7 @@ if(DBUS_ENABLE_STATS)
 endif()
 
 include_directories(
-    ${PROJECT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
     ${EXPAT_INCLUDE_DIR}
 )
 

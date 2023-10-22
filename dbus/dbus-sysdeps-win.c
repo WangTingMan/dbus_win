@@ -1019,12 +1019,12 @@ _dbus_getsid(char **sid, dbus_pid_t process_id)
   psid = token_user->User.Sid;
   if (!IsValidSid (psid))
     {
-      _dbus_verbose("%s invalid sid\n",__FUNCTION__);
+      _dbus_verbose("invalid sid\n");
       goto failed;
     }
   if (!ConvertSidToStringSidA (psid, sid))
     {
-      _dbus_verbose("%s invalid sid\n",__FUNCTION__);
+      _dbus_verbose("invalid sid\n");
       goto failed;
     }
 //okay:

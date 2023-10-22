@@ -25,6 +25,7 @@
 #ifndef DBUS_RESOURCES_H
 #define DBUS_RESOURCES_H
 
+#include <dbus/dbus-internals.h>
 #include <dbus/dbus-macros.h>
 #include <dbus/dbus-macros-internal.h>
 #include <dbus/dbus-errors.h>

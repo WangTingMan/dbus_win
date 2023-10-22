@@ -2,8 +2,8 @@ dnl -*- mode: m4 -*-
 AC_PREREQ([2.63])
 
 m4_define([dbus_major_version], [1])
-m4_define([dbus_minor_version], [15])
-m4_define([dbus_micro_version], [4])
+m4_define([dbus_minor_version], [14])
+m4_define([dbus_micro_version], [11])
 m4_define([dbus_version],
           [dbus_major_version.dbus_minor_version.dbus_micro_version])
 AC_INIT([dbus], [dbus_version], [https://gitlab.freedesktop.org/dbus/dbus/issues], [dbus])
@@ -42,7 +42,7 @@ LT_CURRENT=39
 
 ## increment any time the source changes; set to
 ##  0 if you increment CURRENT
-LT_REVISION=0
+LT_REVISION=4
 
 ## increment if any interfaces have been added; set to 0
 ## if any interfaces have been changed or removed. removal has
@@ -319,9 +319,12 @@ fi
 dnl Intentional:
 dnl - $DISABLE_WARNINGS disables unused-label warnings if not
 dnl   checking or not asserting (tested further below)
+dnl - we are not going to stop using deprecated functions on a stable
+dnl   branch
 dnl - missing field initializers being 0 is a C feature, not a bug
 dnl - unused-parameter is to make writing callbacks less annoying
 DISABLE_WARNINGS="$DISABLE_WARNINGS
+                  -Wno-deprecated-declarations
                   -Wno-missing-field-initializers
                   -Wno-unused-parameter"
 
@@ -422,7 +425,6 @@ signal.h
 sys/prctl.h
 sys/random.h
 sys/resource.h
-sys/syscall.h
 sys/time.h
 unistd.h
 winsock2.h

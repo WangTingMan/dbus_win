@@ -1461,7 +1461,16 @@ _dbus_connection_unref_unlocked (DBusConnection *connection)
     _dbus_connection_last_unref (connection);
 }
 
-static dbus_uint32_t
+/**
+ * Allocate and return the next non-zero serial number for outgoing messages.
+ *
+ * This method is only valid to call from single-threaded code, such as
+ * the dbus-daemon, or with the connection lock held.
+ *
+ * @param connection the connection
+ * @returns A suitable serial number for the next message to be sent on the connection.
+ */
+dbus_uint32_t
 _dbus_connection_get_next_client_serial (DBusConnection *connection)
 {
   dbus_uint32_t serial;
@@ -5563,10 +5572,10 @@ dbus_connection_set_allow_anonymous (DBusConnection             *connection,
  * @param value #TRUE to pass through org.freedesktop.DBus.Peer messages
  */
 void
-dbus_connection_set_builtin_filters_enabled (DBusConnection         *connection,
-                                             dbus_bool_t             value)
+_dbus_connection_set_builtin_filters_enabled (DBusConnection        *connection,
+                                              dbus_bool_t            value)
 {
-  _dbus_return_if_fail (connection != NULL);
+  _dbus_assert (connection != NULL);
 
   CONNECTION_LOCK (connection);
   connection->builtin_filters_enabled = value;

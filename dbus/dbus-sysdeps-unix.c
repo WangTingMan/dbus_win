@@ -1956,6 +1956,8 @@ add_groups_to_credentials (int              client_fd,
 {
 #if defined(__linux__) && defined(SO_PEERGROUPS)
   _DBUS_STATIC_ASSERT (sizeof (gid_t) <= sizeof (dbus_gid_t));
+  /* This function assumes socklen_t is unsigned, which is true on Linux */
+  _DBUS_STATIC_ASSERT (((socklen_t) -1) > 0);
   gid_t *buf = NULL;
   socklen_t len = 1024;
   dbus_bool_t oom = FALSE;
@@ -1999,13 +2001,6 @@ add_groups_to_credentials (int              client_fd,
 
       buf = replacement;
       _dbus_verbose ("will try again with %lu\n", (unsigned long) len);
-    }
-
-  if (len <= 0)
-    {
-      _dbus_verbose ("getsockopt(SO_PEERGROUPS) yielded <= 0 bytes: %ld\n",
-                     (long) len);
-      goto out;
     }
 
   if (len > n_gids * sizeof (gid_t))

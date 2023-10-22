@@ -29,8 +29,8 @@ NULL=
 
 # ci_distro:
 # OS distribution in which we are testing
-# Typical values: auto, ubuntu, debian, ; maybe fedora in future
-: "${ci_distro:=auto}"
+# Typical values: ubuntu, debian; maybe fedora in future
+: "${ci_distro:=ubuntu}"
 
 # ci_host:
 # Either "native", or an Autoconf --host argument to cross-compile
@@ -60,19 +60,6 @@ if [ $(id -u) = 0 ]; then
     sudo=
 else
     sudo=sudo
-fi
-
-
-# choose distribution
-if [ "$ci_distro" = "auto" ]; then
-    ci_distro=$(. /etc/os-release; echo ${ID} | sed 's, ,_,g')
-    echo "detected ci_distro as '${ci_distro}'"
-fi
-
-# choose suite
-if [ "$ci_suite" = "auto" ]; then
-    ci_suite=$(. /etc/os-release; if test -v VERSION_CODENAME; then echo ${VERSION_CODENAME}; else echo ${VERSION_ID}; fi)
-    echo "detected ci_suite as '${ci_suite}'"
 fi
 
 case "$ci_distro" in

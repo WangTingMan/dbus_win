@@ -1081,7 +1081,7 @@ bus_connection_get_unix_groups  (DBusConnection   *connection,
 
   if (dbus_connection_get_unix_user (connection, &uid))
     {
-      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups))
+      if (!_dbus_unix_groups_from_uid (uid, groups, n_groups, error))
         {
           _dbus_verbose ("Did not get any groups for UID %lu\n",
                          uid);
@@ -1586,6 +1586,7 @@ bus_connection_complete (DBusConnection   *connection,
 
   d->policy = bus_context_create_client_policy (d->connections->context,
                                                 connection,
+                                                NULL,
                                                 error);
 
   /* we may have a NULL policy on OOM or error getting list of
@@ -1662,22 +1663,27 @@ bus_connections_reload_policy (BusConnections *connections,
        link;
        link = _dbus_list_get_next_link (&(connections->completed), link))
     {
+      BusClientPolicy *policy;
+
       connection = link->data;
       d = BUS_CONNECTION_DATA (connection);
       _dbus_assert (d != NULL);
       _dbus_assert (d->policy != NULL);
 
-      bus_client_policy_unref (d->policy);
-      d->policy = bus_context_create_client_policy (connections->context,
-                                                    connection,
-                                                    error);
-      if (d->policy == NULL)
+      policy = bus_context_create_client_policy (connections->context,
+                                                 connection,
+                                                 d->policy,
+                                                 error);
+      if (policy == NULL)
         {
           _dbus_verbose ("Failed to create security policy for connection %p\n",
                       connection);
           _DBUS_ASSERT_ERROR_IS_SET (error);
           return FALSE;
         }
+
+      bus_client_policy_unref (d->policy);
+      d->policy = policy;
     }
 
   return TRUE;
@@ -2375,6 +2381,21 @@ bus_transaction_send_from_driver (BusTransaction *transaction,
                  
   if (!dbus_message_set_sender (message, DBUS_SERVICE_DBUS))
     return FALSE;
+
+  /* Make sure the message has a non-zero serial number, otherwise
+   * bus_transaction_capture_error_reply() will not be able to mock up
+   * a corresponding reply for it. Normally this would be delayed until
+   * the first time we actually send the message out from a
+   * connection, when the transaction is committed, but that's too late
+   * in this case.
+   */
+  if (dbus_message_get_serial (message) == 0)
+    {
+      dbus_uint32_t next_serial;
+
+      next_serial = _dbus_connection_get_next_client_serial (connection);
+      dbus_message_set_serial (message, next_serial);
+    }
 
   if (bus_connection_is_active (connection))
     {

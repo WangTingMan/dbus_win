@@ -6,9 +6,6 @@ To make a release of D-Bus, do the following:
 
  - verify that the libtool versioning/library soname is
    changed if it needs to be, or not changed if not
-    - remember to update **both** `configure.ac` **and** `meson.build`
-    - CMake takes the version number from `configure.ac` and so should not
-      need updating
 
  - update the file NEWS based on the git history
 
@@ -21,9 +18,6 @@ To make a release of D-Bus, do the following:
  - the version number should have major.minor.micro, even
    if micro is 0, i.e. "1.0.0" and "1.2.0" not "1.0"/"1.2"; the micro
    version should be even for releases, and odd for intermediate snapshots
-    - remember to update **both** `configure.ac` **and** `meson.build`
-    - CMake takes the version number from `configure.ac` and so should not
-      need updating
 
  - "make distcheck" (DO NOT just "make dist" - pass the check!)
 
@@ -37,8 +31,7 @@ To make a release of D-Bus, do the following:
    then simply created an unsigned annotated tag:
    "git tag -a -m 'Released X.Y.Z' dbus-X.Y.Z".
 
- - bump the version number up in `configure.ac` and `meson.build`
-   again (so the micro version is odd),
+ - bump the version number up in configure.ac (so the micro version is odd),
    and commit it.  Make sure you do this *after* tagging the previous
    release! The idea is that git has a newer version number
    than anything released. Similarly, bump the version number of

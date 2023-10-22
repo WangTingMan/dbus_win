@@ -1414,11 +1414,42 @@ bus_context_get_containers (BusContext *context)
 BusClientPolicy*
 bus_context_create_client_policy (BusContext      *context,
                                   DBusConnection  *connection,
+                                  BusClientPolicy *previous,
                                   DBusError       *error)
 {
+  BusClientPolicy *client;
+  DBusError local_error = DBUS_ERROR_INIT;
+  const char *conn;
+  const char *loginfo;
+
   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
-  return bus_policy_create_client_policy (context->policy, connection,
-                                          error);
+
+  client = bus_policy_create_client_policy (context->policy, connection,
+                                            &local_error);
+
+  /* On success, use new policy */
+  if (client != NULL)
+    return client;
+
+  /* On failure while setting up a new connection, fail */
+  if (previous == NULL)
+    {
+      dbus_move_error (&local_error, error);
+      return NULL;
+    }
+
+  /* On failure while reloading, keep the previous policy */
+  conn = bus_connection_get_name (connection);
+  loginfo = bus_connection_get_loginfo (connection);
+
+  if (conn == NULL)
+    conn = "(inactive)";
+
+  bus_context_log (context, DBUS_SYSTEM_LOG_WARNING,
+                   "Unable to reload policy for connection \"%s\" (%s), "
+                   "keeping current policy: %s",
+                   conn, loginfo, local_error.message);
+  return bus_client_policy_ref (previous);
 }
 
 int

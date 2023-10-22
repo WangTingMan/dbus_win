@@ -470,7 +470,7 @@ test_builtin_filters (Fixture *f,
   ping = dbus_message_new_method_call (NULL, "/foo", DBUS_INTERFACE_PEER,
       "Ping");
 
-  dbus_connection_set_builtin_filters_enabled (f->client_conn, TRUE);
+  _dbus_connection_set_builtin_filters_enabled (f->client_conn, TRUE);
 
   have_mem = dbus_connection_send (f->server_conn, ping, &serial);
   g_assert (have_mem);
@@ -486,7 +486,7 @@ test_builtin_filters (Fixture *f,
   m = g_queue_pop_head (&f->server_messages);
   g_assert (m == NULL);
 
-  dbus_connection_set_builtin_filters_enabled (f->client_conn, FALSE);
+  _dbus_connection_set_builtin_filters_enabled (f->client_conn, FALSE);
 
   have_mem = dbus_connection_send (f->server_conn, ping, &serial);
   g_assert (have_mem);
@@ -617,6 +617,9 @@ main (int argc,
 
   g_test_add ("/message/bad-guid/unix", Fixture, unix_tmpdir, setup,
       test_bad_guid, teardown);
+
+  g_test_add ("/builtin-filters", Fixture, "tcp:host=127.0.0.1", setup,
+      test_builtin_filters, teardown);
 
   g_test_add ("/builtin-filters", Fixture, "tcp:host=127.0.0.1", setup,
       test_builtin_filters, teardown);

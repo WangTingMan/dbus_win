@@ -57,6 +57,8 @@ DBUS_PRIVATE_EXPORT
 DBusConnection *  _dbus_connection_ref_unlocked                (DBusConnection     *connection);
 DBUS_PRIVATE_EXPORT
 void              _dbus_connection_unref_unlocked              (DBusConnection     *connection);
+DBUS_PRIVATE_EXPORT
+dbus_uint32_t     _dbus_connection_get_next_client_serial      (DBusConnection *connection);
 void              _dbus_connection_queue_received_message_link (DBusConnection     *connection,
                                                                 DBusList           *link);
 dbus_bool_t       _dbus_connection_has_messages_to_send_unlocked (DBusConnection     *connection);
@@ -122,6 +124,9 @@ dbus_bool_t       _dbus_connection_get_linux_security_label       (DBusConnectio
                                                                    char           **label_p);
 DBUS_PRIVATE_EXPORT
 DBusCredentials  *_dbus_connection_get_credentials                (DBusConnection  *connection);
+DBUS_PRIVATE_EXPORT
+void              _dbus_connection_set_builtin_filters_enabled    (DBusConnection  *connection,
+                                                                   dbus_bool_t      value);
 
 /* if DBUS_ENABLE_STATS */
 DBUS_PRIVATE_EXPORT
