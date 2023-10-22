@@ -3,6 +3,8 @@
 #ifndef _DBUS_CONFIG_H
 #define _DBUS_CONFIG_H
 
+#cmakedefine VERSION "@VERSION@"
+
 /* On Windows, we expect to be using msvcrt.dll-compatible printf
  * (%I64u instead of %llu) unless otherwise specified. This must be
  * done near the beginning of config.h, before we have included any
@@ -11,14 +13,8 @@
 #   define __USE_MINGW_ANSI_STDIO 0
 #endif
 
-@AUTOPACKAGE_CONFIG_H_TEMPLATE@
-
-/*
- * Variables defined by AC_DEFINE in ../configure.ac
- * should be placed in this file
-*/
-
-/* AC_C_BIGENDIAN */
+#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
+#cmakedefine _TIME_BITS @_TIME_BITS@
 #cmakedefine WORDS_BIGENDIAN
 
 /* Opt-in to modern APIs and thread-safety for Solaris. In the Autotools
@@ -117,13 +113,16 @@
 /* Define to 1 if you have stdio.h */
 #cmakedefine   HAVE_STDIO_H 1
 
+#cmakedefine HAVE_STDATOMIC_H 1
 #cmakedefine HAVE_SYSLOG_H 1
 #cmakedefine HAVE_SYS_EVENTS_H 1
 #cmakedefine HAVE_SYS_INOTIFY_H 1
+#cmakedefine HAVE_LINUX_MAGIC_H 1
 #cmakedefine HAVE_SYS_PRCTL_H 1
 #cmakedefine HAVE_SYS_RANDOM_H 1
 #cmakedefine HAVE_SYS_RESOURCE_H 1
-#cmakedefine HAVE_SYS_STAT_H 1
+#cmakedefine HAVE_SYS_SYSCALL_H 1
+#cmakedefine HAVE_SYS_VFS_H 1
 
 /* Define to 1 if you have sys/time.h */
 #cmakedefine    HAVE_SYS_TIME_H 1
@@ -185,6 +184,7 @@
 
 #cmakedefine HAVE_ACCEPT4 1
 
+#cmakedefine HAVE_FSTATFS 1
 #cmakedefine HAVE_INOTIFY_INIT1 1
 #cmakedefine HAVE_GETRANDOM 1
 #cmakedefine HAVE_GETRLIMIT 1
@@ -267,5 +267,6 @@
 #cmakedefine01 HAVE_DECL_ENVIRON
 #cmakedefine01 HAVE_DECL_LOG_PERROR
 #cmakedefine01 HAVE_DECL_MSG_NOSIGNAL
+#cmakedefine01 HAVE_DECL_SYS_PIDFD_OPEN
 
 #endif  // _DBUS_CONFIG_H

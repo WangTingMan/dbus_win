@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Copyright © 2015-2016 Collabora Ltd.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -54,7 +55,8 @@ NULL=
 # One of debug, reduced, legacy, production
 : "${ci_variant:=production}"
 
-echo "ci_distro=$ci_distro ci_in_docker=$ci_in_docker ci_host=$ci_host ci_local_packages=$ci_local_packages ci_suite=$ci_suite ci_variant=$ci_variant $0"
+# print used command line
+set +x; env | awk 'BEGIN { s = "" } $1 ~ /^ci_/ { s=s " " $0} END { print s " " SCRIPT }' SCRIPT=$0; set -x
 
 if [ $(id -u) = 0 ]; then
     sudo=
@@ -114,9 +116,6 @@ case "$ci_distro" in
         packages=(
             "${packages[@]}"
             adduser
-            autoconf-archive
-            automake
-            autotools-dev
             ca-certificates
             ccache
             clang
@@ -160,7 +159,9 @@ case "$ci_distro" in
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
             # Docker container, and let them use sudo
-            adduser --disabled-password --gecos "" user
+            if ! getent passwd user > /dev/null; then
+                adduser --disabled-password --gecos "" user
+            fi
             echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
@@ -176,11 +177,7 @@ case "$ci_distro" in
         # build system
         packages=(
             "${packages[@]}"
-            autoconf
-            autoconf-archive
-            automake
             cmake
-            libtool
             meson
         )
 
@@ -248,11 +245,12 @@ case "$ci_distro" in
                 )
                 packages=(
                     "${packages[@]}"
+                    mingw${bits}-cross-cmake
                     mingw${bits}-cross-gcc-c++
-                    mingw${bits}-cross-pkgconf
-                    mingw${bits}-libexpat-devel
-                    mingw${bits}-glib2-devel
                     mingw${bits}-cross-meson
+                    mingw${bits}-cross-pkgconf
+                    mingw${bits}-glib2-devel
+                    mingw${bits}-libexpat-devel
                 )
                 ;;
 
@@ -260,9 +258,9 @@ case "$ci_distro" in
                 packages=(
                     "${packages[@]}"
                     gcc-c++
-                    libexpat-devel
                     glib2-devel
                     libX11-devel
+                    libexpat-devel
                     systemd-devel
                 )
                 ;;
@@ -272,8 +270,10 @@ case "$ci_distro" in
         if [ "$ci_in_docker" = yes ]; then
             # Add the user that we will use to do the build inside the
             # Docker container, and let them use sudo
-            useradd -m user
-            passwd -ud user
+            if ! getent passwd user >/dev/null; then
+                useradd -m user
+                passwd -ud user
+            fi
             echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd
             chmod 0440 /etc/sudoers.d/nopasswd
         fi
@@ -283,9 +283,6 @@ case "$ci_distro" in
         $sudo pkg update
         $sudo pkg upgrade -y
         packages=(
-            autoconf
-            autoconf-archive
-            automake
             bash
             cmake
             docbook-xml
@@ -294,7 +291,6 @@ case "$ci_distro" in
             glib
             git
             gmake
-            libtool
             libX11
             libxslt
             meson
@@ -322,6 +318,10 @@ case "$ci_distro" in
     (opensuse*)
         # test-bus depends on group 'bin'
         $sudo getent group bin >/dev/null || /usr/sbin/groupadd -r bin
+        # Make sure we have a messagebus user, even if the dbus package
+        # isn't installed
+        getent group messagebus >/dev/null || /usr/sbin/groupadd -r messagebus
+        getent passwd messagebus >/dev/null || /usr/sbin/useradd -r -s /usr/bin/false -c "User for D-Bus" -d /run/dbus -g messagebus messagebus
         ;;
 
     (freebsd*)

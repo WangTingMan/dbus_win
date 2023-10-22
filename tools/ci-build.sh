@@ -2,6 +2,7 @@
 
 # Copyright © 2015-2016 Collabora Ltd.
 # Copyright © 2020 Ralf Habacker <ralf.habacker@freenet.de>
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -74,8 +75,8 @@ init_wine() {
 }
 
 # ci_buildsys:
-# Build system under test: autotools or cmake
-: "${ci_buildsys:=autotools}"
+# Build system under test: meson or cmake
+: "${ci_buildsys:=meson}"
 
 # ci_compiler:
 # Compiler used to build dbus: gcc or clang
@@ -129,7 +130,8 @@ init_wine() {
 # One of static, shared; used for windows cross builds
 : "${ci_runtime:=static}"
 
-echo "ci_buildsys=$ci_buildsys ci_distro=$ci_distro ci_host=$ci_host ci_local_packages=$ci_local_packages ci_parallel=$ci_parallel ci_suite=$ci_suite ci_test=$ci_test ci_test_fatal=$ci_test_fatal ci_variant=$ci_variant ci_runtime=$ci_runtime $0"
+# print used command line
+set +x; env | awk 'BEGIN { s = "" } $1 ~ /^ci_/ { s=s " " $0} END { print s " " SCRIPT }' SCRIPT=$0; set -x
 
 maybe_fail_tests () {
     if [ "$ci_test_fatal" = yes ]; then
@@ -137,39 +139,18 @@ maybe_fail_tests () {
     fi
 }
 
-# Generate config.h.in and configure. We do this for both Autotools and
-# CMake builds, so that the CMake build can compare config.h.in with its
-# own checks.
-NOCONFIGURE=1 ./autogen.sh
+srcdir="$(pwd)"
 
-# clean up directories from possible previous builds
-if [ -z "$builddir" ]; then
-  echo "ERROR: builddir environment variable must be set!"
-  exit 1
+# setup default ci_builddir, if not present
+if [ -z "$ci_builddir" ]; then
+  ci_builddir=${srcdir}/ci-build-${ci_variant}-${ci_host}
 fi
-rm -rf "$builddir"
-rm -rf ci-build-dist
-rm -rf src-from-dist
-
-case "$ci_buildsys" in
-    (cmake-dist|meson-dist)
-        # Do an Autotools `make dist`, then build *that* with CMake or Meson,
-        # to assert that our official release tarballs will be enough
-        # to build with CMake or Meson.
-        mkdir -p ci-build-dist
-        ( cd ci-build-dist; ../configure )
-        make -C ci-build-dist dist
-        tar --xz -xvf ci-build-dist/dbus-1.*.tar.xz
-        mv dbus-1.*/ src-from-dist
-        srcdir="$(pwd)/src-from-dist"
-        ;;
-    (*)
-        srcdir="$(pwd)"
-        ;;
-esac
-
-mkdir -p "$builddir"
-builddir="$(realpath "$builddir")"
+# clean up directories from possible previous builds
+rm -rf "$ci_builddir"
+# create build directory
+mkdir -p "$ci_builddir"
+# use absolute path
+ci_builddir="$(realpath "$ci_builddir")"
 
 #
 # cross compile setup
@@ -200,7 +181,7 @@ case "$ci_host" in
         ;;
 esac
 
-cd "$builddir"
+cd "$ci_builddir"
 
 case "$ci_host" in
     (*-w64-mingw32)
@@ -214,13 +195,13 @@ case "$ci_host" in
                 libgcc_path=$(dirname "$("${ci_host}-gcc" -print-libgcc-file-name)")
             fi
             init_wine \
-                "${builddir}/bin" \
-                "${builddir}/subprojects/expat-2.4.8" \
-                "${builddir}/subprojects/glib-2.72.2/gio" \
-                "${builddir}/subprojects/glib-2.72.2/glib" \
-                "${builddir}/subprojects/glib-2.72.2/gmodule" \
-                "${builddir}/subprojects/glib-2.72.2/gobject" \
-                "${builddir}/subprojects/glib-2.72.2/gthread" \
+                "${ci_builddir}/bin" \
+                "${ci_builddir}/subprojects/expat-2.4.8" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gio" \
+                "${ci_builddir}/subprojects/glib-2.72.2/glib" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gmodule" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gobject" \
+                "${ci_builddir}/subprojects/glib-2.72.2/gthread" \
                 "${dep_prefix}/bin" \
                 ${libgcc_path:+"$libgcc_path"}
         fi
@@ -235,161 +216,6 @@ make="${make} -j${ci_parallel} V=1 VERBOSE=1"
 export UBSAN_OPTIONS=print_stacktrace=1:print_summary=1:halt_on_error=1
 
 case "$ci_buildsys" in
-    (autotools)
-        case "$ci_variant" in
-            (debug)
-                # Full developer/debug build.
-                set _ "$@"
-                set "$@" --enable-developer --enable-tests
-                # Enable optional features that are off by default
-                case "$ci_host" in
-                    *-w64-mingw32)
-                        ;;
-                    *)
-                        set "$@" --enable-user-session
-                        set "$@" SANITIZE_CFLAGS="-fsanitize=address -fsanitize=undefined -fPIE -pie"
-                        ;;
-                esac
-                shift
-                # The test coverage for OOM-safety is too
-                # verbose to be useful on travis-ci.
-                export DBUS_TEST_MALLOC_FAILURES=0
-                ;;
-
-            (reduced)
-                # A smaller configuration than normal, with
-                # various features disabled; this emulates
-                # an older system or one that does not have
-                # all the optional libraries.
-                set _ "$@"
-                # No LSMs (the production build has both)
-                set "$@" --disable-selinux --disable-apparmor
-                # No inotify (we will use dnotify)
-                set "$@" --disable-inotify
-                # No epoll or kqueue (we will use poll)
-                set "$@" --disable-epoll --disable-kqueue
-                # No special init system support
-                set "$@" --disable-launchd --disable-systemd
-                # No libaudit or valgrind
-                set "$@" --disable-libaudit --without-valgrind
-                # Disable optional features, some of which are on by
-                # default
-                set "$@" --disable-stats
-                set "$@" --disable-user-session
-                shift
-                ;;
-
-            (legacy)
-                # An unrealistically cut-down configuration,
-                # to check that it compiles and works.
-                set _ "$@"
-                # Disable native atomic operations on Unix
-                # (armv4, as used as the baseline for Debian
-                # armel, is one architecture that really
-                # doesn't have them)
-                set "$@" dbus_cv_sync_sub_and_fetch=no
-		# Disable getrandom syscall
-                set "$@" ac_cv_func_getrandom=no
-                # No epoll, kqueue or poll (we will fall back
-                # to select, even on Unix where we would
-                # usually at least have poll)
-                set "$@" --disable-epoll --disable-kqueue
-                set "$@" CPPFLAGS=-DBROKEN_POLL=1
-                # Enable SELinux and AppArmor but not
-                # libaudit - that configuration has sometimes
-                # failed
-                set "$@" --enable-selinux --enable-apparmor
-                set "$@" --disable-libaudit --without-valgrind
-                # No directory monitoring at all
-                set "$@" --disable-inotify --disable-dnotify
-                # No special init system support
-                set "$@" --disable-launchd --disable-systemd
-                # No X11 autolaunching
-                set "$@" --disable-x11-autolaunch
-                # Leave stats, user-session, etc. at default settings
-                # to check that the defaults can compile on an old OS
-                shift
-                ;;
-
-            (*)
-                ;;
-        esac
-
-        case "$ci_host" in
-            (*-w64-mingw32)
-                set _ "$@"
-                set "$@" --build="$(build-aux/config.guess)"
-                set "$@" --host="${ci_host}"
-                set "$@" CFLAGS=-${ci_runtime}-libgcc
-                set "$@" CXXFLAGS=-${ci_runtime}-libgcc
-                # don't run tests yet, Wine needs Xvfb and
-                # more msys2 libraries
-                ci_test=no
-                # don't "make install" system-wide
-                ci_sudo=no
-                shift
-                ;;
-        esac
-
-        ../configure \
-            --enable-installed-tests \
-            --enable-maintainer-mode \
-            --enable-modular-tests \
-            "$@"
-
-        ${make}
-        [ "$ci_test" = no ] || ${make} check || maybe_fail_tests
-        cat test/test-suite.log || :
-        [ "$ci_test" = no ] || ${make} distcheck || maybe_fail_tests
-
-        ${make} install DESTDIR=$(pwd)/DESTDIR
-        ( cd DESTDIR && find . -ls )
-
-        if [ "$ci_variant" != "production-no-upload-docs" ]; then
-            ${make} -C doc dbus-docs.tar.xz
-            tar -C $(pwd)/DESTDIR -xf doc/dbus-docs.tar.xz
-            ( cd DESTDIR/dbus-docs && find . -ls )
-        fi
-
-        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ]; then
-            sudo ${make} install
-            sudo env LD_LIBRARY_PATH=/usr/local/lib \
-                /usr/local/bin/dbus-uuidgen --ensure
-            LD_LIBRARY_PATH=/usr/local/lib ${make} installcheck || \
-                maybe_fail_tests
-            cat test/test-suite.log || :
-
-            # Re-run them with gnome-desktop-testing.
-            # Also, one test needs a finite fd limit to be useful, so we
-            # can set that here.
-            env LD_LIBRARY_PATH=/usr/local/lib \
-            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
-            gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
-                maybe_fail_tests
-
-            # Some tests benefit from being re-run as non-root, if we were
-            # not already...
-            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
-                sudo -u user \
-                env LD_LIBRARY_PATH=/usr/local/lib \
-                gnome-desktop-testing-runner -d /usr/local/share \
-                    dbus/test-dbus-daemon_with_config.test \
-                    || maybe_fail_tests
-            fi
-
-            # ... while other tests benefit from being re-run as root, if
-            # we were not already
-            if [ "$(id -u)" != 0 ]; then
-                sudo env LD_LIBRARY_PATH=/usr/local/lib \
-                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
-                    gnome-desktop-testing-runner -d /usr/local/share \
-                    dbus/test-dbus-daemon_with_config.test \
-                    dbus/test-uid-permissions_with_config.test || \
-                    maybe_fail_tests
-            fi
-        fi
-        ;;
-
     (cmake|cmake-dist)
         cmdwrapper=
         cmake=cmake
@@ -425,7 +251,7 @@ case "$ci_buildsys" in
                 ;;
         esac
 
-        $cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON "$@" ..
+        $cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DENABLE_WERROR=ON -S "$srcdir" -B "$ci_builddir" "$@"
 
         ${make}
         # The test coverage for OOM-safety is too verbose to be useful on
@@ -494,6 +320,13 @@ case "$ci_buildsys" in
         esac
 
         set -- -Dmodular_tests=enabled "$@"
+        # By default, the Meson build would install these into
+        # /lib/systemd, overwriting any systemd units that might have
+        # come from the container's base OS. Install into our prefix instead,
+        # keeping the CI installation separate from the container's base OS
+        # while still allowing systemd to see the units. (dbus#470)
+        set -- -Dsystemd_system_unitdir=/usr/local/lib/systemd/system "$@"
+        set -- -Dsystemd_user_unitdir=/usr/local/lib/systemd/user "$@"
 
         case "$ci_variant" in
             (debug)
@@ -519,6 +352,53 @@ case "$ci_buildsys" in
 
                 shift
                 ;;
+          (reduced)
+                # A smaller configuration than normal, with
+                # various features disabled; this emulates
+                # an older system or one that does not have
+                # all the optional libraries.
+                set _ "$@"
+                # No LSMs (the production build has both)
+                set "$@" -Dselinux=disabled -Dapparmor=disabled
+                # No inotify (we will use dnotify)
+                set "$@" -Dinotify=disabled
+                # No epoll or kqueue (we will use poll)
+                set "$@" -Depoll=disabled -Dkqueue=disabled
+                # No special init system support
+                set "$@" -Dlaunchd=disabled -Dsystemd=disabled
+                # No libaudit or valgrind
+                set "$@" -Dlibaudit=disabled -Dvalgrind=disabled
+                # Disable optional features, some of which are on by
+                # default
+                set "$@" -Dstats=false
+                set "$@" -Duser_session=false
+                shift
+                ;;
+
+            (legacy)
+                # An unrealistically cut-down configuration,
+                # to check that it compiles and works.
+                set _ "$@"
+                # No epoll, kqueue or poll (we will fall back
+                # to select, even on Unix where we would
+                # usually at least have poll)
+                set "$@" -Depoll=disabled -Dkqueue=disabled
+                export CPPFLAGS=-DBROKEN_POLL=1
+                # Enable SELinux and AppArmor but not
+                # libaudit - that configuration has sometimes
+                # failed
+                set "$@" -Dselinux=enabled -Dapparmor=enabled
+                set "$@" -Dlibaudit=disabled -Dvalgrind=disabled
+                # No directory monitoring at all
+                set "$@" -Dinotify=disabled
+                # No special init system support
+                set "$@" -Dlaunchd=disabled -Dsystemd=disabled
+                # No X11 autolaunching
+                set "$@" -Dx11_autolaunch=disabled
+                # Leave stats, user-session, etc. at default settings
+                # to check that the defaults can compile on an old OS
+                shift
+                ;;
         esac
 
         case "$ci_compiler" in
@@ -539,6 +419,10 @@ case "$ci_buildsys" in
             fi
         fi
 
+        # We assume this when we set LD_LIBRARY_PATH for as-installed
+        # testing, below
+        set -- "$@" --libdir=lib
+
         # openSUSE's mingw*-meson wrappers are designed for self-contained
         # package building, so they include --wrap-mode=nodownload. Switch
         # the wrap mode back, so we can use wraps.
@@ -546,9 +430,55 @@ case "$ci_buildsys" in
 
         $meson_setup "$@" "$srcdir"
         meson compile -v
+
+        # This is too slow and verbose to keep enabled at the moment
+        export DBUS_TEST_MALLOC_FAILURES=0
+
         [ "$ci_test" = no ] || meson test --print-errorlogs
         DESTDIR=DESTDIR meson install
         ( cd DESTDIR && find . -ls)
+
+        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ] && [ "$ci_host" = native ]; then
+            sudo meson install
+        fi
+        ;;
+esac
+
+case "$ci_buildsys" in
+    (meson*)
+        if [ "$ci_sudo" = yes ] && [ "$ci_test" = yes ] && [ "$ci_host" = native ]; then
+            sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                /usr/local/bin/dbus-uuidgen --ensure
+
+            # Run "as-installed" tests with gnome-desktop-testing.
+            # Also, one test needs a finite fd limit to be useful, so we
+            # can set that here.
+            env LD_LIBRARY_PATH=/usr/local/lib \
+            bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+            gnome-desktop-testing-runner -d /usr/local/share dbus/ || \
+                maybe_fail_tests
+
+            # Some tests benefit from being re-run as non-root, if we were
+            # not already...
+            if [ "$(id -u)" = 0 ] && [ "$ci_in_docker" = yes ]; then
+                sudo -u user \
+                env LD_LIBRARY_PATH=/usr/local/lib \
+                gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    || maybe_fail_tests
+            fi
+
+            # ... while other tests benefit from being re-run as root, if
+            # we were not already
+            if [ "$(id -u)" != 0 ]; then
+                sudo env LD_LIBRARY_PATH=/usr/local/lib \
+                bash -c 'ulimit -S -n 1024; ulimit -H -n 4096; exec "$@"' bash \
+                    gnome-desktop-testing-runner -d /usr/local/share \
+                    dbus/test-dbus-daemon_with_config.test \
+                    dbus/test-uid-permissions_with_config.test || \
+                    maybe_fail_tests
+            fi
+        fi
         ;;
 esac
 

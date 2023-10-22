@@ -185,6 +185,7 @@ if(WIN32)
         dbus-sysdeps-thread-win.c
     )
     set(DBUS_SHARED_HEADERS ${DBUS_SHARED_HEADERS}
+        dbus-init-win.h
         dbus-sockets-win.h
         dbus-sysdeps-win.h
     )

@@ -209,6 +209,8 @@ libdbus_dep = declare_dependency(
     link_with: libdbus,
 )
 
+meson.override_dependency('dbus-1', libdbus_dep)
+
 libdbus_internal = static_library('dbus-internal',
     dbus_util_sources,
 

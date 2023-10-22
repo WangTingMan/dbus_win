@@ -1,6 +1,7 @@
 @rem Copyright (C) Microsoft Corporation. All rights reserved.
 @rem https://github.com/MicrosoftDocs/visualstudio-docs/blob/main/docs/install/advanced-build-tools-container.md#install-script
 @rem Licensed under the MIT license.
+@rem SPDX-License-Identifier: MIT
 
 @if not defined _echo echo off
 setlocal enabledelayedexpansion

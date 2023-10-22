@@ -6,8 +6,8 @@
 <article id="index">
   <articleinfo>
     <title>D-Bus Specification</title>
-    <releaseinfo>Version 0.41</releaseinfo>
-    <date>2023-02-08</date>
+    <releaseinfo>Version 0.42</releaseinfo>
+    <date>2023-08-21</date>
     <authorgroup>
       <author>
         <firstname>Havoc</firstname>
@@ -77,6 +77,16 @@
        <revremark>
          See <ulink url='http://cgit.freedesktop.org/dbus/dbus/log/doc/dbus-specification.xml'>commit log</ulink>
        </revremark>
+     </revision>
+     <revision>
+       <revnumber>0.42</revnumber>
+       <date>2023-08-21</date>
+       <authorinitials></authorinitials>
+       <revdescription>
+         <itemizedlist>
+           <listitem><simpara>GetConnectionCredentials can return ProcessFD</simpara></listitem>
+         </itemizedlist>
+       </revdescription>
      </revision>
      <revision>
        <revnumber>0.41</revnumber>
@@ -6941,6 +6951,17 @@
                   representable in a UINT32, it must not add this credential
                   to the dictionary.
                 </entry>
+              </row>
+              <row>
+                <entry>ProcessFD</entry>
+                <entry>UNIX_FD</entry>
+                <entry>A file descriptor pinning the process, on platforms
+                  that have this concept. On Linux, the SO_PEERPIDFD socket
+                  option is a suitable implementation. This is safer to use
+                  to identify a process than the <literal>ProcessID</literal>,
+                  as the latter is subject to re-use attacks, while the FD
+                  cannot be recycled. If the original process no longer exists
+                  the FD will no longer be resolvable.</entry>
               </row>
               <row>
                 <entry>ProcessID</entry>

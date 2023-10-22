@@ -292,6 +292,11 @@ dbus_bool_t   _dbus_string_parse_uint            (const DBusString  *str,
                                                   unsigned long     *value_return,
                                                   int               *end_return);
 DBUS_PRIVATE_EXPORT
+dbus_bool_t   _dbus_string_parse_int64           (const DBusString  *str,
+                                                  int                start,
+                                                  dbus_int64_t      *value_return,
+                                                  int               *end_return);
+DBUS_PRIVATE_EXPORT
 dbus_bool_t   _dbus_string_find                  (const DBusString  *str,
                                                   int                start,
                                                   const char        *substr,

@@ -1,10 +1,79 @@
-dbus 1.14.12 (UNRELEASED)
+dbus 1.15.10 (UNRELEASED)
 =========================
 
-...
+Build-time configuration changes:
 
-dbus 1.14.10 (2023-09-01)
-=========================
+• The Autotools build system has been removed. Its replacement is Meson.
+  (dbus#443, Ralf Habacker)
+
+Enhancements:
+
+• Use 64-bit timestamps internally.
+  This will allow 32-bit builds of libdbus to continue working after 2038
+  if there is OS-level support for 64-bit time_t, either opt-in
+  (as on 32-bit glibc systems) or by default. (dbus!444, Alexander Kanavin)
+
+dbus 1.15.8 (2023-08-21)
+========================
+
+Build-time configuration changes:
+
+• For this version of dbus, Meson is the recommended build system for all
+  Unix platforms. CMake continues to be recommended for Windows, but this
+  recommendation might change to Meson in a future release, so please
+  test the Meson build. See INSTALL for details.
+
+• Autotools-generated files are no longer included in the tarball release.
+  The Autotools build system is likely to be removed in a future dbus
+  release, so Autotools users should migrate to Meson as soon as possible.
+  It is still possible to build using Autotools, by following the same
+  procedure as for a git clone (starting with the `./autogen.sh` script).
+
+Enhancements:
+
+• On Linux with sufficiently new glibc and kernel headers, report a pinned
+  process file descriptor (pidfd) as the ProcessFD member of the
+  GetConnectionCredentials() result
+  (dbus!420, dbus!398; Luca Boccassi)
+
+• On Linux with systemd, start as the target user/group (retaining
+  CAP_AUDIT_WRITE to preserve the ability to write to the audit log),
+  instead of starting as root and dropping privileges
+  (dbus!399, Luca Boccassi)
+
+• On 32-bit glibc systems, opt-in to 64-bit timestamps if possible.
+  This will allow 32-bit builds of libdbus to continue working after 2038.
+  (dbus#465, Simon McVittie)
+
+• On 32-bit glibc systems when built with CMake, also opt-in to large
+  file sizes, offsets and inode numbers, as was done for Autotools
+  since 1.12.x and Meson since the Meson build was introduced
+  (dbus#465, fd.o #93545; Simon McVittie)
+
+• Avoid known dbus-daemon options being interpreted as optional arguments
+  (dbus#467, Xin Shi)
+
+• If libdbus is a Meson subproject in a larger project, announce it as an
+  implementation of the dbus-1 dependency (dbus!415, Barnabás Pőcze)
+
+• When built with CMake, get the version number from Meson instead of
+  Autotools, in preparation for the Autotools build system being removed
+  (dbus!382, Ralf Habacker)
+
+• When built with Meson, disable some unwanted warnings when either
+  assertions or checks is disabled (dbus!412, Simon McVittie)
+
+• Use C11 <stdatomic.h> if possible (dbus!431, Simon McVittie)
+
+• Expand coverage of SPDX/REUSE copyright/license information
+  (dbus!427, Simon McVittie)
+
+• On Linux, let dbus-daemon start up successfully (with a warning) if
+  inotify initialization fails, even if DBUS_FATAL_WARNINGS=1 is present
+  in the environment (dbus#473, Simon McVittie)
+
+• On Unix, provide a better error message when looking up a user by name
+  or user ID fails (dbus!442, Simon McVittie)
 
 Bug fixes:
 
@@ -22,7 +91,60 @@ Bug fixes:
   field for processes with a valid-but-empty supplementary group list
   (dbus!422, cptpcrd)
 
-dbus 1.14.8 (2023-06-06)
+• `sudo meson install` without a DESTDIR is now possible, although
+  strongly discouraged on production systems (dbus#436, Simon McVittie)
+
+• Fix a Meson deprecation warning (dbus#439, Simon McVittie)
+
+Tests and CI enhancements:
+
+• Internal CI changes
+  (dbus#455, dbus!414, dbus#468, dbus#469, dbus!424, dbus!430, dbus#436,
+  dbus#470; Ralf Habacker, Simon McVittie)
+
+dbus 1.15.6 (2023-06-06)
+========================
+
+Denial-of-service fixes:
+
+• Fix an assertion failure in dbus-daemon when a privileged Monitoring
+  connection (dbus-monitor, busctl monitor, gdbus monitor or similar)
+  is active, and a message from the bus driver cannot be delivered to a
+  client connection due to <deny> rules or outgoing message quota. This
+  is a denial of service if triggered maliciously by a local attacker.
+  (dbus#457; hongjinghao, Simon McVittie)
+
+Enhancements:
+
+• Special-case reading pseudo-files from Linux /proc to take into
+  account the filesystem's unusual semantics (dbus!401, Luca Boccassi)
+
+Other fixes:
+
+• Fix compilation on compilers not supporting __FUNCTION__
+  (dbus!404, Barnabás Pőcze)
+
+• Fix some memory leaks on out-of-memory conditions
+  (dbus!403, Barnabás Pőcze)
+
+• Documentation:
+  · Update the README to recommend building with Meson
+    (dbus!402, Ahmed Abdelfattah)
+  · Fix syntax of a code sample in dbus-api-design
+    (dbus!396; Yen-Chin, Lee)
+
+• CMake build fixes:
+  · Detect presence of <sys/syscall.h> (dbus!400, Luca Boccassi)
+
+Tests and CI enhancements:
+
+• Fix CI pipelines after freedesktop/freedesktop#540
+  (dbus!405, dbus#456; Simon McVittie)
+
+• Ensure the messagebus user is created if necessary
+  (dbus#445, Ralf Habacker)
+
+dbus 1.15.4 (2023-02-08)
 ========================
 
 Denial-of-service fixes:

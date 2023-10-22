@@ -801,7 +801,7 @@ _dbus_test_main (int                  argc,
 
   for (i = 0; i < n_tests; i++)
     {
-      long before, after;
+      dbus_int64_t before, after;
       DBusInitialFDs *initial_fds = NULL;
 
       if (tests[i].name == NULL)
@@ -832,7 +832,7 @@ _dbus_test_main (int                  argc,
 
       _dbus_get_monotonic_time (&after, NULL);
 
-      _dbus_test_diag ("%s test took %ld seconds",
+      _dbus_test_diag ("%s test took %" DBUS_INT64_MODIFIER "d seconds",
                        tests[i].name, after - before);
 
       if (test_post_hook)

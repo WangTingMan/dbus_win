@@ -1,4 +1,5 @@
 # Copyright © 2019-2020 Salamandar <felix@piedallu.me>
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +21,7 @@
 
 project('dbus',
     'c',
-    version: '1.15.4',
+    version: '1.15.9',
     meson_version: '>=0.56',
 )
 
@@ -61,16 +62,19 @@ config.set_quoted('DBUS_DAEMON_NAME', 'dbus-daemon')
 ###############################################################################
 # libtool versioning - this applies to libdbus
 # http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
+#
+# These variables are parsed automatically by cmake/modules/MacrosMeson.cmake,
+# be careful if changing the formatting
 
 ## increment if the interface has additions, changes, removals.
-lt_current = 39
+lt_current = 41
 ## increment any time the source changes;
 ## set to 0 if you increment CURRENT
 lt_revision = 0
 ## increment if any interfaces have been added;
 ## set to 0 if any interfaces have been changed or removed.
 ## removal has precedence over adding, so set to 0 if both happened.
-lt_age = 36
+lt_age = 38
 
 soversion = (lt_current - lt_age)
 version_info = '@0@.@1@.@2@'.format(soversion, lt_age, lt_revision)
@@ -89,7 +93,7 @@ platform_windows = host_os.contains('windows')
 if platform_windows
     # On Windows, we use C++ constructors to initialize global locks
     using_cpp = true
-    add_languages('cpp', required: true)
+    add_languages('cpp', required: true, native: false)
     cpp = meson.get_compiler('cpp')
 else
     using_cpp = false
@@ -549,6 +553,8 @@ else
     if get_option('libaudit').enabled() and not have_libaudit
         error('libaudit support requested but not found')
     endif
+    # For the systemd system unit
+    data_config.set('AMBIENT_CAPS', 'AmbientCapabilities=CAP_AUDIT_WRITE')
 endif
 config.set('HAVE_LIBAUDIT', have_libaudit)
 
@@ -622,7 +628,18 @@ endif
 config.set('DBUS_BUILD_X11', use_x11_autolaunch)
 config.set('DBUS_ENABLE_X11_AUTOLAUNCH', use_x11_autolaunch)
 
+# Opt-in to large timestamp support, which we know doesn't break libdbus ABI:
+# https://gitlab.freedesktop.org/dbus/dbus/-/issues/465
+# Meson does the equivalent for large offsets and inode numbers automatically.
+if (
+    cc.has_header_symbol('time.h', '__GLIBC__', args: compile_args_c)
+    and not cc.has_header_symbol('time.h', '_TIME_BITS', args: compile_args_c)
+    and cc.sizeof('void *') == 4
+)
+    config.set('_TIME_BITS', '64')
+endif
 
+# keep CMakeLists.txt in sync
 check_functions = [
     'accept4',
     'clearenv',
@@ -659,6 +676,7 @@ foreach function : check_functions
     config.set(macro, cc.has_function(function, args: compile_args_c) ? 1 : false)
 endforeach
 
+# keep CMakeLists.txt in sync
 check_headers = [
     'afunix.h',
     'alloca.h',
@@ -670,14 +688,17 @@ check_headers = [
     'io.h',
     'locale.h',
     'linux/close_range.h',
+    'linux/magic.h',
     'locale.h',
     'signal.h',
+    'stdatomic.h',
     'syslog.h',
     'sys/prctl.h',
     'sys/random.h',
     'sys/resource.h',
     'sys/syscall.h',
     'sys/time.h',
+    'sys/vfs.h',
     'unistd.h',
     'ws2tcpip.h',
 ]
@@ -753,6 +774,21 @@ config.set('HAVE_UNPCBID',
     )
 )
 
+config.set('HAVE_FSTATFS',
+    cc.has_function(
+        'fstatfs',
+        prefix : '#include <sys/vfs.h>',
+        args: compile_args_c,
+    )
+)
+
+config.set10('HAVE_DECL_SYS_PIDFD_OPEN',
+    cc.has_header_symbol(
+        'sys/syscall.h',
+        'SYS_pidfd_open',
+        args: compile_args_c,
+    )
+)
 
 ###############################################################################
 # Project options
@@ -782,12 +818,9 @@ endif
 
 if not asserts
     warning_args += [
-        '-Wno-unused-but-set-variable',
-        '-Wno-unused-variable',
         '-Wno-unused-function',
     ]
 endif
-
 
 checks = get_option('checks')
 config.set('DBUS_ENABLE_CHECKS', checks ? 1 : false)
@@ -795,8 +828,22 @@ config.set('DBUS_DISABLE_CHECKS', not checks ? 1 : false)
 config.set('G_DISABLE_CHECKS', not checks ? 1 : false)
 config.set('HAVE_GIO_UNIX', have_gio_unix ? 1 : false)
 # Ignore post-2.38 deprecations, prevent use of post-2.44 APIs.
+# keep in sync with CMakeLists.txt
 config.set('GLIB_VERSION_MIN_REQUIRED', 'GLIB_VERSION_2_38')
 config.set('GLIB_VERSION_MAX_ALLOWED', 'G_ENCODE_VERSION(2,44)')
+
+if not checks
+    warning_args += [
+        '-Wno-unused-label',
+    ]
+endif
+
+if not (asserts and checks)
+    warning_args += [
+        '-Wno-unused-but-set-variable',
+        '-Wno-unused-variable',
+    ]
+endif
 
 windows_output_debug = get_option('windows_output_debug_string')
 config.set('DBUS_USE_OUTPUT_DEBUG_STRING', windows_output_debug)

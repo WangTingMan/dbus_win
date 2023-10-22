@@ -1206,6 +1206,7 @@ bus_containers_handle_get_connection_instance (DBusConnection *caller,
     goto oom;
 
   if (!bus_driver_fill_connection_credentials (NULL, instance->creator,
+                                               caller,
                                                &arr_writer))
     {
       dbus_message_iter_abandon_container (&writer, &arr_writer);
@@ -1289,6 +1290,7 @@ bus_containers_handle_get_instance_info (DBusConnection *connection,
     goto oom;
 
   if (!bus_driver_fill_connection_credentials (NULL, instance->creator,
+                                               connection,
                                                &arr_writer))
     {
       dbus_message_iter_abandon_container (&writer, &arr_writer);
